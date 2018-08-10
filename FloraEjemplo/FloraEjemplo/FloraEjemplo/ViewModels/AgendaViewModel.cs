@@ -178,7 +178,7 @@ namespace FloraEjemplo.ViewModels
                     contexto.Eliminar(modelo);
                     ObservableCollection<Cliente> listado3 = new ObservableCollection<Cliente>(contexto.Consultar());
                     ListViewModel.GetInstance().ListadoPersonas = listado3;
-                    Application.Current.MainPage.Navigation.PushAsync(new Listado());
+                    await Application.Current.MainPage.Navigation.PushAsync(new Listado());
                 }
 
                 #region chequeo conexion

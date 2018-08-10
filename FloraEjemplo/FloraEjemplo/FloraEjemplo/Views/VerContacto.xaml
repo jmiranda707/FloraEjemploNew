@@ -5,9 +5,6 @@
     <StackLayout
         Padding="20"
         Spacing="5">
-
-
-        <Button Text="Regresar" x:Name="regresarbtn" HorizontalOptions="FillAndExpand" BackgroundColor="Red" TextColor="White"></Button>
         <Label
             FontAttributes="Bold"
             FontSize="Large"
@@ -49,5 +46,11 @@
                 <Label Text="{Binding Estado}"></Label>
             </StackLayout>
         </StackLayout>
+
+        <Button Text="Regresar" x:Name="regresarbtn"
+                HorizontalOptions="FillAndExpand" 
+                BackgroundColor="BlueViolet"
+                Margin="0,10,0,0"
+                TextColor="White"></Button>
     </StackLayout>
 </ContentPage>
