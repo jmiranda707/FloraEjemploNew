@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FloraEjemplo.Views.Listado">
+    <ScrollView>
+        <StackLayout 
+            Padding="10"
+            Spacing="5">
+            <Button Margin="0,0,0,10"
+                BackgroundColor="Green"
+                FontAttributes="Bold"
+                FontSize="Micro"
+                HeightRequest="60"
+                HorizontalOptions="FillAndExpand"
+                BorderRadius="10"
+                Text="Agregar Cliente"
+                TextColor="White"
+                WidthRequest="70"
+                x:Name="btnAgregar"
+                ></Button>
+            <Label
+                FontAttributes="Bold"
+                FontSize="Large"
+                HorizontalOptions="Center"
+                Text="Lista de Clientes"
+                TextColor="Blue"
+                VerticalOptions="Center"></Label>
+            <ListView
+                IsPullToRefreshEnabled="True"
+                ItemsSource="{Binding ListadoPersonas}"
+                x:Name="LvContactos">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal" Padding="5">
+                                <Label Text="{Binding Nombre, Mode=TwoWay}" x:Name="lbNombre" FontSize="Medium" Margin="0,0,0,5" TextColor="Black" FontAttributes="Bold"></Label>
+                                <Label Text="{Binding Mail, Mode=TwoWay}" x:Name="lbApellido" FontSize="Medium" Margin="0,0,0,5" TextColor="Black"></Label>
+                                <Label Text="{Binding Telefono, Mode=TwoWay}" x:Name="lbTelefono" FontSize="Medium" Margin="0,0,0,5" TextColor="Black"></Label>
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>

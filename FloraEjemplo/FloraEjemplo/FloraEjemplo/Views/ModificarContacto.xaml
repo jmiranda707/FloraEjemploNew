@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="FloraEjemplo.Views.ModificarContacto">
+    <ScrollView>
+        <StackLayout
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            Padding="20"
+        Spacing="10">
+            <Label Text="Modificar Contacto" 
+                   HorizontalOptions="Center"
+                   TextColor="Blue"
+                   FontSize="Large" Margin="0,0,0,20"></Label>
+            <Entry Text="{Binding Nombre, Mode=TwoWay}" x:Name="btnnombre"></Entry>
+            <Entry Text="{Binding Edad, Mode=TwoWay}" x:Name="btnedad"></Entry>
+            <Entry Text="{Binding Telefono, Mode=TwoWay}" x:Name="btntelefono"></Entry>
+            <Entry Text="{Binding Mail, Mode=TwoWay}" x:Name="btnmail"></Entry>
+            <Entry Text="{Binding Saldo, Mode=TwoWay}" x:Name="btnsaldo"></Entry>
+            <Entry Text="{Binding Usuario, Mode=TwoWay}" x:Name="btnusuario"></Entry>
+            <Button Text="Modificar" Command="{Binding Modificar}"  x:Name="btnModificar"></Button>
+            <Button Text="Cancel" x:Name="btnVolver" Command="{Binding}"></Button>
+        </StackLayout>
+    </ScrollView>
+</ContentPage>
