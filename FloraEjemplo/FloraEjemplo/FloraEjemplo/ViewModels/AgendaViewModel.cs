@@ -32,7 +32,7 @@ namespace FloraEjemplo.ViewModels
             #region Metodos
 
             #region Insertar/guardar
-            Guardar = new Command(() => {
+            Guardar = new Command(async() => {
 
                 #region Validaciones
                 if (string.IsNullOrEmpty(Nombre) || Edad == 0 || string.IsNullOrEmpty(Telefono) || string.IsNullOrEmpty(Mail)
@@ -83,7 +83,7 @@ namespace FloraEjemplo.ViewModels
                 #endregion
 
                 #region chequeo conexion
-                var result = apiServices.CheckConnection(); //le falta el await para q funcione el issucces
+                var result = await apiServices.CheckConnection(); //le falta el await para q funcione el issucces
                 if (result.IsSuccess)//si hay conexion
                 {
                     #region subir al API
@@ -100,7 +100,7 @@ namespace FloraEjemplo.ViewModels
             #endregion
 
             #region Modificar/Actualizar
-            Modificar = new Command(() => {
+            Modificar = new Command(async() => {
 
                 #region Actualizo primero Localmente
                 Cliente modelo = new Cliente
@@ -134,7 +134,7 @@ namespace FloraEjemplo.ViewModels
                 #endregion
 
                 #region chequeo conexion
-                var result = apiServices.CheckConnection(); //le falta el await para q funcione el issucces
+                var result = await apiServices.CheckConnection(); //le falta el await para q funcione el issucces
                 if (result.IsSuccess)//si hay conexion
                 {
                     #region subir al API
@@ -149,7 +149,7 @@ namespace FloraEjemplo.ViewModels
             #endregion
 
             #region Eliminar
-            Eliminar = new Command(() => {
+            Eliminar = new Command(async() => {
                 Cliente modelo = new Cliente
                 {
                     Numero = Numero,
@@ -182,7 +182,7 @@ namespace FloraEjemplo.ViewModels
                 }
 
                 #region chequeo conexion
-                var result = apiServices.CheckConnection(); //le falta el await para q funcione el issucces
+                var result = await apiServices.CheckConnection(); //le falta el await para q funcione el issucces
                 if (result.IsSuccess)//si hay conexion
                 {
                     #region subir al API
@@ -197,9 +197,9 @@ namespace FloraEjemplo.ViewModels
 
             #endregion
 
-            Volver = new Command(() =>
+            Volver = new Command(async() =>
             {
-                Application.Current.MainPage.Navigation.PopModalAsync();
+               await Application.Current.MainPage.Navigation.PopModalAsync();
             });
             #endregion
 
