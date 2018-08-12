@@ -178,13 +178,12 @@ namespace FloraEjemplo.ViewModels
                     this.Usuario = Lis.Usuario;
                 }
                await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
-            }
+            } //from Local
             else
             {
                 GetCliente(); //From Api
             }
         }
-
 
         async void GetCliente()
         {
@@ -227,72 +226,70 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
-        void Put()
+
+        async void Put()
         {
-            var idLocalClient = int.Parse(Application.Current.Properties["IdLocal"] as string);
-
-            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            
+                
+               
+            
+            var connection = await apiServices.CheckConnection();
+            if (connection.IsSuccess)
             {
-                var Lis = contexto.Consultar(idLocalClient);
-
-                #region Actualizo primero Localmente
-
-                Cliente2 modelo = new Cliente2
+                var id = Application.Current.Properties["Id"] as string;
+                Cliente Customer = new Cliente
                 {
                     Numero = 0,
-                    Nombre = Nombre,
-                    Edad = Edad,
-                    Telefono = Telefono,
-                    Mail = Mail,
-                    Saldo = Saldo,
+                    Id = id,
+                    Nombre = this.Nombre,
+                    Edad = this.Edad,
+                    Telefono = this.Telefono,
+                    Mail = this.Mail,
+                    Saldo = this.Saldo,
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow,
                     Proceso = 0,
-                    Usuario = Usuario,
-                    FechaCreacion= Lis.FechaCreacion,
-                    FechaCreacionUtc= Lis.FechaCreacionUtc,
-                    FechaModificacion= Lis.FechaModificacion,
-                    FechaModificacionUtc= Lis.FechaModificacionUtc,
-                    FechaCreacionLocal= Lis.FechaCreacionLocal,
-                    FechaCreacionUtcLocal= Lis.FechaCreacionUtcLocal,
-                    Id= Lis.Id,
-                    IdLocal= Lis.IdLocal,
-                    Estado = "Activo",
-                    EstadoLocal = "Activo",
-                    FechaModificacionLocal = DateTime.Now,
-                    FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
-                    Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                    Usuario = this.Usuario,
+                    Estado = "ACTIVO"
                 };
-                
-                    contexto.Actualizar(modelo);
-
-               
-                #endregion
-
-
-
-
+                var jsonCliente = JsonConvert.SerializeObject(Customer);
+                EnviarDocumentoPut(jsonCliente);
             }
-
-
-
-            var id = Application.Current.Properties["Id"] as string;
-            Cliente Customer = new Cliente
+            else
             {
-                Numero = 0,
-                Id = id,
-                Nombre = this.Nombre,
-                Edad = this.Edad,
-                Telefono = this.Telefono,
-                Mail = this.Mail,
-                Saldo = this.Saldo,
-                FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow,
-                Proceso = 0,
-                Usuario = this.Usuario,
-                Estado = "ACTIVO"
-            };
-
-            var jsonCliente = JsonConvert.SerializeObject(Customer);
-            EnviarDocumentoPut(jsonCliente);
+                var idLocalClient = int.Parse(Application.Current.Properties["IdLocal"] as string);
+                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                {
+                    var Lis = contexto.Consultar(idLocalClient);
+                    Cliente2 modelo = new Cliente2
+                    {
+                        Numero = 0,
+                        Nombre = Nombre,
+                        Edad = Edad,
+                        Telefono = Telefono,
+                        Mail = Mail,
+                        Saldo = Saldo,
+                        Proceso = 0,
+                        Usuario = Usuario,
+                        FechaCreacion = Lis.FechaCreacion,
+                        FechaCreacionUtc = Lis.FechaCreacionUtc,
+                        FechaModificacion = Lis.FechaModificacion,
+                        FechaModificacionUtc = Lis.FechaModificacionUtc,
+                        FechaCreacionLocal = Lis.FechaCreacionLocal,
+                        FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
+                        Id = Lis.Id,
+                        IdLocal = Lis.IdLocal,
+                        Estado = "Activo",
+                        EstadoLocal = "Activo",
+                        FechaModificacionLocal = DateTime.Now,
+                        FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
+                        Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                    };
+                    contexto.Actualizar(modelo);
+                }
+                await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
+            }
+                
         }
         public async void EnviarDocumentoPut(string json)
         {

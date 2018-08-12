@@ -1,5 +1,6 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
+using FloraEjemplo.Services;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Xamarin.Forms;
@@ -12,12 +13,14 @@ namespace FloraEjemplo.Views
     {
         private double width = 0;
         private double height = 0;
+        private ApiServices apiServices;
 
         public ListaClientes()
         {
             InitializeComponent();
             NavigationPage.SetHasNavigationBar(this, false);
             ListClientes.ItemSelected += ListClientes_ItemSelected;
+            apiServices = new ApiServices();
         }
         async void ListClientes_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
@@ -39,7 +42,15 @@ namespace FloraEjemplo.Views
                     Cliente2 modelo = (Cliente2)e.SelectedItem;
                     contexto.Eliminar(modelo);
                 }
-                Delete();
+                var connection = await apiServices.CheckConnection();
+                if (connection.IsSuccess)
+                {
+                    Delete();
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Mensaje", "Eliminado Localmente", "Ok");
+                }
             }
             else if (action == "Editar")
             {
