@@ -41,9 +41,9 @@ namespace FloraEjemplo.Data
             Consultar();
         }
 
-        public Cliente2 Consultar(int id) //consultas segun el id
+        public Cliente2 Consultar(string correo) //consultas segun el id
         {
-            return cnn.Table<Cliente2>().FirstOrDefault(p => p.IdLocal == id);
+            return cnn.Table<Cliente2>().FirstOrDefault(p => p.Mail == correo);
         }
 
         public List<Cliente2> Consultar()

@@ -165,7 +165,7 @@ namespace FloraEjemplo.ViewModels
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
-                var idLocalCliente = int.Parse(Application.Current.Properties["IdLocal"] as string);
+                var idLocalCliente = (Application.Current.Properties["Correo"] as string);
 
                 using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
                 {
@@ -230,9 +230,39 @@ namespace FloraEjemplo.ViewModels
         async void Put()
         {
             
-                
-               
-            
+            var idClient = (Application.Current.Properties["Correo"] as string);
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                var Lis = contexto.Consultar(idClient);
+                Cliente2 modelo = new Cliente2
+                {
+                    Numero = 0,
+                    Nombre = Nombre,
+                    Edad = Edad,
+                    Telefono = Telefono,
+                    Mail = Mail,
+                    Saldo = Saldo,
+                    Proceso = 0,
+                    Usuario = Usuario,
+                    FechaCreacion = Lis.FechaCreacion,
+                    FechaCreacionUtc = Lis.FechaCreacionUtc,
+                    FechaModificacion = Lis.FechaModificacion,
+                    FechaModificacionUtc = Lis.FechaModificacionUtc,
+                    FechaCreacionLocal = Lis.FechaCreacionLocal,
+                    FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
+                    Id = Lis.Id,
+                    IdLocal = Lis.IdLocal,
+                    Estado = "Activo",
+                    EstadoLocal = "Activo",
+                    FechaModificacionLocal = DateTime.Now,
+                    FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
+                    Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                };
+                contexto.Actualizar(modelo);
+            }
+            await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
+
+
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
@@ -255,40 +285,9 @@ namespace FloraEjemplo.ViewModels
                 var jsonCliente = JsonConvert.SerializeObject(Customer);
                 EnviarDocumentoPut(jsonCliente);
             }
-            else
-            {
-                var idLocalClient = int.Parse(Application.Current.Properties["IdLocal"] as string);
-                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
-                {
-                    var Lis = contexto.Consultar(idLocalClient);
-                    Cliente2 modelo = new Cliente2
-                    {
-                        Numero = 0,
-                        Nombre = Nombre,
-                        Edad = Edad,
-                        Telefono = Telefono,
-                        Mail = Mail,
-                        Saldo = Saldo,
-                        Proceso = 0,
-                        Usuario = Usuario,
-                        FechaCreacion = Lis.FechaCreacion,
-                        FechaCreacionUtc = Lis.FechaCreacionUtc,
-                        FechaModificacion = Lis.FechaModificacion,
-                        FechaModificacionUtc = Lis.FechaModificacionUtc,
-                        FechaCreacionLocal = Lis.FechaCreacionLocal,
-                        FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
-                        Id = Lis.Id,
-                        IdLocal = Lis.IdLocal,
-                        Estado = "Activo",
-                        EstadoLocal = "Activo",
-                        FechaModificacionLocal = DateTime.Now,
-                        FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
-                        Sincronizado = false, //internamente cambia si no estoy conectado a internet
-                    };
-                    contexto.Actualizar(modelo);
-                }
-                await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
-            }
+           
+                
+           
                 
         }
         public async void EnviarDocumentoPut(string json)

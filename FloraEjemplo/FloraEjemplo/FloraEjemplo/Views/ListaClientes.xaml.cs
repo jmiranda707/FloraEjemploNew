@@ -26,7 +26,7 @@ namespace FloraEjemplo.Views
         {
             var item = e.SelectedItem as Cliente2;
             Application.Current.Properties["Id"] = item.Id.ToString();
-            Application.Current.Properties["IdLocal"] = item.IdLocal.ToString();
+            Application.Current.Properties["Correo"] = item.Mail.ToString(); //es temporal, debe ser con el ID
             await Application.Current.SavePropertiesAsync();
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
