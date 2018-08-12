@@ -1,10 +1,12 @@
-﻿using FloraEjemplo.Models;
+﻿using FloraEjemplo.Data;
+using FloraEjemplo.Models;
 using FloraEjemplo.Services;
 using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -105,20 +107,26 @@ namespace FloraEjemplo.ViewModels
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
-                LoadClientFronLocal();
+                LoadClientFronLocal(); //From Local
 
             }
             else
             {
-                LoadClientFronApi();
+                LoadClientFronApi(); //From Api
             }
         }
 
-        public void LoadClientFronLocal()
+        public async void LoadClientFronLocal()
         {
             this.SourceClientes = "Base de datos local";
+            
+                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                {
+                    List<Cliente2> modelo = new List<Cliente2>(contexto.Consultar());
+                    Clientes = modelo;
+                }
+            
         }
-
         public async void LoadClientFronApi()
         {
             try

@@ -75,11 +75,10 @@ namespace FloraEjemplo.ViewModels
 
                 using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
                 {
-                    contexto.Insertar(modelo);
-                    ObservableCollection<Cliente> listado = new ObservableCollection<Cliente>(contexto.Consultar());
+                    contexto.Insertara(modelo);
+                    ObservableCollection<Cliente> listado = new ObservableCollection<Cliente>(contexto.Consultara());
                     ListViewModel.GetInstance().ListadoPersonas = listado;
                 }
-                Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados en Local", "Entendido");
                 #endregion
 
                 #region chequeo conexion
@@ -127,8 +126,8 @@ namespace FloraEjemplo.ViewModels
                 };
                 using (var contexto = new DataContext())
                 {
-                    contexto.Actualizar(modelo);
-                    ObservableCollection<Cliente> listado2 = new ObservableCollection<Cliente>(contexto.Consultar());
+                    contexto.Actualizara(modelo);
+                    ObservableCollection<Cliente> listado2 = new ObservableCollection<Cliente>(contexto.Consultara());
                     ListViewModel.GetInstance().ListadoPersonas = listado2;
                 }
                 #endregion
@@ -175,8 +174,8 @@ namespace FloraEjemplo.ViewModels
 
                 using (var contexto = new DataContext())
                 {
-                    contexto.Eliminar(modelo);
-                    ObservableCollection<Cliente> listado3 = new ObservableCollection<Cliente>(contexto.Consultar());
+                    contexto.Eliminara(modelo);
+                    ObservableCollection<Cliente> listado3 = new ObservableCollection<Cliente>(contexto.Consultara());
                     ListViewModel.GetInstance().ListadoPersonas = listado3;
                     await Application.Current.MainPage.Navigation.PushAsync(new Listado());
                 }

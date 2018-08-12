@@ -32,7 +32,7 @@ namespace FloraEjemplo.Views
                 using (var contexto = new DataContext())
                 {
                     Cliente modelo = (Cliente)e.SelectedItem;
-                    contexto.Eliminar(modelo);
+                    contexto.Eliminara(modelo);
                 }
             }
             else if (action == "Editar")

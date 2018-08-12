@@ -1,4 +1,5 @@
 ﻿
+using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
@@ -82,6 +83,41 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private void Post()
         {
+
+            #region guardo primero en local
+            Cliente2 modelo = new Cliente2
+            {
+                Nombre = Nombre,
+                Edad = Edad,
+                Telefono = Telefono,
+                Mail = Mail,
+                Saldo = Saldo,
+                FechaCreacion = "",
+                FechaCreacionUtc= "",
+                FechaCreacionLocal = DateTime.Now.ToString(),
+                FechaCreacionUtcLocal = DateTime.UtcNow.ToString(),
+                FechaModificacionLocal = DateTime.Now,
+                FechaModificacionUtcLocal = DateTime.UtcNow,
+                FechaModificacion = DateTime.Now.ToString(),                //servidor
+                FechaModificacionUtc = DateTime.UtcNow.ToString(),         //servidor
+                Proceso = 0,
+                Usuario = Usuario,
+                Estado = "Activo",
+                EstadoLocal = "Activo",
+                Id = "",
+                Numero = 0,
+                Sincronizado = false,
+            };
+
+            using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            {
+                contexto.Insertar(modelo);
+            }
+
+            Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados Localmente", "Entendido");
+            #endregion
+
+
             Cliente Customer = new Cliente
             {
                 Numero = 0,
@@ -119,7 +155,7 @@ namespace FloraEjemplo.ViewModels
                 urlValidacion = response.Headers.Location.ToString();
             }
 
-            listaClientes.LoadData();
+            listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
             await Application.Current.MainPage.Navigation.PopAsync();
             this.Nombre = string.Empty;
             this.Edad = 0;
@@ -129,6 +165,7 @@ namespace FloraEjemplo.ViewModels
             this.Usuario = string.Empty;
             this.Estado = string.Empty;
     }
+
         async void Volver()
         {
             await Application.Current.MainPage.Navigation.PopAsync();

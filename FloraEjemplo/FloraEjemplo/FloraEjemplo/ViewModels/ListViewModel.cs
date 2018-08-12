@@ -37,7 +37,7 @@ namespace FloraEjemplo.ViewModels
                 #region obtener datos de Local si no hay internet
                 using (var contexto = new DataContext())
                 {
-                    ObservableCollection<Cliente> modelo = new ObservableCollection<Cliente>(contexto.Consultar());
+                    ObservableCollection<Cliente> modelo = new ObservableCollection<Cliente>(contexto.Consultara());
                     ListadoPersonas = modelo;
                 }
                 #endregion

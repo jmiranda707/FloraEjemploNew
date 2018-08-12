@@ -1,4 +1,5 @@
-﻿using FloraEjemplo.Models;
+﻿using FloraEjemplo.Data;
+using FloraEjemplo.Models;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Xamarin.Forms;
@@ -22,6 +23,7 @@ namespace FloraEjemplo.Views
         {
             var item = e.SelectedItem as Cliente2;
             Application.Current.Properties["Id"] = item.Id.ToString();
+            Application.Current.Properties["IdLocal"] = item.IdLocal.ToString();
             await Application.Current.SavePropertiesAsync();
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
@@ -31,6 +33,12 @@ namespace FloraEjemplo.Views
                 //    Cliente modelo = (Cliente)e.SelectedItem;
                 //    contexto.Eliminar(modelo);
                 //}
+
+                using (var contexto = new DataContext())
+                {
+                    Cliente2 modelo = (Cliente2)e.SelectedItem;
+                    contexto.Eliminar(modelo);
+                }
                 Delete();
             }
             else if (action == "Editar")
