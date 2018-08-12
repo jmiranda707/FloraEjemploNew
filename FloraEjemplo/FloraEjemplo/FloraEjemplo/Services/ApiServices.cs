@@ -32,7 +32,7 @@ namespace FloraEjemplo.Services
                 return new Response
                 {
                     IsSuccess = false,
-                    Message = "No tienes Conexion a Internet",
+                    Message = "Checha tu conexión a internet",
                 };
             }
 

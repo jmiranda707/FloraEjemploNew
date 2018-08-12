@@ -1,0 +1,210 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FloraEjemplo.ViewModels"
+             x:Class="FloraEjemplo.Views.ListaClientes"
+             Title="Lista Clientes">
+    <ContentPage.BindingContext>
+        <viewModels:ListClientesViewModel/>
+    </ContentPage.BindingContext>
+    <StackLayout>
+        <StackLayout
+            BackgroundColor="#901D3E"
+            HeightRequest="130"
+            Padding="0,5"
+            VerticalOptions="Center">
+            <Grid
+                HeightRequest="130">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+                <StackLayout
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        VerticalOptions="Center">
+                    <Image 
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="hamb"
+                            VerticalOptions="Center"
+                            x:Name="Hamb">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="TapGestureRecognizer_Tapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <StackLayout
+                            HorizontalOptions="Start"
+                            Margin="5,0"
+                            VerticalOptions="Center">
+                        <Label
+                                FontSize="18"
+                                HorizontalOptions="Start"
+                                Margin="0,0,0,-2"
+                                Text="Abejas Nativas"
+                                TextColor="White"
+                                VerticalOptions="End"/>
+                        <Label
+                                FontSize="18"
+                                HorizontalOptions="Start"
+                                Margin="0,-2,0,0"
+                                Text="Meliponarios"
+                                TextColor="White"
+                                VerticalOptions="Start"/>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout
+                        Grid.Column="2"
+                        VerticalOptions="Center">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image 
+                            Grid.Column="0"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_add_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding AddToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image 
+                            Grid.Column="1"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_edit_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding EditToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image 
+                            Grid.Column="2"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_save_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding SaveToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image 
+                            Grid.Column="3"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_close_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding BackToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+                </StackLayout>
+            </Grid>
+        </StackLayout>
+        <StackLayout
+            Orientation="Horizontal">
+            <Label
+                HorizontalOptions="Start"
+                Text="{Binding SourceClientes, StringFormat='Lista cargada de: {0}'}" 
+                VerticalOptions="Center"/>
+            <Button
+                Command="{Binding PinchaCommand}"
+                HorizontalOptions="End"
+                Text="Pincha"
+                VerticalOptions="Center"/>
+        </StackLayout>
+        <StackLayout>
+            <ListView 
+                    HasUnevenRows="True"
+                    HeightRequest="1000"
+                    IsPullToRefreshEnabled="True"
+                    ItemsSource="{Binding Clientes}"
+                    Margin="6,5,6,5"
+                    SeparatorColor="#910b20"
+                    SeparatorVisibility="Default"
+                    x:Name="ListClientes">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Frame
+                                BackgroundColor="Gray"
+                                CornerRadius="15"
+                                HasShadow="True"
+                                Margin="4,7,3,7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <StackLayout 
+                                        Grid.Column="0"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label 
+                                            FontAttributes="Bold"
+                                            FontSize="Small" 
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Nombre}" 
+                                            TextColor="White"/>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Edad}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </StackLayout>
+                                    <StackLayout 
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label 
+                                            FontAttributes="Bold"
+                                            FontSize="Small" 
+                                            HorizontalOptions="Center"
+                                            LineBreakMode="TailTruncation"
+                                            Text="{Binding Mail}" 
+                                            TextColor="White"/>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Usuario}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </StackLayout>
+                                    <StackLayout 
+                                        Grid.Column="3"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Telefono}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </StackLayout>
+                                </Grid>
+                            </Frame>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

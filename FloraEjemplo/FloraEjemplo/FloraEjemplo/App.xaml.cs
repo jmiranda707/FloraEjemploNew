@@ -11,13 +11,15 @@ namespace FloraEjemplo
 {
     public partial class App : Application
     {
+        public static MasterDetailPage MasterD { get; set; }
+
         private ApiServices apiServices;
 
         public App()
         {
             InitializeComponent();
             apiServices = new ApiServices();
-            MainPage = new NavigationPage(new Listado());
+            MainPage = new NavigationPage(new ListaClientesMD());
 
             //Device.StartTimer(TimeSpan.FromSeconds(10), () =>
             //{
