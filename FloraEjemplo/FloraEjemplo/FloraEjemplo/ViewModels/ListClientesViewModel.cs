@@ -128,7 +128,7 @@ namespace FloraEjemplo.ViewModels
             }
         }
 
-        public async void LoadClientFronLocal()
+        public void LoadClientFronLocal()
         {
             this.SourceClientes = "Base de datos local";
 

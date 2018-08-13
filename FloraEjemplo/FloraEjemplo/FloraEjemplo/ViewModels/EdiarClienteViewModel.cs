@@ -255,6 +255,32 @@ namespace FloraEjemplo.ViewModels
                     Sincronizado = false, //internamente cambia si no estoy conectado a internet
                 };
                 contexto.Actualizar(modelo);
+                ClienteRegistro modeloClienteRegistro = new ClienteRegistro
+                {
+                    Numero = 0,
+                    Nombre = Nombre,
+                    Edad = Edad,
+                    Telefono = Telefono,
+                    Mail = Mail,
+                    Saldo = Saldo,
+                    Proceso = 0,
+                    Usuario = Usuario,
+                    FechaCreacion = Lis.FechaCreacion,
+                    FechaCreacionUtc = Lis.FechaCreacionUtc,
+                    FechaModificacion = Lis.FechaModificacion,
+                    FechaModificacionUtc = Lis.FechaModificacionUtc,
+                    FechaCreacionLocal = Lis.FechaCreacionLocal,
+                    FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
+                    Id = Lis.Id,
+                    IdLocal = Lis.IdLocal,
+                    Estado = "Activo",
+                    EstadoLocal = "Activo",
+                    FechaModificacionLocal = DateTime.Now,
+                    FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
+                    Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                    Transaccion = "Editar"
+                };
+                contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
 

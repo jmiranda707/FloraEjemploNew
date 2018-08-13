@@ -31,16 +31,38 @@ namespace FloraEjemplo.Views
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
-                //using (var contexto = new DataContext())
-                //{
-                //    Cliente modelo = (Cliente)e.SelectedItem;
-                //    contexto.Eliminar(modelo);
-                //}
-
                 using (var contexto = new DataContext())
                 {
                     Cliente2 modelo = (Cliente2)e.SelectedItem;
                     contexto.Eliminar(modelo);
+
+                    ClienteRegistro modeloClienteRegistro = new ClienteRegistro
+                    {
+                        Numero = 0,
+                        Nombre = modelo.Nombre.ToString(),
+                        Edad = modelo.Edad,
+                        Telefono = modelo.Telefono.ToString(),
+                        Mail = modelo.Mail.ToString(),
+                        Saldo = modelo.Saldo,
+                        Proceso = 0,
+                        Usuario = modelo.Usuario,
+                        FechaCreacion = modelo.FechaCreacion,
+                        FechaCreacionUtc = modelo.FechaCreacionUtc,
+                        FechaModificacion = modelo.FechaModificacion,
+                        FechaModificacionUtc = modelo.FechaModificacionUtc,
+                        FechaCreacionLocal = modelo.FechaCreacionLocal,
+                        FechaCreacionUtcLocal = modelo.FechaCreacionUtcLocal,
+                        Id = modelo.Id,
+                        IdLocal = modelo.IdLocal,
+                        Estado = "Activo",
+                        EstadoLocal = "Activo",
+                        FechaModificacionLocal = modelo.FechaModificacionLocal,
+                        FechaModificacionUtcLocal = modelo.FechaModificacionUtcLocal, //internamente son las unicas que cambia
+                        Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                        Transaccion = "Eliminar"
+                    };
+                    contexto.InsertarClienteRegistro(modeloClienteRegistro);
+
                 }
                 var connection = await apiServices.CheckConnection();
                 if (connection.IsSuccess)

@@ -58,7 +58,7 @@ namespace FloraEjemplo.Data
         public void InsertarClienteRegistro(ClienteRegistro modelo)
         {
             cnn.Insert(modelo);
-            Consultar();
+            ConsultarClienteRegistro();
         }
         public void ActualizarClienteRegistro(ClienteRegistro modelo)
         {
@@ -71,6 +71,11 @@ namespace FloraEjemplo.Data
         public List<ClienteRegistro> ConsultarClienteRegistro()
         {
             return cnn.Table<ClienteRegistro>().ToList();
+        }
+        public List<ClienteRegistro> ConsultarCambios()
+        {
+            var transaccion = "Editar";
+            return cnn.Table<ClienteRegistro>().ToList().FindAll(p => p.Transaccion == transaccion);
         }
         #endregion
 
@@ -107,6 +112,7 @@ namespace FloraEjemplo.Data
         {
             return cnn.Table<Cliente>().ToList();
         }
+        
 
     }
 }

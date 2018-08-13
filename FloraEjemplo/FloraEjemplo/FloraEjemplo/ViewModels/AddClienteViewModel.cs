@@ -28,6 +28,7 @@ namespace FloraEjemplo.ViewModels
         public double Saldo { get; set; }
         public string Usuario { get; set; }
         public string Estado { get; set; }
+        public string Transaccion { get; set; }
         #endregion
 
         #region Constructors
@@ -35,6 +36,7 @@ namespace FloraEjemplo.ViewModels
         {
             apiServices = new ApiServices();
             listaClientes = new ListClientesViewModel();
+            this.Transaccion = "Insertar";
         }
         #endregion
 
@@ -86,7 +88,6 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private async void Post()
         {
-
             #region guardo primero en local
             Cliente2 modelo = new Cliente2
             {
@@ -95,8 +96,8 @@ namespace FloraEjemplo.ViewModels
                 Telefono = Telefono,
                 Mail = Mail,
                 Saldo = Saldo,
-                FechaCreacion = "",
-                FechaCreacionUtc = "",
+                FechaCreacion = DateTime.Now.ToString(),
+                FechaCreacionUtc = DateTime.Now.ToString(),
                 FechaCreacionLocal = DateTime.Now.ToString(),
                 FechaCreacionUtcLocal = DateTime.UtcNow.ToString(),
                 FechaModificacionLocal = DateTime.Now,
@@ -111,12 +112,40 @@ namespace FloraEjemplo.ViewModels
                 Numero = 0,
                 Sincronizado = false,
             };
-
             using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
             {
                 contexto.Insertar(modelo);
             }
+            var transaccion = "Insertar";
+            ClienteRegistro modeloClienteRegistro = new ClienteRegistro
+            {
 
+                Nombre = Nombre,
+                Edad = Edad,
+                Telefono = Telefono,
+                Mail = Mail,
+                Saldo = Saldo,
+                FechaCreacion = DateTime.Now.ToString(),
+                FechaCreacionUtc = DateTime.Now.ToString(),
+                FechaCreacionLocal = DateTime.Now.ToString(),
+                FechaCreacionUtcLocal = DateTime.UtcNow.ToString(),
+                FechaModificacionLocal = DateTime.Now,
+                FechaModificacionUtcLocal = DateTime.UtcNow,
+                FechaModificacion = DateTime.Now.ToString(),                //servidor
+                FechaModificacionUtc = DateTime.UtcNow.ToString(),         //servidor
+                Proceso = 0,
+                Usuario = Usuario,
+                Estado = "Activo",
+                EstadoLocal = "Activo",
+                Id = "",
+                Numero = 0,
+                Sincronizado = false,
+                Transaccion = Transaccion
+            };
+            using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            {
+                contexto.InsertarClienteRegistro(modeloClienteRegistro);
+            }
             #endregion
 
             var connection = await apiServices.CheckConnection();
@@ -150,7 +179,6 @@ namespace FloraEjemplo.ViewModels
         public async void EnviarDocumentoPost(string json)
         {
             string urlValidacion = string.Empty;
-
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -163,7 +191,6 @@ namespace FloraEjemplo.ViewModels
             {
                 urlValidacion = response.Headers.Location.ToString();
             }
-
             listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
             await Application.Current.MainPage.Navigation.PopAsync();
             this.Nombre = string.Empty;
@@ -174,7 +201,6 @@ namespace FloraEjemplo.ViewModels
             this.Usuario = string.Empty;
             this.Estado = string.Empty;
         }
-
         async void Volver()
         {
             await Application.Current.MainPage.Navigation.PopAsync();
