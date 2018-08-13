@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FloraEjemplo.ViewModels"
+             x:Class="FloraEjemplo.Views.ConsultaTablaRegistro"
+             Title="Consulta tabla de registro">
+    <ContentPage.BindingContext>
+        <viewModels:ConsultaTablaRegistroViewModel/>
+    </ContentPage.BindingContext>
+    <StackLayout>
+        <StackLayout
+            Orientation="Horizontal">
+            <Label
+                HorizontalOptions="Start"
+                Text="{Binding SourceClientes, StringFormat='Lista cargada de: {0}'}" 
+                VerticalOptions="Center"/>
+            <Button
+                Command="{Binding PinchaCommand}"
+                HorizontalOptions="End"
+                Text="Pincha"
+                VerticalOptions="Center"/>
+        </StackLayout>
+        <StackLayout>
+            <ListView 
+                    HasUnevenRows="True"
+                    HeightRequest="1000"
+                    IsPullToRefreshEnabled="True"
+                    ItemsSource="{Binding Clientes}"
+                    Margin="6,5,6,5"
+                    SeparatorColor="#910b20"
+                    SeparatorVisibility="Default"
+                    x:Name="ListClientes">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Frame
+                                BackgroundColor="Gray"
+                                CornerRadius="15"
+                                HasShadow="True"
+                                Margin="4,7,3,7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <StackLayout 
+                                        Grid.Column="0"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label 
+                                            FontAttributes="Bold"
+                                            FontSize="Small" 
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Nombre}" 
+                                            TextColor="White"/>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Edad}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </StackLayout>
+                                    <StackLayout 
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label 
+                                            FontAttributes="Bold"
+                                            FontSize="Small" 
+                                            HorizontalOptions="Center"
+                                            LineBreakMode="TailTruncation"
+                                            Text="{Binding Mail}" 
+                                            TextColor="White"/>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Usuario}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </StackLayout>
+                                    <StackLayout 
+                                        Grid.Column="3"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Telefono}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                    </StackLayout>
+                                </Grid>
+                            </Frame>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </StackLayout>
+</ContentPage>

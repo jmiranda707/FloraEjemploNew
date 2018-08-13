@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SQLite.Net.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -72,6 +73,49 @@ namespace FloraEjemplo.Models
             set;
         }
         public string Transaccion
+        {
+            get;
+            set;
+        }
+
+        /// Uso Interno de BDLocal ///
+        [PrimaryKey, AutoIncrement]
+        public int IdLocal
+        {
+            get;
+            set;
+        }                        // idlocal de la app ///
+        public int Numero
+        {
+            get;
+            set;
+        }                        //// esta es del api ////
+        public bool Sincronizado
+        {
+            get;
+            set;
+        }
+        public string EstadoLocal
+        {
+            get;
+            set;
+        }
+        public string FechaCreacionLocal
+        {
+            get;
+            set;
+        }
+        public string FechaCreacionUtcLocal
+        {
+            get;
+            set;
+        }
+        public DateTime FechaModificacionLocal
+        {
+            get;
+            set;
+        }
+        public DateTime FechaModificacionUtcLocal
         {
             get;
             set;

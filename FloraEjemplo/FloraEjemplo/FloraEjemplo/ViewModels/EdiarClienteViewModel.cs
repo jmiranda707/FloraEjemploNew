@@ -158,7 +158,6 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-
         public async void LoadData()
         {
             var connection = await apiServices.CheckConnection();
@@ -183,7 +182,6 @@ namespace FloraEjemplo.ViewModels
                 GetCliente(); //From Api
             }
         }
-
         async void GetCliente()
         {
             try
@@ -225,7 +223,6 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
-
         async void Put()
         {
 

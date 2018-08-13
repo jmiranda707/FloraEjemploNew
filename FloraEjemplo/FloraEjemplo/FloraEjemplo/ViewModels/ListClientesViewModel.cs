@@ -100,9 +100,20 @@ namespace FloraEjemplo.ViewModels
                 return new RelayCommand(AddTool);
             }
         }
+        public ICommand RegistrosCommand
+        {
+            get
+            {
+                return new RelayCommand(Registros);
+            }
+        }
         #endregion
 
         #region Methods
+        async void Registros()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistro());
+        }
         public async void LoadData()
         {
             var connection = await apiServices.CheckConnection();
@@ -147,19 +158,22 @@ namespace FloraEjemplo.ViewModels
                     resultado = resultado.Replace("]\"", "]");
                     var resulta = resultado;
                     var json = JsonConvert.DeserializeObject<List<Cliente2>>(resulta);
+                    var json2 = JsonConvert.DeserializeObject<List<ClienteRegistro>>(resulta);
                     var nombre = json[0].Nombre.ToString();
                     var edad = json[0].Edad.ToString();
                     var estado = json[0].Estado.ToString();
                     var telefono = json[0].Telefono.ToString();
-
                     this.Clientes = new List<Cliente2>(json);
                     this.SourceClientes = "API";
 
                     //Si la respuesta es correcta 
+                    var listaClientesRegistro = new List<ClienteRegistro>(json2);
                     var listaClientes = this.Clientes;
                     //almacenando en DB Borra y despues guarda
                     dataContext.DeleteAll();
-                    SaveTool(listaClientes);
+                    dataContext.DeleteAllClienteRegistro();
+                    SaveCliente(listaClientes);
+                    SaveClienteRegistro(listaClientesRegistro);
                 }
                 else
                 {
@@ -174,26 +188,40 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
-
-        void SaveTool(List<Cliente2> listaClientes)
+        void SaveClienteRegistro(List<ClienteRegistro> listaClientesRegistro)
+        {
+            using (var da = new DataContext())
+            {
+                foreach (var record in listaClientesRegistro)
+                {
+                    InsertOrUpdateSaveClienteRegistro(record);
+                }
+            }
+        }
+        void InsertOrUpdateSaveClienteRegistro(ClienteRegistro record)
+        {
+            using (var da = new DataContext())
+            {
+                da.InsertarClienteRegistro(record);
+            }
+        }
+        void SaveCliente(List<Cliente2> listaClientes)
         {
             using (var da = new DataContext())
             {
                 foreach (var record in listaClientes)
                 {
-                    InsertOrUpdate(record);
+                    InsertOrUpdateSaveCliente(record);
                 }
             }
         }
-
-        void InsertOrUpdate(Cliente2 record)
+        void InsertOrUpdateSaveCliente(Cliente2 record)
         {
-                using (var da = new DataContext())
-                {
-                        da.Insertar(record);
-                }
+            using (var da = new DataContext())
+            {
+                da.Insertar(record);
+            }
         }
-
         async void SaveTool()
         {
             await Application.Current.MainPage.DisplayAlert(

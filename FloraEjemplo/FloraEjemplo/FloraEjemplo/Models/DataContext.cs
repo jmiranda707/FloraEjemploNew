@@ -21,47 +21,63 @@ namespace FloraEjemplo.Data
             cnn = new SQLiteConnection(configuracion.plataforma, Path.Combine(configuracion.directorio, "clienteorigin.db3"));
             cnn.CreateTable<Cliente2>();
             cnn.CreateTable<Cliente>();
+            cnn.CreateTable<ClienteRegistro>();
 
         }
 
+        #region Cliente2
         public void Insertar(Cliente2 modelo)
         {
             cnn.Insert(modelo);
             Consultar();
         }
-
         public void Actualizar(Cliente2 modelo)
         {
             cnn.Update(modelo);
         }
-
         public void Eliminar(Cliente2 modelo)
         {
             cnn.Delete(modelo);
             Consultar();
         }
-
         public Cliente2 Consultar(string correo) //consultas segun el id
         {
             return cnn.Table<Cliente2>().FirstOrDefault(p => p.Mail == correo);
         }
-
         public List<Cliente2> Consultar()
         {
             return cnn.Table<Cliente2>().ToList();
         }
+        public void DeleteAll()
+        {
+            cnn.DeleteAll<Cliente2>();
+        }
+        #endregion
+
+        #region ClienteRegistro
+        public void InsertarClienteRegistro(ClienteRegistro modelo)
+        {
+            cnn.Insert(modelo);
+            Consultar();
+        }
+        public void ActualizarClienteRegistro(ClienteRegistro modelo)
+        {
+            cnn.Update(modelo);
+        }
+        public void DeleteAllClienteRegistro()
+        {
+            cnn.DeleteAll<ClienteRegistro>();
+        }
+        public List<ClienteRegistro> ConsultarClienteRegistro()
+        {
+            return cnn.Table<ClienteRegistro>().ToList();
+        }
+        #endregion
 
         public void Dispose()
         {
             cnn.Dispose();
         }
-
-        public void DeleteAll()
-        {
-            cnn.DeleteAll<Cliente2>();
-        }
-
-        
 
         /// <summary>
         /// /mi tabla anteriorrr

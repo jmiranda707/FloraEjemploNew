@@ -125,6 +125,11 @@
                 HorizontalOptions="End"
                 Text="Pincha"
                 VerticalOptions="Center"/>
+            <Button
+                Command="{Binding RegistrosCommand}"
+                HorizontalOptions="End"
+                Text="Lista de tabla de registros"
+                VerticalOptions="Center"/>
         </StackLayout>
         <StackLayout>
             <ListView 
