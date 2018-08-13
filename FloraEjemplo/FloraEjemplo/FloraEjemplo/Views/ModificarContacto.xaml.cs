@@ -27,7 +27,7 @@ namespace FloraEjemplo.Views
             {
                 using (var contexto = new DataContext())
                 {
-                    contexto.Actualizar(modelo);
+                    contexto.Actualizara(modelo);
                 }
                 Navigation.PopModalAsync();
                 //Navigation.PushAsync(new ListadoView());

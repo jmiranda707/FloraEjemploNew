@@ -1,4 +1,6 @@
-﻿using FloraEjemplo.Models;
+﻿using FloraEjemplo.Data;
+using FloraEjemplo.Models;
+using FloraEjemplo.Services;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
@@ -26,6 +28,7 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Attributes
+        private ApiServices apiServices;
         string _nombre;
         int _edad;
         string _telefono;
@@ -146,14 +149,41 @@ namespace FloraEjemplo.ViewModels
         }
         #endregion
 
-        #region MyRegion
+        #region Constructor
         public EdiarClienteViewModel()
         {
-            GetCliente();
+            apiServices = new ApiServices();
+            LoadData();
         }
         #endregion
 
         #region Methods
+
+        public async void LoadData()
+        {
+            var connection = await apiServices.CheckConnection();
+            if (!connection.IsSuccess)
+            {
+                var idLocalCliente = (Application.Current.Properties["Correo"] as string);
+
+                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                {
+                    var Lis = contexto.Consultar(idLocalCliente);
+                    this.Nombre = Lis.Nombre;
+                    this.Edad = Lis.Edad;
+                    this.Mail = Lis.Mail;
+                    this.Telefono = Lis.Telefono;
+                    this.Saldo = Lis.Saldo;
+                    this.Usuario = Lis.Usuario;
+                }
+                await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
+            } //from Local
+            else
+            {
+                GetCliente(); //From Api
+            }
+        }
+
         async void GetCliente()
         {
             try
@@ -163,7 +193,7 @@ namespace FloraEjemplo.ViewModels
                 var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente/"+ idCliente);
+                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente/" + idCliente);
                 var result = response.Content.ReadAsStringAsync().Result;
                 if (!response.IsSuccessStatusCode)
                 {
@@ -195,28 +225,65 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
-        void Put()
+
+        async void Put()
         {
-            var id = Application.Current.Properties["Id"] as string;
 
-            Cliente Customer = new Cliente
+            var idClient = (Application.Current.Properties["Correo"] as string);
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
-                Numero = 0,
-                Id = id,
-                Nombre = this.Nombre,
-                Edad = this.Edad,
-                Telefono = this.Telefono,
-                Mail = this.Mail,
-                Saldo = this.Saldo,
-                FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow,
-                Proceso = 0,
-                Usuario = this.Usuario,
-                Estado = "ACTIVO"
-            };
+                var Lis = contexto.Consultar(idClient);
+                Cliente2 modelo = new Cliente2
+                {
+                    Numero = 0,
+                    Nombre = Nombre,
+                    Edad = Edad,
+                    Telefono = Telefono,
+                    Mail = Mail,
+                    Saldo = Saldo,
+                    Proceso = 0,
+                    Usuario = Usuario,
+                    FechaCreacion = Lis.FechaCreacion,
+                    FechaCreacionUtc = Lis.FechaCreacionUtc,
+                    FechaModificacion = Lis.FechaModificacion,
+                    FechaModificacionUtc = Lis.FechaModificacionUtc,
+                    FechaCreacionLocal = Lis.FechaCreacionLocal,
+                    FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
+                    Id = Lis.Id,
+                    IdLocal = Lis.IdLocal,
+                    Estado = "Activo",
+                    EstadoLocal = "Activo",
+                    FechaModificacionLocal = DateTime.Now,
+                    FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
+                    Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                };
+                contexto.Actualizar(modelo);
+            }
+            await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
 
-            var jsonCliente = JsonConvert.SerializeObject(Customer);
-            EnviarDocumentoPut(jsonCliente);
+
+            var connection = await apiServices.CheckConnection();
+            if (connection.IsSuccess)
+            {
+                var id = Application.Current.Properties["Id"] as string;
+                Cliente Customer = new Cliente
+                {
+                    Numero = 0,
+                    Id = id,
+                    Nombre = this.Nombre,
+                    Edad = this.Edad,
+                    Telefono = this.Telefono,
+                    Mail = this.Mail,
+                    Saldo = this.Saldo,
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow,
+                    Proceso = 0,
+                    Usuario = this.Usuario,
+                    Estado = "ACTIVO"
+                };
+                var jsonCliente = JsonConvert.SerializeObject(Customer);
+                EnviarDocumentoPut(jsonCliente);
+            }
         }
         public async void EnviarDocumentoPut(string json)
         {

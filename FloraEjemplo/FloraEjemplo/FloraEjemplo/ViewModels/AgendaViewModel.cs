@@ -75,9 +75,9 @@ namespace FloraEjemplo.ViewModels
 
                 using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
                 {
-                    contexto.Insertar(modelo);
-                    ObservableCollection<Cliente> listado = new ObservableCollection<Cliente>(contexto.Consultar());
-                    ListViewModel.GetInstance().ListadoPersonas = listado;
+                    //contexto.Insertar(modelo);
+                    //ObservableCollection<Cliente> listado = new ObservableCollection<Cliente>(contexto.Consultar());
+                    //ListViewModel.GetInstance().ListadoPersonas = listado;
                 }
                 Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados en Local", "Entendido");
                 #endregion
@@ -127,9 +127,9 @@ namespace FloraEjemplo.ViewModels
                 };
                 using (var contexto = new DataContext())
                 {
-                    contexto.Actualizar(modelo);
-                    ObservableCollection<Cliente> listado2 = new ObservableCollection<Cliente>(contexto.Consultar());
-                    ListViewModel.GetInstance().ListadoPersonas = listado2;
+                    //contexto.Actualizar(modelo);
+                    //ObservableCollection<Cliente> listado2 = new ObservableCollection<Cliente>(contexto.Consultar());
+                    //ListViewModel.GetInstance().ListadoPersonas = listado2;
                 }
                 #endregion
 
@@ -175,10 +175,10 @@ namespace FloraEjemplo.ViewModels
 
                 using (var contexto = new DataContext())
                 {
-                    contexto.Eliminar(modelo);
-                    ObservableCollection<Cliente> listado3 = new ObservableCollection<Cliente>(contexto.Consultar());
-                    ListViewModel.GetInstance().ListadoPersonas = listado3;
-                    await Application.Current.MainPage.Navigation.PushAsync(new Listado());
+                    //contexto.Eliminar(modelo);
+                    //ObservableCollection<Cliente> listado3 = new ObservableCollection<Cliente>(contexto.Consultar());
+                    //ListViewModel.GetInstance().ListadoPersonas = listado3;
+                    //await Application.Current.MainPage.Navigation.PushAsync(new Listado());
                 }
 
                 #region chequeo conexion

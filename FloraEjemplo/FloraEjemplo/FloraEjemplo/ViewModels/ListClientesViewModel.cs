@@ -1,4 +1,5 @@
-﻿using FloraEjemplo.Models;
+﻿using FloraEjemplo.Data;
+using FloraEjemplo.Models;
 using FloraEjemplo.Services;
 using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
@@ -13,7 +14,7 @@ using Xamarin.Forms;
 
 namespace FloraEjemplo.ViewModels
 {
-    class ListClientesViewModel : INotifyPropertyChanged
+    public class ListClientesViewModel : INotifyPropertyChanged
     {
         #region INotifyPropertyChanged
         public event PropertyChangedEventHandler PropertyChanged;
@@ -30,6 +31,7 @@ namespace FloraEjemplo.ViewModels
         string _sourceClientes;
         private ApiServices apiServices;
         private List<Cliente2> _clientes;
+        DataContext dataContext;
         #endregion
 
         #region Properties
@@ -57,6 +59,7 @@ namespace FloraEjemplo.ViewModels
         public ListClientesViewModel()
         {
             apiServices = new ApiServices();
+            dataContext = new DataContext();
             LoadData();
         }
         #endregion
@@ -105,20 +108,26 @@ namespace FloraEjemplo.ViewModels
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
-                LoadClientFronLocal();
+                LoadClientFronLocal(); //From Local
 
             }
             else
             {
-                LoadClientFronApi();
+                LoadClientFronApi(); //From Api
             }
         }
 
-        public void LoadClientFronLocal()
+        public async void LoadClientFronLocal()
         {
             this.SourceClientes = "Base de datos local";
-        }
 
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                List<Cliente2> modelo = new List<Cliente2>(contexto.Consultar());
+                Clientes = modelo;
+            }
+
+        }
         public async void LoadClientFronApi()
         {
             try
@@ -145,6 +154,12 @@ namespace FloraEjemplo.ViewModels
 
                     this.Clientes = new List<Cliente2>(json);
                     this.SourceClientes = "API";
+
+                    //Si la respuesta es correcta 
+                    var listaClientes = this.Clientes;
+                    //almacenando en DB Borra y despues guarda
+                    dataContext.DeleteAll();
+                    SaveTool(listaClientes);
                 }
                 else
                 {
@@ -159,6 +174,26 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
+
+        void SaveTool(List<Cliente2> listaClientes)
+        {
+            using (var da = new DataContext())
+            {
+                foreach (var record in listaClientes)
+                {
+                    InsertOrUpdate(record);
+                }
+            }
+        }
+
+        void InsertOrUpdate(Cliente2 record)
+        {
+                using (var da = new DataContext())
+                {
+                        da.Insertar(record);
+                }
+        }
+
         async void SaveTool()
         {
             await Application.Current.MainPage.DisplayAlert(

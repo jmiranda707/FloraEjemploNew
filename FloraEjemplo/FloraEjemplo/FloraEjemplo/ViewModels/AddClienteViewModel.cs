@@ -1,5 +1,7 @@
 ﻿
+using FloraEjemplo.Data;
 using FloraEjemplo.Models;
+using FloraEjemplo.Services;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
@@ -14,10 +16,11 @@ namespace FloraEjemplo.ViewModels
     public class AddClienteViewModel
     {
         #region Attributes
-        ListClientesViewModel listaClientes; 
+        ListClientesViewModel listaClientes;
         #endregion
 
         #region Properties
+        private ApiServices apiServices;
         public string Nombre { get; set; }
         public int Edad { get; set; }
         public string Telefono { get; set; }
@@ -30,8 +33,9 @@ namespace FloraEjemplo.ViewModels
         #region Constructors
         public AddClienteViewModel()
         {
+            apiServices = new ApiServices();
             listaClientes = new ListClientesViewModel();
-        } 
+        }
         #endregion
 
         #region Commands
@@ -80,27 +84,68 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-        private void Post()
+        private async void Post()
         {
-            Cliente Customer = new Cliente
+
+            #region guardo primero en local
+            Cliente2 modelo = new Cliente2
             {
-                Numero = 0,
-                Id = string.Empty,
-                Nombre = this.Nombre,
-                Edad = this.Edad,
-                Telefono = this.Telefono,
-                Mail = this.Mail,
-                Saldo = this.Saldo,
-                FechaCreacion = DateTime.Now,
-                FechaCreacionUtc = DateTime.UtcNow,
-                FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow,
+                Nombre = Nombre,
+                Edad = Edad,
+                Telefono = Telefono,
+                Mail = Mail,
+                Saldo = Saldo,
+                FechaCreacion = "",
+                FechaCreacionUtc = "",
+                FechaCreacionLocal = DateTime.Now.ToString(),
+                FechaCreacionUtcLocal = DateTime.UtcNow.ToString(),
+                FechaModificacionLocal = DateTime.Now,
+                FechaModificacionUtcLocal = DateTime.UtcNow,
+                FechaModificacion = DateTime.Now.ToString(),                //servidor
+                FechaModificacionUtc = DateTime.UtcNow.ToString(),         //servidor
                 Proceso = 0,
-                Usuario = this.Usuario,
-                Estado = "ACTIVO"
+                Usuario = Usuario,
+                Estado = "Activo",
+                EstadoLocal = "Activo",
+                Id = "",
+                Numero = 0,
+                Sincronizado = false,
             };
-            var jsonCliente = JsonConvert.SerializeObject(Customer);
-            EnviarDocumentoPost(jsonCliente);
+
+            using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            {
+                contexto.Insertar(modelo);
+            }
+
+            #endregion
+
+            var connection = await apiServices.CheckConnection();
+            if (connection.IsSuccess)
+            {
+                Cliente Customer = new Cliente
+                {
+                    Numero = 0,
+                    Id = string.Empty,
+                    Nombre = this.Nombre,
+                    Edad = this.Edad,
+                    Telefono = this.Telefono,
+                    Mail = this.Mail,
+                    Saldo = this.Saldo,
+                    FechaCreacion = DateTime.Now,
+                    FechaCreacionUtc = DateTime.UtcNow,
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow,
+                    Proceso = 0,
+                    Usuario = this.Usuario,
+                    Estado = "ACTIVO"
+                };
+                var jsonCliente = JsonConvert.SerializeObject(Customer);
+                EnviarDocumentoPost(jsonCliente);
+            }
+            else
+            {
+                await Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados Localmente", "Entendido");
+            }
         }
         public async void EnviarDocumentoPost(string json)
         {
@@ -119,7 +164,7 @@ namespace FloraEjemplo.ViewModels
                 urlValidacion = response.Headers.Location.ToString();
             }
 
-            listaClientes.LoadData();
+            listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
             await Application.Current.MainPage.Navigation.PopAsync();
             this.Nombre = string.Empty;
             this.Edad = 0;
@@ -128,7 +173,8 @@ namespace FloraEjemplo.ViewModels
             this.Saldo = 0;
             this.Usuario = string.Empty;
             this.Estado = string.Empty;
-    }
+        }
+
         async void Volver()
         {
             await Application.Current.MainPage.Navigation.PopAsync();

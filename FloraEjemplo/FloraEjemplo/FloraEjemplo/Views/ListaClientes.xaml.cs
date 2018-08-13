@@ -1,4 +1,6 @@
-﻿using FloraEjemplo.Models;
+﻿using FloraEjemplo.Data;
+using FloraEjemplo.Models;
+using FloraEjemplo.Services;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Xamarin.Forms;
@@ -11,17 +13,20 @@ namespace FloraEjemplo.Views
     {
         private double width = 0;
         private double height = 0;
+        private ApiServices apiServices;
 
         public ListaClientes()
         {
             InitializeComponent();
             NavigationPage.SetHasNavigationBar(this, false);
             ListClientes.ItemSelected += ListClientes_ItemSelected;
+            apiServices = new ApiServices();
         }
         async void ListClientes_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var item = e.SelectedItem as Cliente2;
             Application.Current.Properties["Id"] = item.Id.ToString();
+            Application.Current.Properties["Correo"] = item.Mail.ToString(); //es temporal, debe ser con el ID
             await Application.Current.SavePropertiesAsync();
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
@@ -31,7 +36,21 @@ namespace FloraEjemplo.Views
                 //    Cliente modelo = (Cliente)e.SelectedItem;
                 //    contexto.Eliminar(modelo);
                 //}
-                Delete();
+
+                using (var contexto = new DataContext())
+                {
+                    Cliente2 modelo = (Cliente2)e.SelectedItem;
+                    contexto.Eliminar(modelo);
+                }
+                var connection = await apiServices.CheckConnection();
+                if (connection.IsSuccess)
+                {
+                    Delete();
+                }
+                else
+                {
+                    await Application.Current.MainPage.DisplayAlert("Mensaje", "Eliminado Localmente", "Ok");
+                }
             }
             else if (action == "Editar")
             {

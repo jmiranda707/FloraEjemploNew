@@ -6,14 +6,14 @@ using Xamarin.Forms.Xaml;
 namespace FloraEjemplo.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class AddCliente : ContentPage
-	{
+    public partial class AddCliente : ContentPage
+    {
         private double width = 0;
         private double height = 0;
 
-        public AddCliente ()
-		{
-			InitializeComponent ();
+        public AddCliente()
+        {
+            InitializeComponent();
             NavigationPage.SetHasNavigationBar(this, false);
         }
         private void TapGestureRecognizer_Tapped(object sender, System.EventArgs e)

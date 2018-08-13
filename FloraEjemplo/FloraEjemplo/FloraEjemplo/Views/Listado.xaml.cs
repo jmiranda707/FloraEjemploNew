@@ -7,11 +7,11 @@ using Xamarin.Forms.Xaml;
 namespace FloraEjemplo.Views
 {
 	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class Listado : ContentPage
-	{
-		public Listado ()
-		{
-			InitializeComponent ();
+    public partial class Listado : ContentPage
+    {
+        public Listado()
+        {
+            InitializeComponent();
             this.BindingContext = new ListViewModel();
             btnAgregar.Clicked += BtnAgregar_Clicked;
             LvContactos.ItemSelected += LvContactos_ItemSelected;
@@ -32,7 +32,7 @@ namespace FloraEjemplo.Views
                 using (var contexto = new DataContext())
                 {
                     Cliente modelo = (Cliente)e.SelectedItem;
-                    contexto.Eliminar(modelo);
+                    contexto.Eliminara(modelo);
                 }
             }
             else if (action == "Editar")
