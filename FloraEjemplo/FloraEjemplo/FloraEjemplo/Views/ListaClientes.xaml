@@ -200,7 +200,14 @@
                                             FontAttributes="Bold"
                                             FontSize="Small"
                                             HorizontalOptions="Center"
-                                            Text="{Binding Telefono}" 
+                                            Text="{Binding ClientId}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Numero}" 
                                             TextColor="White"
                                             VerticalOptions="Center"/>
                                     </StackLayout>

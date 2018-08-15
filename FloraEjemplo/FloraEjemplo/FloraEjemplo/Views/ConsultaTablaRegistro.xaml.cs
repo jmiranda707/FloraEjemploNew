@@ -17,13 +17,13 @@ namespace FloraEjemplo.Views
 
         async void ListClientes_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var item = e.SelectedItem as ClienteRegistro;
+            var item = e.SelectedItem as ClienteTrackingModel;
 
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
-                List<Cliente2> modelo = new List<Cliente2>(contexto.Consultar());
+                List<ClienteModel> modelo = new List<ClienteModel>(contexto.Consultar());
                 var TablaClientes = modelo;
-                List<ClienteRegistro> modelo2 = new List<ClienteRegistro>(contexto.ConsultarClienteRegistro());
+                List<ClienteTrackingModel> modelo2 = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
                 var TablaClientesRegistro = modelo2;
 
                 if (modelo.Count != modelo2.Count)

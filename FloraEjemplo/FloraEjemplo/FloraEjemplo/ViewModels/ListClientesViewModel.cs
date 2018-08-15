@@ -30,7 +30,7 @@ namespace FloraEjemplo.ViewModels
         #region Attributes
         string _sourceClientes;
         private ApiServices apiServices;
-        private List<Cliente2> _clientes;
+        private List<ClienteModel> _clientes;
         DataContext dataContext;
         #endregion
 
@@ -44,7 +44,7 @@ namespace FloraEjemplo.ViewModels
                 OnPropertyChanged("SourceClientes");
             }
         }
-        public List<Cliente2> Clientes
+        public List<ClienteModel> Clientes
         {
             get { return _clientes; }
             set
@@ -127,17 +127,15 @@ namespace FloraEjemplo.ViewModels
                 LoadClientFronApi(); //From Api
             }
         }
-
         public void LoadClientFronLocal()
         {
             this.SourceClientes = "Base de datos local";
 
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
-                List<Cliente2> modelo = new List<Cliente2>(contexto.Consultar());
+                List<ClienteModel> modelo = new List<ClienteModel>(contexto.Consultar());
                 Clientes = modelo;
             }
-
         }
         public async void LoadClientFronApi()
         {
@@ -157,17 +155,13 @@ namespace FloraEjemplo.ViewModels
                     resultado = resultado.Replace("\"[", "[");
                     resultado = resultado.Replace("]\"", "]");
                     var resulta = resultado;
-                    var json = JsonConvert.DeserializeObject<List<Cliente2>>(resulta);
-                    var json2 = JsonConvert.DeserializeObject<List<ClienteRegistro>>(resulta);
-                    var nombre = json[0].Nombre.ToString();
-                    var edad = json[0].Edad.ToString();
-                    var estado = json[0].Estado.ToString();
-                    var telefono = json[0].Telefono.ToString();
-                    this.Clientes = new List<Cliente2>(json);
+                    var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                    var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                    this.Clientes = new List<ClienteModel>(json);
                     this.SourceClientes = "API";
 
-                    //Si la respuesta es correcta 
-                    var listaClientesRegistro = new List<ClienteRegistro>(json2);
+                    //Si la respuesta es correcta
+                    var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
                     var listaClientes = this.Clientes;
                     //almacenando en DB Borra y despues guarda
                     dataContext.DeleteAll();
@@ -188,7 +182,7 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
-        void SaveClienteRegistro(List<ClienteRegistro> listaClientesRegistro)
+        void SaveClienteRegistro(List<ClienteTrackingModel> listaClientesRegistro)
         {
             using (var da = new DataContext())
             {
@@ -198,14 +192,14 @@ namespace FloraEjemplo.ViewModels
                 }
             }
         }
-        void InsertOrUpdateSaveClienteRegistro(ClienteRegistro record)
+        void InsertOrUpdateSaveClienteRegistro(ClienteTrackingModel record)
         {
             using (var da = new DataContext())
             {
                 da.InsertarClienteRegistro(record);
             }
         }
-        void SaveCliente(List<Cliente2> listaClientes)
+        void SaveCliente(List<ClienteModel> listaClientes)
         {
             using (var da = new DataContext())
             {
@@ -215,7 +209,7 @@ namespace FloraEjemplo.ViewModels
                 }
             }
         }
-        void InsertOrUpdateSaveCliente(Cliente2 record)
+        void InsertOrUpdateSaveCliente(ClienteModel record)
         {
             using (var da = new DataContext())
             {

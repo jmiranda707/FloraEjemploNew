@@ -92,6 +92,13 @@
                                             Text="{Binding Telefono}" 
                                             TextColor="White"
                                             VerticalOptions="Center"/>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Numero}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center"/>
                                     </StackLayout>
                                 </Grid>
                             </Frame>

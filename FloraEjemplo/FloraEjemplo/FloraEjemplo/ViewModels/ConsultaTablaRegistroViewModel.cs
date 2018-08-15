@@ -28,7 +28,7 @@ namespace FloraEjemplo.ViewModels
         #region Attributes
         string _sourceClientes;
         private ApiServices apiServices;
-        private List<ClienteRegistro> _clientes;
+        private List<ClienteTrackingModel> _clientes;
         DataContext dataContext;
         #endregion
 
@@ -42,7 +42,7 @@ namespace FloraEjemplo.ViewModels
                 OnPropertyChanged("SourceClientes");
             }
         }
-        public List<ClienteRegistro> Clientes
+        public List<ClienteTrackingModel> Clientes
         {
             get { return _clientes; }
             set
@@ -79,7 +79,7 @@ namespace FloraEjemplo.ViewModels
 
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
-                List<ClienteRegistro> modelo = new List<ClienteRegistro>(contexto.ConsultarClienteRegistro());
+                List<ClienteTrackingModel> modelo = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
                 Clientes = modelo;
             }
         }

@@ -12,70 +12,68 @@ namespace FloraEjemplo.Data
 {
     public class DataContext : AgendaModel, IDisposable
     {
-
         private SQLiteConnection cnn;
 
         public DataContext()
         {
             var configuracion = DependencyService.Get<IConfiguracion>();
             cnn = new SQLiteConnection(configuracion.plataforma, Path.Combine(configuracion.directorio, "clienteorigin.db3"));
-            cnn.CreateTable<Cliente2>();
-            cnn.CreateTable<Cliente>();
-            cnn.CreateTable<ClienteRegistro>();
-
+            cnn.CreateTable<ClienteModel>();
+            cnn.CreateTable<ClienteTrackingModel>();
         }
 
-        #region Cliente2
-        public void Insertar(Cliente2 modelo)
+        #region ClienteModel
+        public void Insertar(ClienteModel modelo)
         {
             cnn.Insert(modelo);
             Consultar();
         }
-        public void Actualizar(Cliente2 modelo)
+        public void Actualizar(ClienteModel modelo)
         {
             cnn.Update(modelo);
         }
-        public void Eliminar(Cliente2 modelo)
+        public void Eliminar(ClienteModel modelo)
         {
             cnn.Delete(modelo);
             Consultar();
         }
-        public Cliente2 Consultar(string correo) //consultas segun el id
+        public ClienteModel Consultar(string correo) //consultas segun el id
         {
-            return cnn.Table<Cliente2>().FirstOrDefault(p => p.Mail == correo);
+            var corr = correo;
+
+            return cnn.Table<ClienteModel>().FirstOrDefault(p => p.Mail == correo);
         }
-        public List<Cliente2> Consultar()
+        public List<ClienteModel> Consultar()
         {
-            return cnn.Table<Cliente2>().ToList();
+            return cnn.Table<ClienteModel>().ToList();
         }
         public void DeleteAll()
         {
-            cnn.DeleteAll<Cliente2>();
+            cnn.DeleteAll<ClienteModel>();
         }
         #endregion
 
-        #region ClienteRegistro
-        public void InsertarClienteRegistro(ClienteRegistro modelo)
+        #region ClienteTrackingModel
+        public void InsertarClienteRegistro(ClienteTrackingModel modelo)
         {
             cnn.Insert(modelo);
             ConsultarClienteRegistro();
         }
-        public void ActualizarClienteRegistro(ClienteRegistro modelo)
+        public void ActualizarClienteRegistro(ClienteTrackingModel modelo)
         {
             cnn.Update(modelo);
         }
         public void DeleteAllClienteRegistro()
         {
-            cnn.DeleteAll<ClienteRegistro>();
+            cnn.DeleteAll<ClienteTrackingModel>();
         }
-        public List<ClienteRegistro> ConsultarClienteRegistro()
+        public List<ClienteTrackingModel> ConsultarClienteRegistro()
         {
-            return cnn.Table<ClienteRegistro>().ToList();
+            return cnn.Table<ClienteTrackingModel>().ToList();
         }
-        public List<ClienteRegistro> ConsultarCambios()
+        public List<ClienteTrackingModel> ConsultarCambios()
         {
-            var transaccion = "Editar";
-            return cnn.Table<ClienteRegistro>().ToList().FindAll(p => p.Transaccion == transaccion);
+            return cnn.Table<ClienteTrackingModel>().ToList().FindAll(p => p.Proceso != 0);
         }
         #endregion
 

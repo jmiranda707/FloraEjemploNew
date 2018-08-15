@@ -1,6 +1,7 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using Xamarin.Forms;
@@ -24,42 +25,38 @@ namespace FloraEjemplo.Views
         }
         async void ListClientes_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
-            var item = e.SelectedItem as Cliente2;
+            var item = e.SelectedItem as ClienteModel;
             Application.Current.Properties["Id"] = item.Id.ToString();
-            Application.Current.Properties["Correo"] = item.Mail.ToString(); //es temporal, debe ser con el ID
+            Application.Current.Properties["Correo"] = item.Mail.ToString();
+            Application.Current.Properties["ClientId"] = item.ClientId.ToString(); 
+            Application.Current.Properties["Numero"] = item.Numero.ToString(); 
             await Application.Current.SavePropertiesAsync();
+            var clientId = Application.Current.Properties["ClientId"];
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
                 using (var contexto = new DataContext())
                 {
-                    Cliente2 modelo = (Cliente2)e.SelectedItem;
+                    ClienteModel modelo = (ClienteModel)e.SelectedItem;
                     contexto.Eliminar(modelo);
 
-                    ClienteRegistro modeloClienteRegistro = new ClienteRegistro
+                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                     {
-                        Numero = 0,
+                        Numero = Convert.ToInt32(clientId),
                         Nombre = modelo.Nombre.ToString(),
                         Edad = modelo.Edad,
                         Telefono = modelo.Telefono.ToString(),
                         Mail = modelo.Mail.ToString(),
                         Saldo = modelo.Saldo,
-                        Proceso = 0,
+                        Proceso = 1,
                         Usuario = modelo.Usuario,
                         FechaCreacion = modelo.FechaCreacion,
                         FechaCreacionUtc = modelo.FechaCreacionUtc,
                         FechaModificacion = modelo.FechaModificacion,
                         FechaModificacionUtc = modelo.FechaModificacionUtc,
-                        FechaCreacionLocal = modelo.FechaCreacionLocal,
-                        FechaCreacionUtcLocal = modelo.FechaCreacionUtcLocal,
                         Id = modelo.Id,
-                        IdLocal = modelo.IdLocal,
-                        Estado = "Activo",
-                        EstadoLocal = "Activo",
-                        FechaModificacionLocal = modelo.FechaModificacionLocal,
-                        FechaModificacionUtcLocal = modelo.FechaModificacionUtcLocal, //internamente son las unicas que cambia
-                        Sincronizado = false, //internamente cambia si no estoy conectado a internet
-                        Transaccion = "Eliminar"
+                        Estado = "ACTIVO",
+                        Transaccion = "ACTUALIZA_ESTADO"
                     };
                     contexto.InsertarClienteRegistro(modeloClienteRegistro);
 

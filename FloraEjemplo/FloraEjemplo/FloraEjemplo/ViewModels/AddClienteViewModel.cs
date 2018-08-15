@@ -25,7 +25,7 @@ namespace FloraEjemplo.ViewModels
         public int Edad { get; set; }
         public string Telefono { get; set; }
         public string Mail { get; set; }
-        public double Saldo { get; set; }
+        public long Saldo { get; set; }
         public string Usuario { get; set; }
         public string Estado { get; set; }
         public string Transaccion { get; set; }
@@ -88,36 +88,31 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private async void Post()
         {
-            #region guardo primero en local
-            Cliente2 modelo = new Cliente2
+            //Almacenamos en Tabla ClienteModel
+            ClienteModel modelo = new ClienteModel
             {
                 Nombre = Nombre,
                 Edad = Edad,
                 Telefono = Telefono,
                 Mail = Mail,
                 Saldo = Saldo,
-                FechaCreacion = DateTime.Now.ToString(),
-                FechaCreacionUtc = DateTime.Now.ToString(),
-                FechaCreacionLocal = DateTime.Now.ToString(),
-                FechaCreacionUtcLocal = DateTime.UtcNow.ToString(),
-                FechaModificacionLocal = DateTime.Now,
-                FechaModificacionUtcLocal = DateTime.UtcNow,
-                FechaModificacion = DateTime.Now.ToString(),                //servidor
-                FechaModificacionUtc = DateTime.UtcNow.ToString(),         //servidor
+                FechaCreacion = DateTime.Now,
+                FechaCreacionUtc = DateTime.Now,
+                FechaModificacion = DateTime.Now,
+                FechaModificacionUtc = DateTime.UtcNow,
                 Proceso = 0,
                 Usuario = Usuario,
-                Estado = "Activo",
-                EstadoLocal = "Activo",
+                Estado = "ACTIVO",
                 Id = "",
-                Numero = 0,
-                Sincronizado = false,
+                Transaccion = "INSERTAR"
             };
             using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
             {
                 contexto.Insertar(modelo);
             }
-            var transaccion = "Insertar";
-            ClienteRegistro modeloClienteRegistro = new ClienteRegistro
+
+            //Almacenamos en Tabla ClienteTrackingModel
+            ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
             {
 
                 Nombre = Nombre,
@@ -125,35 +120,27 @@ namespace FloraEjemplo.ViewModels
                 Telefono = Telefono,
                 Mail = Mail,
                 Saldo = Saldo,
-                FechaCreacion = DateTime.Now.ToString(),
-                FechaCreacionUtc = DateTime.Now.ToString(),
-                FechaCreacionLocal = DateTime.Now.ToString(),
-                FechaCreacionUtcLocal = DateTime.UtcNow.ToString(),
-                FechaModificacionLocal = DateTime.Now,
-                FechaModificacionUtcLocal = DateTime.UtcNow,
-                FechaModificacion = DateTime.Now.ToString(),                //servidor
-                FechaModificacionUtc = DateTime.UtcNow.ToString(),         //servidor
-                Proceso = 0,
+                FechaCreacion = DateTime.Now,
+                FechaCreacionUtc = DateTime.Now,
+                FechaModificacion = DateTime.Now,
+                FechaModificacionUtc = DateTime.UtcNow,
+                Proceso = 1,
                 Usuario = Usuario,
-                Estado = "Activo",
-                EstadoLocal = "Activo",
+                Estado = "ACTIVO",
                 Id = "",
                 Numero = 0,
-                Sincronizado = false,
-                Transaccion = Transaccion
+                Transaccion = "INSERTAR"
             };
             using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
             {
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
-            #endregion
-
+            //Enviamos al API
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
-                Cliente Customer = new Cliente
+                ClienteModel Customer = new ClienteModel
                 {
-                    Numero = 0,
                     Id = string.Empty,
                     Nombre = this.Nombre,
                     Edad = this.Edad,
@@ -185,11 +172,14 @@ namespace FloraEjemplo.ViewModels
             HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
             if (response.IsSuccessStatusCode)
             {
-                urlValidacion = response.Headers.Location.ToString();
+               
             }
             else
             {
-                urlValidacion = response.Headers.Location.ToString();
+                await Application.Current.MainPage.DisplayAlert(
+                "Hola",
+                response.RequestMessage.ToString(),
+                "Aceptar");
             }
             listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
             await Application.Current.MainPage.Navigation.PopAsync();

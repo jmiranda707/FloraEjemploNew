@@ -207,12 +207,12 @@ namespace FloraEjemplo.ViewModels
                 resultado = resultado.Replace("\"[", "[");
                 resultado = resultado.Replace("]\"", "]");
                 var resulta = resultado;
-                var json = JsonConvert.DeserializeObject<List<Cliente2>>(resulta);
+                var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
                 this.Nombre = json[0].Nombre.ToString();
                 this.Edad = Convert.ToInt32(json[0].Edad);
                 this.Mail = json[0].Mail.ToString();
                 this.Telefono = json[0].Telefono.ToString();
-                this.Saldo = Convert.ToDouble(json[0].Saldo);
+                this.Saldo = json[0].Saldo;
                 this.Usuario = json[0].Usuario.ToString();
             }
             catch (System.Exception error)
@@ -225,14 +225,16 @@ namespace FloraEjemplo.ViewModels
         }
         async void Put()
         {
-
+            
             var idClient = (Application.Current.Properties["Correo"] as string);
+            var clientId = (Application.Current.Properties["ClientId"]);
+            var numero = (Application.Current.Properties["Numero"]);
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
                 var Lis = contexto.Consultar(idClient);
-                Cliente2 modelo = new Cliente2
+                ClienteModel modelo = new ClienteModel
                 {
-                    Numero = 0,
+                    ClientId = Convert.ToInt32(clientId),
                     Nombre = Nombre,
                     Edad = Edad,
                     Telefono = Telefono,
@@ -244,41 +246,29 @@ namespace FloraEjemplo.ViewModels
                     FechaCreacionUtc = Lis.FechaCreacionUtc,
                     FechaModificacion = Lis.FechaModificacion,
                     FechaModificacionUtc = Lis.FechaModificacionUtc,
-                    FechaCreacionLocal = Lis.FechaCreacionLocal,
-                    FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
                     Id = Lis.Id,
-                    IdLocal = Lis.IdLocal,
-                    Estado = "Activo",
-                    EstadoLocal = "Activo",
-                    FechaModificacionLocal = DateTime.Now,
-                    FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
-                    Sincronizado = false, //internamente cambia si no estoy conectado a internet
+                    Estado = "ACTIVO",
+                    Transaccion = "ACTUALIZAR"
                 };
                 contexto.Actualizar(modelo);
-                ClienteRegistro modeloClienteRegistro = new ClienteRegistro
+                //Actualizamos en tabla registro
+                ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                 {
-                    Numero = 0,
+                    Numero = Convert.ToInt32(numero),
                     Nombre = Nombre,
                     Edad = Edad,
                     Telefono = Telefono,
                     Mail = Mail,
                     Saldo = Saldo,
-                    Proceso = 0,
+                    Proceso = 1,
                     Usuario = Usuario,
                     FechaCreacion = Lis.FechaCreacion,
                     FechaCreacionUtc = Lis.FechaCreacionUtc,
                     FechaModificacion = Lis.FechaModificacion,
                     FechaModificacionUtc = Lis.FechaModificacionUtc,
-                    FechaCreacionLocal = Lis.FechaCreacionLocal,
-                    FechaCreacionUtcLocal = Lis.FechaCreacionUtcLocal,
                     Id = Lis.Id,
-                    IdLocal = Lis.IdLocal,
-                    Estado = "Activo",
-                    EstadoLocal = "Activo",
-                    FechaModificacionLocal = DateTime.Now,
-                    FechaModificacionUtcLocal = DateTime.UtcNow, //internamente son las unicas que cambia
-                    Sincronizado = false, //internamente cambia si no estoy conectado a internet
-                    Transaccion = "Editar"
+                    Estado = "ACTIVO",
+                    Transaccion = "ACTUALIZAR"
                 };
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
@@ -289,9 +279,9 @@ namespace FloraEjemplo.ViewModels
             if (connection.IsSuccess)
             {
                 var id = Application.Current.Properties["Id"] as string;
-                Cliente Customer = new Cliente
+                ClienteModel Customer = new ClienteModel
                 {
-                    Numero = 0,
+                    Numero = Convert.ToInt32(numero),
                     Id = id,
                     Nombre = this.Nombre,
                     Edad = this.Edad,
@@ -322,12 +312,16 @@ namespace FloraEjemplo.ViewModels
                     response.IsSuccessStatusCode.ToString(),
                     response.RequestMessage.ToString(),
                     "Aceptar");
+
+                return;
             }
 
             await Application.Current.MainPage.DisplayAlert(
                     response.IsSuccessStatusCode.ToString(),
-                    response.RequestMessage.ToString(),
+                    "Actualizado",
                     "Aceptar");
+
+            await Application.Current.MainPage.Navigation.PopAsync();
         }
         async void Volver()
         {
