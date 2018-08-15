@@ -29,20 +29,20 @@ namespace FloraEjemplo
             //ConsultaCambios();
             MainPage = new NavigationPage(new ListaClientesMD());
 
-            //Device.StartTimer(TimeSpan.FromSeconds(10), () =>
-            //{
-            //    Task.Run(async () =>
-            //    {
-            //        //var time = await RequestTimeAsync();
-            //        // do something with time...
-            //        var connection = await apiServices.CheckConnection();
-            //        if (connection.IsSuccess)
-            //        {
-            //            ConsultaTablas();
-            //        }
-            //    });
-            //    return true;
-            //});
+            Device.StartTimer(TimeSpan.FromSeconds(10), () =>
+            {
+                Task.Run(async () =>
+                {
+                    //var time = await RequestTimeAsync();
+                    // do something with time...
+                    var connection = await apiServices.CheckConnection();
+                    if (connection.IsSuccess)
+                    {
+                        ConsultaTablas();
+                    }
+                });
+                return true;
+            });
         }
 
         async void ConsultaCambios()
@@ -54,31 +54,30 @@ namespace FloraEjemplo
             }
         }
 
-        //async void ConsultaTablas()
-        //{
-        //    using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
-        //    {
-        //        List<ClienteOriginal> modelo = new List<ClienteOriginal>(contexto.Consultar());
-        //        List<ClienteTracking> modelo2 = new List<ClienteTracking>(contexto.ConsultarClienteRegistro());
+        async void ConsultaTablas()
+        {
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                List<ClienteModel> modelo = new List<ClienteModel>(contexto.Consultar());
+                List<ClienteTrackingModel> modelo2 = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
 
-        //        if (modelo.Count != modelo2.Count)
-        //        {
-        //            List<ClienteTracking> modeloRegistro = new List<ClienteTracking>(contexto.ConsultarCambios());
-        //            var json = JsonConvert.SerializeObject(modeloRegistro);
-        //            HttpClient client = new HttpClient();
-        //            //client.DefaultRequestHeaders.Accept.Clear();
-        //            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //            HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncIn", new StringContent(json, Encoding.UTF8, "application/json"));
-        //            if (!response.IsSuccessStatusCode)
-        //            {
-        //                await Application.Current.MainPage.DisplayAlert(
-        //                    response.IsSuccessStatusCode.ToString(),
-        //                    response.RequestMessage.ToString(),
-        //                    "Aceptar");
-        //            }
-        //        }
-        //    }
-        //}
+                if (modelo.Count != modelo2.Count)
+                {
+                    List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
+                    var json = JsonConvert.SerializeObject(modeloRegistro);
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncIn", new StringContent(json, Encoding.UTF8, "application/json"));
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        //await Application.Current.MainPage.DisplayAlert(
+                        //    response.IsSuccessStatusCode.ToString(),
+                        //    response.RequestMessage.ToString(),
+                        //    "Aceptar");
+                    }
+                }
+            }
+        }
 
         protected override void OnStart()
         {
@@ -91,12 +90,10 @@ namespace FloraEjemplo
             {
                 Task.Run(async () =>
                 {
-                    //var time = await RequestTimeAsync();
-                    // do something with time...
                     var connection = await apiServices.CheckConnection();
                     if (connection.IsSuccess)
                     {
-                        //ConsultaTablas();
+                        ConsultaTablas();
                     }
                 });
                 return true;
