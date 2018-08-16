@@ -79,6 +79,7 @@
     <Compile Include="Configuration.cs" />
     <Compile Include="Customs\CustomEntryAndroid.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="OpenWifiSettingsHelper.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

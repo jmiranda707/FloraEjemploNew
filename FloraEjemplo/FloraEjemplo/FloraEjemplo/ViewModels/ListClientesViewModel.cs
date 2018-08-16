@@ -1,4 +1,5 @@
 ﻿using FloraEjemplo.Data;
+using FloraEjemplo.Interfaces;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
 using FloraEjemplo.Views;
@@ -107,6 +108,13 @@ namespace FloraEjemplo.ViewModels
                 return new RelayCommand(Registros);
             }
         }
+        public ICommand ExecuteOpenWifiSettingsCommand
+        {
+            get
+            {
+                return new RelayCommand(ExecuteOpenWifiSettings);
+            }
+        }
         #endregion
 
         #region Methods
@@ -139,47 +147,59 @@ namespace FloraEjemplo.ViewModels
         }
         public async void LoadClientFronApi()
         {
-            try
+            var cambiosPendientes = await apiServices.CheckChanges();
+            if (cambiosPendientes.IsSuccess)
             {
-                string resultado = string.Empty;
-                var httpClient = new HttpClient();
-                httpClient.DefaultRequestHeaders.Accept.Clear();
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente");
-                var result = response.Content.ReadAsStringAsync().Result;
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    resultado = response.Content.ReadAsStringAsync().Result;
-                    resultado = resultado.Replace("\\", "");
-                    resultado = resultado.Replace("/", "");
-                    resultado = resultado.Replace("\"[", "[");
-                    resultado = resultado.Replace("]\"", "]");
-                    var resulta = resultado;
-                    var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
-                    var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
-                    this.Clientes = new List<ClienteModel>(json);
-                    this.SourceClientes = "API";
+                    //string resultado = string.Empty;
+                    //var httpClient = new HttpClient();
+                    //httpClient.DefaultRequestHeaders.Accept.Clear();
+                    //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                    //HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente");
+                    //var result = response.Content.ReadAsStringAsync().Result;
+                    //if (response.IsSuccessStatusCode)
+                    //{
+                    //    resultado = response.Content.ReadAsStringAsync().Result;
+                    //    resultado = resultado.Replace("\\", "");
+                    //    resultado = resultado.Replace("/", "");
+                    //    resultado = resultado.Replace("\"[", "[");
+                    //    resultado = resultado.Replace("]\"", "]");
+                    //    var resulta = resultado;
+                    var get = await apiServices.LoadClientFronApi();
 
-                    //Si la respuesta es correcta
-                    var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                    var listaClientes = this.Clientes;
-                    //almacenando en DB Borra y despues guarda
-                    dataContext.DeleteAll();
-                    dataContext.DeleteAllClienteRegistro();
-                    SaveCliente(listaClientes);
-                    SaveClienteRegistro(listaClientesRegistro);
+                    if (get.IsSuccess)
+                    {
+                        var resulta = get.Result.ToString();
+                        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                        this.Clientes = new List<ClienteModel>(json);
+                        this.SourceClientes = "API";
+
+                        //Si la respuesta es correcta
+                        var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+                        var listaClientes = this.Clientes;
+                        //almacenando en DB Borra y despues guarda
+                        dataContext.DeleteAll();
+                        dataContext.DeleteAllClienteRegistro();
+                        SaveCliente(listaClientes);
+                        //SaveClienteRegistro(listaClientesRegistro);
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        get.Message.ToString(),
+                        "Aceptar");
+                    }
                 }
-                else
+                catch (System.Exception error)
                 {
-                    resultado = response.IsSuccessStatusCode.ToString();
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        error.Message,
+                        "Aceptar");
                 }
-            }
-            catch (System.Exception error)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    error.Message,
-                    "Aceptar");
             }
         }
         void SaveClienteRegistro(List<ClienteTrackingModel> listaClientesRegistro)
@@ -237,6 +257,17 @@ namespace FloraEjemplo.ViewModels
         async void AddTool()
         {
             await Application.Current.MainPage.Navigation.PushAsync(new AddClienteMD());
+        }
+        private static void ExecuteOpenWifiSettings()
+        {
+            try
+            {
+                DependencyService.Get<IOpenWifiSettings>().OpenWifiSettings();
+            }
+            catch (InvalidOperationException invopex)
+            {
+                // Catch the exception
+            }
         }
         #endregion
     }

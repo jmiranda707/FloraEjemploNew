@@ -28,10 +28,9 @@ namespace FloraEjemplo.Views
             var item = e.SelectedItem as ClienteModel;
             Application.Current.Properties["Id"] = item.Id.ToString();
             Application.Current.Properties["Correo"] = item.Mail.ToString();
-            Application.Current.Properties["ClientId"] = item.ClientId.ToString(); 
             Application.Current.Properties["Numero"] = item.Numero.ToString(); 
             await Application.Current.SavePropertiesAsync();
-            var clientId = Application.Current.Properties["ClientId"];
+            var numero = Application.Current.Properties["Numero"];
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
@@ -40,9 +39,11 @@ namespace FloraEjemplo.Views
                     ClienteModel modelo = (ClienteModel)e.SelectedItem;
                     contexto.Eliminar(modelo);
 
+                    var activo = "ACTIVO";
+                    var actualizaEstado = "ACTUALIZA_ESTADO";
                     ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                     {
-                        Numero = Convert.ToInt32(clientId),
+                        Numero = Convert.ToInt32(numero),
                         Nombre = modelo.Nombre.ToString(),
                         Edad = modelo.Edad,
                         Telefono = modelo.Telefono.ToString(),
@@ -55,8 +56,8 @@ namespace FloraEjemplo.Views
                         FechaModificacion = modelo.FechaModificacion,
                         FechaModificacionUtc = modelo.FechaModificacionUtc,
                         Id = modelo.Id,
-                        Estado = "ACTIVO",
-                        Transaccion = "ACTUALIZA_ESTADO"
+                        Estado = activo,
+                        Transaccion = actualizaEstado
                     };
                     contexto.InsertarClienteRegistro(modeloClienteRegistro);
 

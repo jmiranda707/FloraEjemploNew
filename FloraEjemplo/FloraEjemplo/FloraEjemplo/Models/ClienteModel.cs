@@ -7,7 +7,6 @@ namespace FloraEjemplo.Models
     public class ClienteModel
     {
         [PrimaryKey, AutoIncrement]
-        public int ClientId { get; set; }
         public int Numero { get; set; }
         public string Id { get; set; }
         public string Nombre { get; set; }

@@ -88,6 +88,21 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private async void Post()
         {
+            var connection = await apiServices.CheckConnection();
+            if (connection.IsSuccess)
+            {
+                PostWithConn();
+            }
+            else
+            {
+                PostWitoutConn();
+            }
+        }
+
+        void PostWitoutConn()
+        {
+            var aCTIVO = "ACTIVO";
+            var insertar = "INSERTAR";
             //Almacenamos en Tabla ClienteModel
             ClienteModel modelo = new ClienteModel
             {
@@ -102,9 +117,9 @@ namespace FloraEjemplo.ViewModels
                 FechaModificacionUtc = DateTime.UtcNow,
                 Proceso = 0,
                 Usuario = Usuario,
-                Estado = "ACTIVO",
+                Estado = aCTIVO,
                 Id = "",
-                Transaccion = "INSERTAR"
+                Transaccion = insertar
             };
             using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
             {
@@ -114,7 +129,6 @@ namespace FloraEjemplo.ViewModels
             //Almacenamos en Tabla ClienteTrackingModel
             ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
             {
-
                 Nombre = Nombre,
                 Edad = Edad,
                 Telefono = Telefono,
@@ -126,15 +140,67 @@ namespace FloraEjemplo.ViewModels
                 FechaModificacionUtc = DateTime.UtcNow,
                 Proceso = 1,
                 Usuario = Usuario,
-                Estado = "ACTIVO",
+                Estado = aCTIVO,
                 Id = "",
                 Numero = 0,
-                Transaccion = "INSERTAR"
+                Transaccion = insertar
             };
             using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
             {
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
+        }
+
+        async void PostWithConn()
+        {
+            var aCTIVO = "ACTIVO";
+            var insertar = "INSERTAR";
+            //Almacenamos en Tabla ClienteModel
+            ClienteModel modelo = new ClienteModel
+            {
+                Nombre = Nombre,
+                Edad = Edad,
+                Telefono = Telefono,
+                Mail = Mail,
+                Saldo = Saldo,
+                FechaCreacion = DateTime.Now,
+                FechaCreacionUtc = DateTime.Now,
+                FechaModificacion = DateTime.Now,
+                FechaModificacionUtc = DateTime.UtcNow,
+                Proceso = 0,
+                Usuario = Usuario,
+                Estado = aCTIVO,
+                Id = "",
+                Transaccion = insertar
+            };
+            using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            {
+                contexto.Insertar(modelo);
+            }
+
+            //Almacenamos en Tabla ClienteTrackingModel
+            //ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+            //{
+            //    Nombre = Nombre,
+            //    Edad = Edad,
+            //    Telefono = Telefono,
+            //    Mail = Mail,
+            //    Saldo = Saldo,
+            //    FechaCreacion = DateTime.Now,
+            //    FechaCreacionUtc = DateTime.Now,
+            //    FechaModificacion = DateTime.Now,
+            //    FechaModificacionUtc = DateTime.UtcNow,
+            //    Proceso = 0,
+            //    Usuario = Usuario,
+            //    Estado = aCTIVO,
+            //    Id = "",
+            //    Numero = 0,
+            //    Transaccion = insertar
+            //};
+            //using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            //{
+            //    contexto.InsertarClienteRegistro(modeloClienteRegistro);
+            //}
             //Enviamos al API
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
@@ -153,7 +219,9 @@ namespace FloraEjemplo.ViewModels
                     FechaModificacionUtc = DateTime.UtcNow,
                     Proceso = 0,
                     Usuario = this.Usuario,
-                    Estado = "ACTIVO"
+                    Estado = aCTIVO,
+                    Transaccion = insertar,
+                    Numero = 0
                 };
                 var jsonCliente = JsonConvert.SerializeObject(Customer);
                 EnviarDocumentoPost(jsonCliente);
@@ -163,6 +231,7 @@ namespace FloraEjemplo.ViewModels
                 await Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados Localmente", "Entendido");
             }
         }
+
         public async void EnviarDocumentoPost(string json)
         {
             string urlValidacion = string.Empty;
@@ -172,7 +241,10 @@ namespace FloraEjemplo.ViewModels
             HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
             if (response.IsSuccessStatusCode)
             {
-               
+                await Application.Current.MainPage.DisplayAlert(
+                 "Hola",
+                 "Usuario agregado",
+                 "Aceptar");
             }
             else
             {

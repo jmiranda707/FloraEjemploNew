@@ -1,4 +1,5 @@
-﻿using FloraEjemplo.Models;
+﻿using FloraEjemplo.Data;
+using FloraEjemplo.Models;
 using Newtonsoft.Json;
 using Plugin.Connectivity;
 using System;
@@ -43,19 +44,57 @@ namespace FloraEjemplo.Services
             };
         }
 
-        public async Task<Response> Get<T>(
-            string controller)
+        public async Task<Response> CheckChanges()
+        {
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                List<ClienteModel> clienteModel = new List<ClienteModel>(contexto.Consultar());
+                List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
+                if (clienteTrackingModel.Count != 0)
+                {
+                    List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
+                    var json = JsonConvert.SerializeObject(modeloRegistro);
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncIn", new StringContent(json, Encoding.UTF8, "application/json"));
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        return new Response
+                        {
+                            IsSuccess = false,
+                            Message = response.RequestMessage.ToString(),
+                        };
+                    }
+
+                    string jsonValidacion = response.Content.ReadAsStringAsync().Result;
+                    return new Response
+                    {
+                        IsSuccess = true,
+                        Message = "Cambios pendientes enviados",
+                        Result = jsonValidacion
+                    };
+                }
+                else
+                {
+                    return new Response
+                    {
+                        IsSuccess = true,
+                        Message = "Sin cambios pendientes",
+                    };
+                }
+            }
+        }
+
+        public async Task<Response> LoadClientFronApi()
         {
             try
             {
-                var uuid = Application.Current.Properties["uuid"];
-
+                string resultado = string.Empty;
                 var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-                httpClient.DefaultRequestHeaders.Add("X-Odoo-dbfilter", "kidigram");
-                httpClient.DefaultRequestHeaders.Add("UUID", uuid.ToString());
-                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com" + controller);
-
+                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente");
+                var result = response.Content.ReadAsStringAsync().Result;
                 if (!response.IsSuccessStatusCode)
                 {
                     return new Response
@@ -65,14 +104,19 @@ namespace FloraEjemplo.Services
                     };
                 }
 
-                var result = response.Content.ReadAsStringAsync().Result;
-                var json = JsonConvert.DeserializeObject<T>(result);
+                resultado = response.Content.ReadAsStringAsync().Result;
+                resultado = resultado.Replace("\\", "");
+                resultado = resultado.Replace("/", "");
+                resultado = resultado.Replace("\"[", "[");
+                resultado = resultado.Replace("]\"", "]");
+
+                var resulta = resultado;
 
                 return new Response
                 {
                     IsSuccess = true,
                     Message = "Ok",
-                    Result = json,
+                    Result = resultado,
                 };
             }
             catch (System.Exception error)

@@ -225,16 +225,30 @@ namespace FloraEjemplo.ViewModels
         }
         async void Put()
         {
-            
-            var idClient = (Application.Current.Properties["Correo"] as string);
-            var clientId = (Application.Current.Properties["ClientId"]);
+
+            var connection = await apiServices.CheckConnection();
+            if (connection.IsSuccess)
+            {
+                PutWithConn();
+            }
+            else
+            {
+                PutWithoutConn();
+            }
+        }
+        //Put sin conexion
+        async void PutWithoutConn()
+        {
+            var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
-                var Lis = contexto.Consultar(idClient);
+                var aCTIVO = "ACTIVO";
+                var aCTUALIZAR = "ACTUALIZAR";
+                var cliente = contexto.Consultar(correo);
                 ClienteModel modelo = new ClienteModel
                 {
-                    ClientId = Convert.ToInt32(clientId),
+                    //ClientId = Convert.ToInt32(clientId),
                     Nombre = Nombre,
                     Edad = Edad,
                     Telefono = Telefono,
@@ -242,16 +256,17 @@ namespace FloraEjemplo.ViewModels
                     Saldo = Saldo,
                     Proceso = 0,
                     Usuario = Usuario,
-                    FechaCreacion = Lis.FechaCreacion,
-                    FechaCreacionUtc = Lis.FechaCreacionUtc,
-                    FechaModificacion = Lis.FechaModificacion,
-                    FechaModificacionUtc = Lis.FechaModificacionUtc,
-                    Id = Lis.Id,
-                    Estado = "ACTIVO",
-                    Transaccion = "ACTUALIZAR"
+                    FechaCreacion = cliente.FechaCreacion,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaModificacion = cliente.FechaModificacion,
+                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    Id = cliente.Id,
+                    Estado = aCTIVO,
+                    Transaccion = aCTUALIZAR
                 };
                 contexto.Actualizar(modelo);
                 //Actualizamos en tabla registro
+
                 ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                 {
                     Numero = Convert.ToInt32(numero),
@@ -262,22 +277,75 @@ namespace FloraEjemplo.ViewModels
                     Saldo = Saldo,
                     Proceso = 1,
                     Usuario = Usuario,
-                    FechaCreacion = Lis.FechaCreacion,
-                    FechaCreacionUtc = Lis.FechaCreacionUtc,
-                    FechaModificacion = Lis.FechaModificacion,
-                    FechaModificacionUtc = Lis.FechaModificacionUtc,
-                    Id = Lis.Id,
-                    Estado = "ACTIVO",
-                    Transaccion = "ACTUALIZAR"
+                    FechaCreacion = cliente.FechaCreacion,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaModificacion = cliente.FechaModificacion,
+                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    Id = cliente.Id,
+                    Estado = aCTIVO,
+                    Transaccion = aCTUALIZAR
                 };
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
+        }
 
+        async void PutWithConn()
+        {
+            var correo = (Application.Current.Properties["Correo"] as string);
+            var numero = (Application.Current.Properties["Numero"]);
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                var aCTIVO = "ACTIVO";
+                var aCTUALIZAR = "ACTUALIZAR";
+                var cliente = contexto.Consultar(correo);
+                ClienteModel modelo = new ClienteModel
+                {
+                    //ClientId = Convert.ToInt32(clientId),
+                    Nombre = Nombre,
+                    Edad = Edad,
+                    Telefono = Telefono,
+                    Mail = Mail,
+                    Saldo = Saldo,
+                    Proceso = 0,
+                    Usuario = Usuario,
+                    FechaCreacion = cliente.FechaCreacion,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaModificacion = cliente.FechaModificacion,
+                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    Id = cliente.Id,
+                    Estado = aCTIVO,
+                    Transaccion = aCTUALIZAR
+                };
+                contexto.Actualizar(modelo);
+                ////Actualizamos en tabla registro
+
+                //ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                //{
+                //    Numero = Convert.ToInt32(numero),
+                //    Nombre = Nombre,
+                //    Edad = Edad,
+                //    Telefono = Telefono,
+                //    Mail = Mail,
+                //    Saldo = Saldo,
+                //    Proceso = 0,
+                //    Usuario = Usuario,
+                //    FechaCreacion = cliente.FechaCreacion,
+                //    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                //    FechaModificacion = cliente.FechaModificacion,
+                //    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                //    Id = cliente.Id,
+                //    Estado = aCTIVO,
+                //    Transaccion = aCTUALIZAR
+                //};
+                //contexto.InsertarClienteRegistro(modeloClienteRegistro);
+            }
 
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
+                var aCTIVO = "ACTIVO";
+                var aCTUALIZAR = "ACTUALIZAR";
                 var id = Application.Current.Properties["Id"] as string;
                 ClienteModel Customer = new ClienteModel
                 {
@@ -292,12 +360,14 @@ namespace FloraEjemplo.ViewModels
                     FechaModificacionUtc = DateTime.UtcNow,
                     Proceso = 0,
                     Usuario = this.Usuario,
-                    Estado = "ACTIVO"
+                    Estado = aCTIVO,
+                    Transaccion = aCTUALIZAR
                 };
                 var jsonCliente = JsonConvert.SerializeObject(Customer);
                 EnviarDocumentoPut(jsonCliente);
             }
         }
+
         public async void EnviarDocumentoPut(string json)
         {
             string urlValidacion = string.Empty;
