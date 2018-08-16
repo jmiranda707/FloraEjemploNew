@@ -258,8 +258,8 @@ namespace FloraEjemplo.ViewModels
                     Usuario = Usuario,
                     FechaCreacion = cliente.FechaCreacion,
                     FechaCreacionUtc = cliente.FechaCreacionUtc,
-                    FechaModificacion = cliente.FechaModificacion,
-                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow,
                     Id = cliente.Id,
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR
@@ -279,8 +279,8 @@ namespace FloraEjemplo.ViewModels
                     Usuario = Usuario,
                     FechaCreacion = cliente.FechaCreacion,
                     FechaCreacionUtc = cliente.FechaCreacionUtc,
-                    FechaModificacion = cliente.FechaModificacion,
-                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow,
                     Id = cliente.Id,
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR
@@ -311,8 +311,8 @@ namespace FloraEjemplo.ViewModels
                     Usuario = Usuario,
                     FechaCreacion = cliente.FechaCreacion,
                     FechaCreacionUtc = cliente.FechaCreacionUtc,
-                    FechaModificacion = cliente.FechaModificacion,
-                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow,
                     Id = cliente.Id,
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR

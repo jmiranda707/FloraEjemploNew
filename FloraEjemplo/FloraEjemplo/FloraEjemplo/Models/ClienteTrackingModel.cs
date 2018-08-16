@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using FloraEjemplo.Customs;
+using Newtonsoft.Json;
 using SQLite.Net.Attributes;
 using System;
 
@@ -16,11 +17,11 @@ namespace FloraEjemplo.Models
         public double Saldo { get; set; }
         [JsonConverter(typeof(CustomDateTimeConverter))]
         public DateTime FechaCreacion { get; set; }
-        [JsonConverter(typeof(CustomDateTimeConverter))]
+        [JsonConverter(typeof(CustomDateTimeUTCConverter))]
         public DateTime FechaCreacionUtc { get; set; }
         [JsonConverter(typeof(CustomDateTimeConverter))]
         public DateTime FechaModificacion { get; set; }
-        [JsonConverter(typeof(CustomDateTimeConverter))]
+        [JsonConverter(typeof(CustomDateTimeUTCConverter))]
         public DateTime FechaModificacionUtc { get; set; }
         public int Proceso { get; set; }
         public string Usuario { get; set; }

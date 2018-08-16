@@ -3,18 +3,15 @@ using Newtonsoft.Json.Converters;
 using System;
 using System.Globalization;
 
-namespace FloraEjemplo.Models
+namespace FloraEjemplo.Customs
 {
-    /// <summary>
-    /// Custom DateTime JSON serializer/deserializer
-    /// </summary>
-    public class CustomDateTimeConverter : DateTimeConverterBase
+    public class CustomDateTimeUTCConverter : DateTimeConverterBase
     {
         /// <summary>
         /// DateTime format
         /// </summary>
-        private const string Format = "dd. MM. yyyy HH:mm";
-        //private const string Format = "yyyy-MM-ddTHH:mm:ss+hh:mm";
+        //private const string Format = "dd. MM. yyyy HH:mm";
+        private const string Format = "yyyy-MM-ddTHH:mm:ss+hh:mm";
 
         /// <summary>
         /// Writes value to JSON
