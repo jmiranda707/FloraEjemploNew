@@ -63,15 +63,18 @@ namespace FloraEjemplo.Services
                         {
                             IsSuccess = false,
                             Message = response.RequestMessage.ToString(),
+                            Codigo = 500
                         };
                     }
 
                     string jsonValidacion = response.Content.ReadAsStringAsync().Result;
+                    var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
                     return new Response
                     {
                         IsSuccess = true,
                         Message = "Cambios pendientes enviados",
-                        Result = jsonValidacion
+                        Result = jsonValidacion,
+                        Codigo = 201
                     };
                 }
                 else
@@ -80,6 +83,7 @@ namespace FloraEjemplo.Services
                     {
                         IsSuccess = true,
                         Message = "Sin cambios pendientes",
+                        Codigo = 200
                     };
                 }
             }
@@ -128,5 +132,50 @@ namespace FloraEjemplo.Services
                 };
             }
         }
+
+        public async Task<Response> Sincronizacion()
+        {
+            try
+            {
+                string resultado = string.Empty;
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente");
+                var result = response.Content.ReadAsStringAsync().Result;
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = response.StatusCode.ToString(),
+                    };
+                }
+
+                resultado = response.Content.ReadAsStringAsync().Result;
+                resultado = resultado.Replace("\\", "");
+                resultado = resultado.Replace("/", "");
+                resultado = resultado.Replace("\"[", "[");
+                resultado = resultado.Replace("]\"", "]");
+
+                var resulta = resultado;
+
+                return new Response
+                {
+                    IsSuccess = true,
+                    Message = "Ok",
+                    Result = resultado,
+                };
+            }
+            catch (System.Exception error)
+            {
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = error.Message,
+                };
+            }
+        }
+
     }
 }

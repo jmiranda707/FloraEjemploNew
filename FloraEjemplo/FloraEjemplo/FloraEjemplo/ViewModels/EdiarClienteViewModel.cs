@@ -262,7 +262,8 @@ namespace FloraEjemplo.ViewModels
                     FechaModificacionUtc = DateTime.UtcNow,
                     Id = cliente.Id,
                     Estado = aCTIVO,
-                    Transaccion = aCTUALIZAR
+                    Transaccion = aCTUALIZAR,
+                    Numero = Convert.ToInt32(numero)
                 };
                 contexto.Actualizar(modelo);
                 //Actualizamos en tabla registro
@@ -288,6 +289,7 @@ namespace FloraEjemplo.ViewModels
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
+            MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
         }
 
         async void PutWithConn()
@@ -390,6 +392,8 @@ namespace FloraEjemplo.ViewModels
                     response.IsSuccessStatusCode.ToString(),
                     "Actualizado",
                     "Aceptar");
+            //Ejecuamos Metodo para refrescar listview de Lista principal
+            MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
 
             await Application.Current.MainPage.Navigation.PopAsync();
         }

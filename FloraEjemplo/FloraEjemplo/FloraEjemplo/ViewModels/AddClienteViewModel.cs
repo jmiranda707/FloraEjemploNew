@@ -149,6 +149,7 @@ namespace FloraEjemplo.ViewModels
             {
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
+            MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
         }
 
         async void PostWithConn()
@@ -254,6 +255,7 @@ namespace FloraEjemplo.ViewModels
                 "Aceptar");
             }
             listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
+            MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
             await Application.Current.MainPage.Navigation.PopAsync();
             this.Nombre = string.Empty;
             this.Edad = 0;

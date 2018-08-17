@@ -23,5 +23,10 @@ namespace FloraEjemplo.Models
             get;
             set;
         }
+        public int Codigo
+        {
+            get;
+            set;
+        }
     }
 }

@@ -62,6 +62,23 @@ namespace FloraEjemplo.ViewModels
             apiServices = new ApiServices();
             dataContext = new DataContext();
             LoadData();
+            MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<ListaClientes>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+
         }
         #endregion
 
@@ -118,12 +135,19 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
+        public void EjecutaMessaging()
+        {
+
+        }
+
+
         async void Registros()
         {
             await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistro());
         }
         public async void LoadData()
         {
+
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {

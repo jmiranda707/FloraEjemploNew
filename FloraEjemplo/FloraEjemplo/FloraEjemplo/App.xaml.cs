@@ -1,6 +1,7 @@
 using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
+using FloraEjemplo.ViewModels;
 using FloraEjemplo.Views;
 using Newtonsoft.Json;
 using Plugin.Connectivity;
@@ -23,10 +24,14 @@ namespace FloraEjemplo
 
         private ApiServices apiServices;
 
+        private ListClientesViewModel listaClientes;
+
         public App()
         {
             InitializeComponent();
             apiServices = new ApiServices();
+            listaClientes = new ListClientesViewModel();
+
             //ConsultaCambios();
             MainPage = new NavigationPage(new ListaClientesMD());
 
@@ -41,43 +46,15 @@ namespace FloraEjemplo
                     {
                         //ConsultaTablas();
                         var cambiosPendientes = await apiServices.CheckChanges();
+                        if (cambiosPendientes.Codigo == 201)
+                        {
+                            MessagingCenter.Send<App>(this, "EjecutaLista");
+                        }
                     }
                 });
                 return true;
             });
         }
-
-        //async void ConsultaCambios()
-        //{
-        //    var connection = await apiServices.CheckConnection();
-        //    if (connection.IsSuccess)
-        //    {
-        //        //ConsultaTablas();
-        //    }
-        //}
-
-        //async void ConsultaTablas()
-        //{
-        //    using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
-        //    {
-        //        List<ClienteModel> clienteModel = new List<ClienteModel>(contexto.Consultar());
-        //        List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
-        //        if (clienteTrackingModel.Count != 0)
-        //        {
-        //            List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
-        //            var json = JsonConvert.SerializeObject(modeloRegistro);
-        //            HttpClient client = new HttpClient();
-        //            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-        //            HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncIn", new StringContent(json, Encoding.UTF8, "application/json"));
-        //            if (!response.IsSuccessStatusCode)
-        //            {
-                        
-        //            }
-
-        //            string jsonValidacion = response.Content.ReadAsStringAsync().Result;
-        //        }
-        //    }
-        //}
 
         protected override void OnStart()
         {
@@ -86,7 +63,7 @@ namespace FloraEjemplo
 
         protected override void OnSleep()
         {
-            Device.StartTimer(TimeSpan.FromSeconds(10), () =>
+            Device.StartTimer(TimeSpan.FromSeconds(30), () =>
             {
                 Task.Run(async () =>
                 {
@@ -94,6 +71,10 @@ namespace FloraEjemplo
                     if (connection.IsSuccess)
                     {
                         var cambiosPendientes = await apiServices.CheckChanges();
+                        if (cambiosPendientes.Codigo == 201)
+                        {
+                            MessagingCenter.Send<App>(this, "EjecutaLista");
+                        }
                     }
                 });
                 return true;

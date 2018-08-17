@@ -39,6 +39,7 @@ namespace FloraEjemplo.Views
                     ClienteModel modelo = (ClienteModel)e.SelectedItem;
                     contexto.Eliminar(modelo);
 
+
                     var activo = "ACTIVO";
                     var actualizaEstado = "ACTUALIZA_ESTADO";
                     ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
@@ -60,6 +61,7 @@ namespace FloraEjemplo.Views
                         Transaccion = actualizaEstado
                     };
                     contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                    MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
 
                 }
                 var connection = await apiServices.CheckConnection();
@@ -143,6 +145,7 @@ namespace FloraEjemplo.Views
                     "Hecho",
                     "Cliente eliminado",
                     "Aceptar");
+            MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
         }
     }
 }
