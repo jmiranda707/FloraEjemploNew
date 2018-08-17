@@ -41,7 +41,7 @@ namespace FloraEjemplo.Views
 
 
                     var activo = "ACTIVO";
-                    var actualizaEstado = "ACTUALIZA_ESTADO";
+                    var actualizaEstado = "ACTUALIZAR_ESTADO ";
                     ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                     {
                         Numero = Convert.ToInt32(numero),
