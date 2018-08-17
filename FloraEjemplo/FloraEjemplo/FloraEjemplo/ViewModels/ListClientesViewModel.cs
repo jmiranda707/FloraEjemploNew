@@ -125,11 +125,11 @@ namespace FloraEjemplo.ViewModels
                 return new RelayCommand(Registros);
             }
         }
-        public ICommand ExecuteOpenWifiSettingsCommand
+        public ICommand DeviceIdentifierCommand
         {
             get
             {
-                return new RelayCommand(ExecuteOpenWifiSettings);
+                return new RelayCommand(DeviceIdentifier);
             }
         }
         #endregion
@@ -282,17 +282,15 @@ namespace FloraEjemplo.ViewModels
         {
             await Application.Current.MainPage.Navigation.PushAsync(new AddClienteMD());
         }
-        private static void ExecuteOpenWifiSettings()
+        private static void DeviceIdentifier()
         {
-            try
-            {
-                DependencyService.Get<IOpenWifiSettings>().OpenWifiSettings();
-            }
-            catch (InvalidOperationException invopex)
-            {
-                // Catch the exception
-            }
+
+            IDevice device = DependencyService.Get<IDevice>();
+            string deviceIdentifier = device.GetIdentifier();
+
+            Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo",deviceIdentifier,"Ok");
         }
+        
         #endregion
     }
 }

@@ -131,7 +131,7 @@
                 Text="Lista de tabla de registros"
                 VerticalOptions="Center"/>
             <Button
-                Command="{Binding ExecuteOpenWifiSettingsCommand}"
+                Command="{Binding DeviceIdentifierCommand}"
                 HorizontalOptions="End"
                 Text="MAC"
                 VerticalOptions="Center"/>
