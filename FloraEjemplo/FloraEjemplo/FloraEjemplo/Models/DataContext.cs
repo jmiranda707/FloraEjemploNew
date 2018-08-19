@@ -10,7 +10,7 @@ using Xamarin.Forms;
 
 namespace FloraEjemplo.Data
 {
-    public class DataContext : AgendaModel, IDisposable
+    public class DataContext : ClienteModel, IDisposable
     {
         private SQLiteConnection cnn;
 
@@ -43,6 +43,12 @@ namespace FloraEjemplo.Data
 
             return cnn.Table<ClienteModel>().FirstOrDefault(p => p.Mail == correo);
         }
+        public ClienteModel ConsultarUsuario(string usuario) //consultas segun el id
+        {
+            var user = usuario;
+
+            return cnn.Table<ClienteModel>().FirstOrDefault(p => p.Usuario == user);
+        }
         public List<ClienteModel> Consultar()
         {
             return cnn.Table<ClienteModel>().ToList();
@@ -73,6 +79,7 @@ namespace FloraEjemplo.Data
         }
         public List<ClienteTrackingModel> ConsultarCambios()
         {
+            //cnn.Table<Cliente>().Where(p => p.Mail == X);
             return cnn.Table<ClienteTrackingModel>().ToList().FindAll(p => p.Proceso != 0);
         }
         #endregion
@@ -82,6 +89,7 @@ namespace FloraEjemplo.Data
             cnn.Dispose();
         }
 
+        #region NoSeUsa
         /// <summary>
         /// /mi tabla anteriorrr
         /// </summary>
@@ -109,8 +117,9 @@ namespace FloraEjemplo.Data
         public List<Cliente> Consultara()
         {
             return cnn.Table<Cliente>().ToList();
-        }
-        
+        } 
+        #endregion
+
 
     }
 }

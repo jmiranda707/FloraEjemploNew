@@ -2,11 +2,8 @@
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
 using GalaSoft.MvvmLight.Command;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net.Http;
-using System.Text;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -70,6 +67,13 @@ namespace FloraEjemplo.ViewModels
                 return new RelayCommand(LoadClientFronLocal);
             }
         }
+        public ICommand BackToolCommand
+        {
+            get
+            {
+                return new RelayCommand(BackTool);
+            }
+        }
         #endregion
 
         #region Methods
@@ -83,12 +87,10 @@ namespace FloraEjemplo.ViewModels
                 Clientes = modelo;
             }
         }
-        
         async void BackTool()
         {
             await Application.Current.MainPage.Navigation.PopAsync();
         }
-        
         #endregion
     }
 }

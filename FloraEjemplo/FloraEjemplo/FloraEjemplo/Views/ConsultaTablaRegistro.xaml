@@ -9,6 +9,79 @@
     </ContentPage.BindingContext>
     <StackLayout>
         <StackLayout
+            BackgroundColor="#901D3E"
+            HeightRequest="130"
+            Padding="0,5"
+            VerticalOptions="Center">
+            <Grid
+                HeightRequest="130">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="0.5*"/>
+                </Grid.ColumnDefinitions>
+                <StackLayout
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        VerticalOptions="Center">
+                    <Image 
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="hamb"
+                            VerticalOptions="Center"
+                            x:Name="Hamb">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="TapGestureRecognizer_Tapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <StackLayout
+                            HorizontalOptions="Start"
+                            Margin="5,0"
+                            VerticalOptions="Center">
+                        <Label
+                                FontSize="18"
+                                HorizontalOptions="Start"
+                                Margin="0,0,0,-2"
+                                Text="Consulta"
+                                TextColor="White"
+                                VerticalOptions="End"/>
+                        <Label
+                                FontSize="18"
+                                HorizontalOptions="Start"
+                                Margin="0,-2,0,0"
+                                Text="Tabla de seguimiento"
+                                TextColor="White"
+                                VerticalOptions="Start"/>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout
+                        Grid.Column="2"
+                        VerticalOptions="Center">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image 
+                            Grid.Column="3"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_close_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding BackToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+                </StackLayout>
+            </Grid>
+        </StackLayout>
+        <StackLayout
             Orientation="Horizontal">
             <Label
                 HorizontalOptions="Start"

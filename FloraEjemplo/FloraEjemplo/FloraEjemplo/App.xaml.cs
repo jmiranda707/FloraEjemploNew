@@ -31,16 +31,11 @@ namespace FloraEjemplo
             InitializeComponent();
             apiServices = new ApiServices();
             listaClientes = new ListClientesViewModel();
-
-            //ConsultaCambios();
             MainPage = new NavigationPage(new ListaClientesMD());
-
             Device.StartTimer(TimeSpan.FromSeconds(30), () =>
             {
                 Task.Run(async () =>
                 {
-                    //var time = await RequestTimeAsync();
-                    // do something with time...
                     var connection = await apiServices.CheckConnection();
                     if (connection.IsSuccess)
                     {
@@ -54,6 +49,7 @@ namespace FloraEjemplo
                 });
                 return true;
             });
+            
         }
 
         protected override void OnStart()

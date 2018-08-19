@@ -199,7 +199,7 @@
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="2"
-                        Keyboard="Numeric"
+                        Keyboard="Telephone"
                         Text="{Binding Telefono}"
                         VerticalOptions="Center"/>
                         <!--Row #3-->

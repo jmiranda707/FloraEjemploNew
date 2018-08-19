@@ -29,8 +29,10 @@ namespace FloraEjemplo.Views
             Application.Current.Properties["Id"] = item.Id.ToString();
             Application.Current.Properties["Correo"] = item.Mail.ToString();
             Application.Current.Properties["Numero"] = item.Numero.ToString(); 
+            //Application.Current.Properties["ClientId"] = item.ClientId.ToString(); 
             await Application.Current.SavePropertiesAsync();
             var numero = Application.Current.Properties["Numero"];
+            //var clientId = Application.Current.Properties["ClientId"];
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
@@ -39,11 +41,11 @@ namespace FloraEjemplo.Views
                     ClienteModel modelo = (ClienteModel)e.SelectedItem;
                     contexto.Eliminar(modelo);
 
-
-                    var activo = "ACTIVO";
-                    var actualizaEstado = "ACTUALIZAR_ESTADO ";
+                    var activo = "ELIMINADO";
+                    var actualizaEstado = "ACTUALIZAR_ESTADO";
                     ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                     {
+                        //ClientId = Convert.ToInt32(clientId),
                         Numero = Convert.ToInt32(numero),
                         Nombre = modelo.Nombre.ToString(),
                         Edad = modelo.Edad,
@@ -54,8 +56,8 @@ namespace FloraEjemplo.Views
                         Usuario = modelo.Usuario,
                         FechaCreacion = modelo.FechaCreacion,
                         FechaCreacionUtc = modelo.FechaCreacionUtc,
-                        FechaModificacion = modelo.FechaModificacion,
-                        FechaModificacionUtc = modelo.FechaModificacionUtc,
+                        FechaModificacion = DateTime.Now,
+                        FechaModificacionUtc = DateTime.UtcNow,
                         Id = modelo.Id,
                         Estado = activo,
                         Transaccion = actualizaEstado
@@ -145,6 +147,7 @@ namespace FloraEjemplo.Views
                     "Hecho",
                     "Cliente eliminado",
                     "Aceptar");
+
             MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
         }
     }

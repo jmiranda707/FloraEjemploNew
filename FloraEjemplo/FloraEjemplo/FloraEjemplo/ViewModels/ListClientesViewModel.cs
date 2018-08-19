@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -78,6 +79,14 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData();
             });
+            Device.StartTimer(TimeSpan.FromSeconds(173), () =>
+            {
+                Task.Run(() =>
+                {
+                    LoadData();
+                });
+                return true;
+            });
 
         }
         #endregion
@@ -135,28 +144,88 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-        public void EjecutaMessaging()
-        {
-
-        }
-
-
         async void Registros()
         {
-            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistro());
+            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistroMD());
         }
         public async void LoadData()
         {
-
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
                 LoadClientFronLocal(); //From Local
-
             }
             else
             {
                 LoadClientFronApi(); //From Api
+                //PrimeraSincronizacion(); //From Api
+            }
+        }
+        public async void PrimeraSincronizacion()
+        {
+
+            IDevice device = DependencyService.Get<IDevice>();
+            string deviceIdentifier = device.GetIdentifier();
+            var Tu_NombreUsuario = "Eleazar Saavedra";
+            var Tu_Identificador = deviceIdentifier;
+            var cambiosPendientes = await apiServices.CheckChanges();
+            if (cambiosPendientes.IsSuccess)
+            {
+                try
+                {
+                    string resultado = string.Empty;
+                    var httpClient = new HttpClient();
+                    httpClient.DefaultRequestHeaders.Accept.Clear();
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                    HttpResponseMessage response = await httpClient.GetAsync(
+                        "http://efrain1234-001-site1.ftempurl.com/api/SyncOut/?Usuario="+Tu_NombreUsuario+"&Dispositivo="+Tu_Identificador);
+                    var result = response.Content.ReadAsStringAsync().Result;
+                    if (response.IsSuccessStatusCode)
+                    {
+                        
+                        resultado = response.Content.ReadAsStringAsync().Result;
+                        resultado = resultado.Replace("\\", "");
+                        resultado = resultado.Replace("/", "");
+                        resultado = resultado.Replace("\"[", "[");
+                        resultado = resultado.Replace("]\"", "]");
+                        var resulta = resultado;
+                        //var get = await apiServices.LoadClientFronApi();
+
+                    //if (get.IsSuccess)
+                    //{
+                        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                        this.Clientes = new List<ClienteModel>(json);
+                        this.SourceClientes = "API";
+
+                        //Si la respuesta es correcta
+                        var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+                        var listaClientes = this.Clientes;
+                        //almacenando en DB Borra y despues guarda
+                        dataContext.DeleteAll();
+                        dataContext.DeleteAllClienteRegistro();
+                        SaveCliente(listaClientes);
+                        //SaveClienteRegistro(listaClientesRegistro);
+                        //}
+                        //else
+                        //{
+
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        response.RequestMessage.ToString(),
+                        "Aceptar");
+                    }
+                }
+                catch (System.Exception error)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        error.Message,
+                        "Aceptar");
+                }
             }
         }
         public void LoadClientFronLocal()
@@ -176,38 +245,27 @@ namespace FloraEjemplo.ViewModels
             {
                 try
                 {
-                    //string resultado = string.Empty;
-                    //var httpClient = new HttpClient();
-                    //httpClient.DefaultRequestHeaders.Accept.Clear();
-                    //httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-                    //HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente");
-                    //var result = response.Content.ReadAsStringAsync().Result;
-                    //if (response.IsSuccessStatusCode)
-                    //{
-                    //    resultado = response.Content.ReadAsStringAsync().Result;
-                    //    resultado = resultado.Replace("\\", "");
-                    //    resultado = resultado.Replace("/", "");
-                    //    resultado = resultado.Replace("\"[", "[");
-                    //    resultado = resultado.Replace("]\"", "]");
-                    //    var resulta = resultado;
                     var get = await apiServices.LoadClientFronApi();
+                    var resulta = get.Result.ToString();
 
                     if (get.IsSuccess)
                     {
-                        var resulta = get.Result.ToString();
-                        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
-                        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
-                        this.Clientes = new List<ClienteModel>(json);
-                        this.SourceClientes = "API";
+                        if (resulta != string.Empty)
+                        {
+                            var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                            var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                            this.Clientes = new List<ClienteModel>(json);
+                            this.SourceClientes = "API";
 
-                        //Si la respuesta es correcta
-                        var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                        var listaClientes = this.Clientes;
-                        //almacenando en DB Borra y despues guarda
-                        dataContext.DeleteAll();
-                        dataContext.DeleteAllClienteRegistro();
-                        SaveCliente(listaClientes);
-                        //SaveClienteRegistro(listaClientesRegistro);
+                            //Si la respuesta es correcta
+                            var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+                            var listaClientes = this.Clientes;
+                            //almacenando en DB Borra y despues guarda
+                            dataContext.DeleteAll();
+                            dataContext.DeleteAllClienteRegistro();
+                            SaveCliente(listaClientes);
+                            //SaveClienteRegistro(listaClientesRegistro);
+                        }
                     }
                     else
                     {
@@ -290,7 +348,17 @@ namespace FloraEjemplo.ViewModels
 
             Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo",deviceIdentifier,"Ok");
         }
-        
         #endregion
     }
 }
+
+//if (resultado == string.empty)
+//{
+//no hay datos}
+//if(resultado == "ExisteSync")
+//{
+//Otro usuario se sincroniza}
+//els
+//{
+//resultado = desserializa la clase cliente
+//}

@@ -14,6 +14,8 @@ namespace FloraEjemplo.Services
 {
     public class ApiServices
     {
+        private DateTimeOffset _lastSync = DateTimeOffset.MinValue;
+
         public async Task<Response> CheckConnection()
         {
             //verifica si esta activa la conexion a internet
@@ -27,7 +29,7 @@ namespace FloraEjemplo.Services
             }
             //hace ping a google para saber si hay internet
             var isReachable = await CrossConnectivity.Current.IsRemoteReachable(
-                "google.com");
+                "www.google.com.ve");
             if (!isReachable)
             {
                 return new Response
@@ -36,7 +38,6 @@ namespace FloraEjemplo.Services
                     Message = "Checha tu conexión a internet",
                 };
             }
-
             return new Response
             {
                 IsSuccess = true,
@@ -114,8 +115,8 @@ namespace FloraEjemplo.Services
                 resultado = resultado.Replace("\"[", "[");
                 resultado = resultado.Replace("]\"", "]");
 
-                var resulta = resultado;
-
+                Application.Current.Properties["LastUpdated"] = DateTime.Now;
+                await Application.Current.SavePropertiesAsync();
                 return new Response
                 {
                     IsSuccess = true,

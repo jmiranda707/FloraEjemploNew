@@ -8,6 +8,7 @@ using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -88,6 +89,77 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private async void Post()
         {
+            const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
+            double m;
+            int n;
+
+            var emailP = "^(?(\")(\".+?(?<!\\\\)\"@)|(([0-9a-z]((\\.(?!\\.))|[-!#\\$%&\'\\*\\+/=\\?\\^`\\{\\}\\|~\\w])*)(?<=[0-9a-z])@))(?(\\[)(\\[(\\d{1,3}\\.){3}\\d{1,3}\\])|(([0-9a-z][-\\w]*[0-9a-z]*\\.)+[a-z0-9][\\-a-z0-9]{0,22}[a-z0-9]))$";
+            var minLimit = 3;
+            var maxLimit = 30;
+
+            //var isNumericApellido = int.TryParse(apellido, out n);
+            var isNumericNombre = int.TryParse(this.Nombre, out n);
+            var isNumericTelefono = double.TryParse(Telefono, out m);
+
+            //Conexion DB
+            //var context = new DataContext();
+            //var perso = context.Mail.Where(f => f.Equals.M.Correo.Equals(this.Mail)).FirstOrDefault();
+
+            if (string.IsNullOrEmpty(Nombre) || string.IsNullOrEmpty(Telefono) ||
+                string.IsNullOrEmpty(Mail) || string.IsNullOrEmpty(Usuario) || this.Edad == 0 || this.Saldo == 0)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "No debe dejar campos vacios", "Aceptar");
+                return;
+            }
+            else if (Nombre.Length < minLimit || Nombre.Length > maxLimit)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Campo Nombre no debe ser menor a 3 caracteres o mayor a 30 caracteres", "Aceptar");
+                return;
+            }
+            else if (isNumericNombre)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Ingrese solo letras en campo Nombre", "Aceptar");
+                return;
+            }
+            else if (Telefono.Length < 10 || Telefono.Length > 13)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Campo Telefono no debe ser menor a 10 carcateres o mayor a 13 caracteres", "Aceptar");
+                return;
+            }
+            else if (!isNumericTelefono)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Ingrese solo números en campo Telefono", "Aceptar");
+                return;
+            }
+            else if (!Regex.IsMatch(this.Mail, emailP))
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Ingrese un correo valido", "Aceptar");
+                return;
+            }
+
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                var correoIngresado = this.Mail;
+                var mail = contexto.Consultar(correoIngresado);
+                if (mail != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert("Mensaje",
+                        "Correo electronico ya registrado, intente utilizando otra cuenta de correo",
+                        "Entendido");
+                    return;
+                }
+                var usuarioIngresado = this.Usuario;
+                var user = contexto.ConsultarUsuario(usuarioIngresado);
+                if (user != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Mensaje",
+                        "Usuario ya registrado, intente usuando otro usuario",
+                        "Entendido");
+                    return;
+                }
+            }
+
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
@@ -98,8 +170,7 @@ namespace FloraEjemplo.ViewModels
                 PostWitoutConn();
             }
         }
-
-        void PostWitoutConn()
+        async void PostWitoutConn()
         {
             var aCTIVO = "ACTIVO";
             var insertar = "INSERTAR";
@@ -150,8 +221,8 @@ namespace FloraEjemplo.ViewModels
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
+            await Application.Current.MainPage.Navigation.PopAsync();
         }
-
         async void PostWithConn()
         {
             var aCTIVO = "ACTIVO";
@@ -232,7 +303,6 @@ namespace FloraEjemplo.ViewModels
                 await Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados Localmente", "Entendido");
             }
         }
-
         public async void EnviarDocumentoPost(string json)
         {
             string urlValidacion = string.Empty;
@@ -240,23 +310,36 @@ namespace FloraEjemplo.ViewModels
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
+            var respuesta = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
+            
             if (response.IsSuccessStatusCode)
             {
+                if (respuesta == response.Headers.Location.ToString())
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                     "Hola",
+                     "Correo electrónico en existencia, por favor utilice otra cuenta de correo",
+                     "Aceptar");
+
+                    return;
+                }
+
                 await Application.Current.MainPage.DisplayAlert(
                  "Hola",
-                 "Usuario agregado",
+                 "Usuario agregado "+response.Headers.Location.ToString(),
                  "Aceptar");
             }
             else
             {
                 await Application.Current.MainPage.DisplayAlert(
-                "Hola",
+                "Error "+response.IsSuccessStatusCode.ToString(),
                 response.RequestMessage.ToString(),
                 "Aceptar");
             }
-            listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
+            var result = response.Content.ReadAsStringAsync().Result;
+            //listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
-            await Application.Current.MainPage.Navigation.PopAsync();
+            
             this.Nombre = string.Empty;
             this.Edad = 0;
             this.Telefono = string.Empty;
@@ -264,6 +347,7 @@ namespace FloraEjemplo.ViewModels
             this.Saldo = 0;
             this.Usuario = string.Empty;
             this.Estado = string.Empty;
+            await Application.Current.MainPage.Navigation.PopAsync();
         }
         async void Volver()
         {

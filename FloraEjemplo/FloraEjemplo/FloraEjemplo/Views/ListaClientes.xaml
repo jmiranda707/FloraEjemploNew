@@ -115,26 +115,44 @@
             </Grid>
         </StackLayout>
         <StackLayout
-            Orientation="Horizontal">
+            Orientation="Vertical">
             <Label
-                HorizontalOptions="Start"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
                 Text="{Binding SourceClientes, StringFormat='Lista cargada de: {0}'}" 
                 VerticalOptions="Center"/>
-            <Button
-                Command="{Binding PinchaCommand}"
-                HorizontalOptions="End"
-                Text="Pincha"
-                VerticalOptions="Center"/>
-            <Button
-                Command="{Binding RegistrosCommand}"
-                HorizontalOptions="End"
-                Text="Lista de tabla de registros"
-                VerticalOptions="Center"/>
-            <Button
-                Command="{Binding DeviceIdentifierCommand}"
-                HorizontalOptions="End"
-                Text="MAC"
-                VerticalOptions="Center"/>
+        </StackLayout>
+        <StackLayout
+            HorizontalOptions="Center"
+            Margin="5"
+            Orientation="Horizontal">
+            <Button 
+                    BackgroundColor="#901D3E"
+                    BorderRadius="8"
+                    Command="{Binding PinchaCommand}"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    Text="Recargar"
+                    TextColor="White"
+                    VerticalOptions="CenterAndExpand"/>
+            <Button 
+                    BackgroundColor="#901D3E"
+                    BorderRadius="8"
+                    Command="{Binding RegistrosCommand}"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    Text="Lista de tabla de registros"
+                    TextColor="White"
+                    VerticalOptions="CenterAndExpand"/>
+            <Button 
+                    BackgroundColor="#901D3E"
+                    BorderRadius="8"
+                    Command="{Binding DeviceIdentifierCommand}"
+                    FontAttributes="Bold"
+                    HorizontalOptions="Center"
+                    Text="Identificador de dispositivos"
+                    TextColor="White"
+                    VerticalOptions="CenterAndExpand"/>
         </StackLayout>
         <StackLayout>
             <ListView 
@@ -205,14 +223,14 @@
                                             FontAttributes="Bold"
                                             FontSize="Small"
                                             HorizontalOptions="Center"
-                                            Text="{Binding ClientId}" 
+                                            Text="{Binding Telefono}" 
                                             TextColor="White"
                                             VerticalOptions="Center"/>
                                         <Label
                                             FontAttributes="Bold"
                                             FontSize="Small"
                                             HorizontalOptions="Center"
-                                            Text="{Binding Numero}" 
+                                            Text="{Binding Saldo}" 
                                             TextColor="White"
                                             VerticalOptions="Center"/>
                                     </StackLayout>
