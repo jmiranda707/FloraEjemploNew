@@ -1,9 +1,11 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
+using Newtonsoft.Json;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -40,11 +42,34 @@ namespace FloraEjemplo.Views
                 //Si hay conexion
                 if (connection.IsSuccess)
                 {
+                    var aCTIVO = "ELIMINADO";
+                    var aCTUALIZAR = "ACTUALIZAR_ESTADO";
+                    //var id = Application.Current.Properties["Id"] as string;
+                    ClienteModel Customer = new ClienteModel
+                    {
+                        Numero = item.Numero,
+                        Id = item.Id,
+                        Nombre = item.Nombre,
+                        Edad = item.Edad,
+                        Telefono = item.Telefono,
+                        Mail = item.Mail,
+                        Saldo = item.Saldo,
+                        FechaCreacion = item.FechaCreacion,
+                        FechaCreacionUtc = item.FechaCreacionUtc,
+                        FechaModificacion = DateTime.Now,
+                        FechaModificacionUtc = DateTime.UtcNow,
+                        Proceso = item.Proceso,
+                        Usuario = item.Usuario,
+                        Estado = aCTIVO,
+                        Transaccion = aCTUALIZAR
+                    };
+                    var jsonCliente = JsonConvert.SerializeObject(Customer);
                     string urlValidacion = string.Empty;
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    HttpResponseMessage response = await client.DeleteAsync("http://efrain1234-001-site1.ftempurl.com/api/EliminarCliente/" + Id);
+                    HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(jsonCliente, Encoding.UTF8, "application/json"));
+                    var respuesta = response.Headers.Location.ToString();
                     if (!response.IsSuccessStatusCode)
                     {
                         await Application.Current.MainPage.DisplayAlert(
@@ -150,15 +175,15 @@ namespace FloraEjemplo.Views
                 }
             }
         }
-        private void Delete()
-        {
-            var idCliete = Application.Current.Properties["Id"] as string;
-            if (idCliete == string.Empty) return;
-            EnviarDocumentoDelete(idCliete);
-        }
-        public async void EnviarDocumentoDelete(string Id)
-        {
+        //private void Delete()
+        //{
+        //    var idCliete = Application.Current.Properties["Id"] as string;
+        //    if (idCliete == string.Empty) return;
+        //    EnviarDocumentoDelete(idCliete);
+        //}
+        //public async void EnviarDocumentoDelete(string Id)
+        //{
             
-        }
+        //}
     }
 }

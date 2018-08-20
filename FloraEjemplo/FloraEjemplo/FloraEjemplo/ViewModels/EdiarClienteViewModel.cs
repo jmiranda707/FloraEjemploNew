@@ -393,27 +393,6 @@ namespace FloraEjemplo.ViewModels
                     Transaccion = aCTUALIZAR
                 };
                 contexto.Actualizar(modelo);
-                ////Actualizamos en tabla registro
-
-                //ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-                //{
-                //    Numero = Convert.ToInt32(numero),
-                //    Nombre = Nombre,
-                //    Edad = Edad,
-                //    Telefono = Telefono,
-                //    Mail = Mail,
-                //    Saldo = Saldo,
-                //    Proceso = 0,
-                //    Usuario = Usuario,
-                //    FechaCreacion = cliente.FechaCreacion,
-                //    FechaCreacionUtc = cliente.FechaCreacionUtc,
-                //    FechaModificacion = cliente.FechaModificacion,
-                //    FechaModificacionUtc = cliente.FechaModificacionUtc,
-                //    Id = cliente.Id,
-                //    Estado = aCTIVO,
-                //    Transaccion = aCTUALIZAR
-                //};
-                //contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
 
             var connection = await apiServices.CheckConnection();
@@ -495,3 +474,26 @@ namespace FloraEjemplo.ViewModels
         #endregion
     }
 }
+
+
+////Actualizamos en tabla registro
+
+//ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+//{
+//    Numero = Convert.ToInt32(numero),
+//    Nombre = Nombre,
+//    Edad = Edad,
+//    Telefono = Telefono,
+//    Mail = Mail,
+//    Saldo = Saldo,
+//    Proceso = 0,
+//    Usuario = Usuario,
+//    FechaCreacion = cliente.FechaCreacion,
+//    FechaCreacionUtc = cliente.FechaCreacionUtc,
+//    FechaModificacion = cliente.FechaModificacion,
+//    FechaModificacionUtc = cliente.FechaModificacionUtc,
+//    Id = cliente.Id,
+//    Estado = aCTIVO,
+//    Transaccion = aCTUALIZAR
+//};
+//contexto.InsertarClienteRegistro(modeloClienteRegistro);

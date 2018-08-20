@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using SQLite.Net.Attributes;
 using System;
 
 namespace FloraEjemplo.Models
@@ -9,7 +10,7 @@ namespace FloraEjemplo.Models
         public string Dispositivo { get; set; }
         [JsonProperty("Version")]
         public string Version { get; set; }
-        [JsonProperty("Numero")]
+        [PrimaryKey, AutoIncrement, JsonProperty("Numero")]
         public int Numero { get; set; }
         [JsonProperty("Id")]
         public string Id { get; set; }

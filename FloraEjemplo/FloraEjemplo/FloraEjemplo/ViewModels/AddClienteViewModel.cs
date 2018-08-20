@@ -89,6 +89,7 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private async void Post()
         {
+            //Validaciones
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
             double m;
             int n;
@@ -100,10 +101,6 @@ namespace FloraEjemplo.ViewModels
             //var isNumericApellido = int.TryParse(apellido, out n);
             var isNumericNombre = int.TryParse(this.Nombre, out n);
             var isNumericTelefono = double.TryParse(Telefono, out m);
-
-            //Conexion DB
-            //var context = new DataContext();
-            //var perso = context.Mail.Where(f => f.Equals.M.Correo.Equals(this.Mail)).FirstOrDefault();
 
             if (string.IsNullOrEmpty(Nombre) || string.IsNullOrEmpty(Telefono) ||
                 string.IsNullOrEmpty(Mail) || string.IsNullOrEmpty(Usuario) || this.Edad == 0 || this.Saldo == 0)

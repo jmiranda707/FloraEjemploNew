@@ -23,6 +23,7 @@ namespace FloraEjemplo.Services
             dataContext = new DataContext();
         }
 
+        //Revisa si hay conexion a internet
         public async Task<Response> CheckConnection()
         {
             //verifica si esta activa la conexion a internet
@@ -53,6 +54,7 @@ namespace FloraEjemplo.Services
             };
         }
 
+        //Revisa si hay cambios en DB local y los envía
         public async Task<Response> CheckChanges()
         {
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
@@ -65,8 +67,11 @@ namespace FloraEjemplo.Services
                     var json = JsonConvert.SerializeObject(modeloRegistro);
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncIn", new StringContent(json, Encoding.UTF8, "application/json"));
-                    //var respuesta = response.Headers.Location.ToString();
+                    //http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/
+                    //http://efrain1234-001-site1.ftempurl.com/api/SyncIn
+                    //http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro?Usuario=Tu_Usuario&Dispositivo=Tu_Identificador&Version=VersionAnterior
+                    HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
+                    var respuesta = response.Headers.Location.ToString();
                     if (!response.IsSuccessStatusCode)
                     {
                         return new Response
@@ -101,6 +106,7 @@ namespace FloraEjemplo.Services
             }
         }
 
+        //Obtiene lista de clientes
         public async Task<Response> LoadClientFronApi()
         {
             try
@@ -145,6 +151,7 @@ namespace FloraEjemplo.Services
             }
         }
 
+        //
         public async Task<Response> Sincronizacion()
         {
             try
@@ -189,6 +196,7 @@ namespace FloraEjemplo.Services
             }
         }
 
+        //Hace ping a Google para verificar si en realidad hay conexion a internet
         public static bool IsReachableUri()
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.google.com");

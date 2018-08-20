@@ -74,6 +74,7 @@ namespace FloraEjemplo.ViewModels
         {
             apiServices = new ApiServices();
             dataContext = new DataContext();
+            //PrimeraSincronizacion();
             LoadData();
             CheckWifiContinuosly();
             CheckWifiOnStart();
@@ -203,6 +204,7 @@ namespace FloraEjemplo.ViewModels
                     var httpClient = new HttpClient();
                     httpClient.DefaultRequestHeaders.Accept.Clear();
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                    //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
                     //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
                     HttpResponseMessage response = await httpClient.GetAsync(
                         "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
