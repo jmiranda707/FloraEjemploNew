@@ -5,9 +5,11 @@ using FloraEjemplo.Services;
 using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
+using Plugin.Connectivity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -34,6 +36,7 @@ namespace FloraEjemplo.ViewModels
         private ApiServices apiServices;
         private List<ClienteModel> _clientes;
         DataContext dataContext;
+        string _conn;
         #endregion
 
         #region Properties
@@ -55,6 +58,15 @@ namespace FloraEjemplo.ViewModels
                 OnPropertyChanged("Clientes");
             }
         }
+        public string Conn
+        {
+            get { return _conn; }
+            set
+            {
+                _conn = value;
+                OnPropertyChanged("Conn");
+            }
+        }
         #endregion
 
         #region Constructors
@@ -63,6 +75,8 @@ namespace FloraEjemplo.ViewModels
             apiServices = new ApiServices();
             dataContext = new DataContext();
             LoadData();
+            CheckWifiContinuosly();
+            CheckWifiOnStart();
             MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
             {
                 LoadData();
@@ -79,7 +93,7 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData();
             });
-            Device.StartTimer(TimeSpan.FromSeconds(173), () =>
+            Device.StartTimer(TimeSpan.FromSeconds(363), () =>
             {
                 Task.Run(() =>
                 {
@@ -144,6 +158,18 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
+        public void CheckWifiContinuosly()
+        {
+            Conn = CrossConnectivity.Current.IsConnected ? "online.png" : "offline";
+        }
+        public void CheckWifiOnStart()
+        {
+            CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
+            {
+                Conn = args.IsConnected ? "online.png" : "offline";
+                LoadData();
+            };
+        }
         async void Registros()
         {
             await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistroMD());
@@ -177,12 +203,13 @@ namespace FloraEjemplo.ViewModels
                     var httpClient = new HttpClient();
                     httpClient.DefaultRequestHeaders.Accept.Clear();
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                    //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
                     HttpResponseMessage response = await httpClient.GetAsync(
-                        "http://efrain1234-001-site1.ftempurl.com/api/SyncOut/?Usuario="+Tu_NombreUsuario+"&Dispositivo="+Tu_Identificador);
+                        "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
                     var result = response.Content.ReadAsStringAsync().Result;
                     if (response.IsSuccessStatusCode)
                     {
-                        
+
                         resultado = response.Content.ReadAsStringAsync().Result;
                         resultado = resultado.Replace("\\", "");
                         resultado = resultado.Replace("/", "");
@@ -191,8 +218,8 @@ namespace FloraEjemplo.ViewModels
                         var resulta = resultado;
                         //var get = await apiServices.LoadClientFronApi();
 
-                    //if (get.IsSuccess)
-                    //{
+                        //if (get.IsSuccess)
+                        //{
                         var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
                         var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
                         this.Clientes = new List<ClienteModel>(json);
@@ -247,16 +274,14 @@ namespace FloraEjemplo.ViewModels
                 {
                     var get = await apiServices.LoadClientFronApi();
                     var resulta = get.Result.ToString();
-
                     if (get.IsSuccess)
                     {
-                        if (resulta != string.Empty)
+                        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                        if (json != null)
                         {
-                            var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
-                            var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
                             this.Clientes = new List<ClienteModel>(json);
                             this.SourceClientes = "API";
-
                             //Si la respuesta es correcta
                             var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
                             var listaClientes = this.Clientes;
@@ -265,6 +290,12 @@ namespace FloraEjemplo.ViewModels
                             dataContext.DeleteAllClienteRegistro();
                             SaveCliente(listaClientes);
                             //SaveClienteRegistro(listaClientesRegistro);
+                        }
+                        else
+                        {
+                            this.SourceClientes = "No hay usuarios registrados";
+                            dataContext.DeleteAll();
+                            dataContext.DeleteAllClienteRegistro();
                         }
                     }
                     else
@@ -282,6 +313,10 @@ namespace FloraEjemplo.ViewModels
                         error.Message,
                         "Aceptar");
                 }
+            }
+            else
+            {
+                LoadClientFronLocal();
             }
         }
         void SaveClienteRegistro(List<ClienteTrackingModel> listaClientesRegistro)
@@ -346,7 +381,7 @@ namespace FloraEjemplo.ViewModels
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
 
-            Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo",deviceIdentifier,"Ok");
+            Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
         }
         #endregion
     }

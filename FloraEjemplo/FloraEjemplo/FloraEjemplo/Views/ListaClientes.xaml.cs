@@ -36,44 +36,73 @@ namespace FloraEjemplo.Views
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
-                using (var contexto = new DataContext())
-                {
-                    ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                    contexto.Eliminar(modelo);
-
-                    var activo = "ELIMINADO";
-                    var actualizaEstado = "ACTUALIZAR_ESTADO";
-                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-                    {
-                        //ClientId = Convert.ToInt32(clientId),
-                        Numero = Convert.ToInt32(numero),
-                        Nombre = modelo.Nombre.ToString(),
-                        Edad = modelo.Edad,
-                        Telefono = modelo.Telefono.ToString(),
-                        Mail = modelo.Mail.ToString(),
-                        Saldo = modelo.Saldo,
-                        Proceso = 1,
-                        Usuario = modelo.Usuario,
-                        FechaCreacion = modelo.FechaCreacion,
-                        FechaCreacionUtc = modelo.FechaCreacionUtc,
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow,
-                        Id = modelo.Id,
-                        Estado = activo,
-                        Transaccion = actualizaEstado
-                    };
-                    contexto.InsertarClienteRegistro(modeloClienteRegistro);
-                    MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
-
-                }
                 var connection = await apiServices.CheckConnection();
+                //Si hay conexion
                 if (connection.IsSuccess)
                 {
-                    Delete();
+                    string urlValidacion = string.Empty;
+                    HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    HttpResponseMessage response = await client.DeleteAsync("http://efrain1234-001-site1.ftempurl.com/api/EliminarCliente/" + Id);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                            response.IsSuccessStatusCode.ToString(),
+                            response.RequestMessage.ToString(),
+                            "Aceptar");
+                        return;
+                    }
+                    using (var contexto = new DataContext())
+                    {
+                        ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                        contexto.Eliminar(modelo);
+                    }
+
+                    await Application.Current.MainPage.DisplayAlert(
+                            "Hecho",
+                            "Cliente eliminado",
+                            "Aceptar");
+
+                    MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Mensaje", "Eliminado Localmente", "Ok");
+                    //Si no hay conexion
+                    using (var contexto = new DataContext())
+                    {
+                        ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                        //Borramos en ClienteModel
+                        contexto.Eliminar(modelo);
+                        var activo = "ELIMINADO";
+                        var actualizaEstado = "ACTUALIZAR_ESTADO";
+                        //Borramos en cliente tracking
+                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                        {
+                            //ClientId = Convert.ToInt32(clientId),
+                            Numero = Convert.ToInt32(numero),
+                            Nombre = modelo.Nombre.ToString(),
+                            Edad = modelo.Edad,
+                            Telefono = modelo.Telefono.ToString(),
+                            Mail = modelo.Mail.ToString(),
+                            Saldo = modelo.Saldo,
+                            Proceso = 1,
+                            Usuario = modelo.Usuario,
+                            FechaCreacion = modelo.FechaCreacion,
+                            FechaCreacionUtc = modelo.FechaCreacionUtc,
+                            FechaModificacion = DateTime.Now,
+                            FechaModificacionUtc = DateTime.UtcNow,
+                            Id = modelo.Id,
+                            Estado = activo,
+                            Transaccion = actualizaEstado
+                        };
+                        contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Hecho",
+                            "Cliente eliminado localmente",
+                            "Aceptar");
+                        MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+                    }
                 }
             }
             else if (action == "Editar")
@@ -129,26 +158,7 @@ namespace FloraEjemplo.Views
         }
         public async void EnviarDocumentoDelete(string Id)
         {
-            string urlValidacion = string.Empty;
-
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = await client.DeleteAsync("http://efrain1234-001-site1.ftempurl.com/api/EliminarCliente/" + Id);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                await Application.Current.MainPage.DisplayAlert(
-                    response.IsSuccessStatusCode.ToString(),
-                    response.RequestMessage.ToString(),
-                    "Aceptar");
-            }
-            await Application.Current.MainPage.DisplayAlert(
-                    "Hecho",
-                    "Cliente eliminado",
-                    "Aceptar");
-
-            MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+            
         }
     }
 }

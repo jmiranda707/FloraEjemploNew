@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Plugin.Connectivity;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -14,7 +15,13 @@ namespace FloraEjemplo.Services
 {
     public class ApiServices
     {
+        DataContext dataContext;
         private DateTimeOffset _lastSync = DateTimeOffset.MinValue;
+
+        public ApiServices()
+        {
+            dataContext = new DataContext();
+        }
 
         public async Task<Response> CheckConnection()
         {
@@ -28,8 +35,9 @@ namespace FloraEjemplo.Services
                 };
             }
             //hace ping a google para saber si hay internet
-            var isReachable = await CrossConnectivity.Current.IsRemoteReachable(
-                "www.google.com.ve");
+            //var isReachable = await CrossConnectivity.Current.IsRemoteReachable(
+            //    "www.google.com.ve");
+            var isReachable = IsReachableUri();
             if (!isReachable)
             {
                 return new Response
@@ -58,6 +66,7 @@ namespace FloraEjemplo.Services
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncIn", new StringContent(json, Encoding.UTF8, "application/json"));
+                    //var respuesta = response.Headers.Location.ToString();
                     if (!response.IsSuccessStatusCode)
                     {
                         return new Response
@@ -70,6 +79,8 @@ namespace FloraEjemplo.Services
 
                     string jsonValidacion = response.Content.ReadAsStringAsync().Result;
                     var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
+
+                    dataContext.DeleteAllClienteRegistro();
                     return new Response
                     {
                         IsSuccess = true,
@@ -178,5 +189,22 @@ namespace FloraEjemplo.Services
             }
         }
 
+        public static bool IsReachableUri()
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://www.google.com");
+            request.Timeout = 15000;
+            request.Method = "HEAD"; // As per Lasse's comment
+            try
+            {
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    return response.StatusCode == HttpStatusCode.OK;
+                }
+            }
+            catch (WebException)
+            {
+                return false;
+            }
+        }
     }
 }

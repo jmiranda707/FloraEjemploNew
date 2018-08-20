@@ -5,6 +5,7 @@ using FloraEjemplo.ViewModels;
 using FloraEjemplo.Views;
 using Newtonsoft.Json;
 using Plugin.Connectivity;
+using Plugin.Connectivity.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -26,13 +27,68 @@ namespace FloraEjemplo
 
         private ListClientesViewModel listaClientes;
 
+        event ConnectivityChangedEventHandler ConnectivityChanged;
+
+        public delegate void ConnectivityChangedEventHandler(object sender, ConnectivityChangedEventArgs e);
+
         public App()
         {
             InitializeComponent();
             apiServices = new ApiServices();
             listaClientes = new ListClientesViewModel();
             MainPage = new NavigationPage(new ListaClientesMD());
-            Device.StartTimer(TimeSpan.FromSeconds(30), () =>
+            //CrossConnectivity.Current.ConnectivityChanged += async (sender, args) =>
+            //{
+            //    var cambiosPendientes = await apiServices.CheckChanges();
+            //    if (cambiosPendientes.Codigo == 201)
+            //    {
+            //        MessagingCenter.Send<App>(this, "EjecutaLista");
+            //    }
+            //};
+            //Device.StartTimer(TimeSpan.FromSeconds(30), () =>
+            //{
+            //    Task.Run(async () =>
+            //    {
+            //        var connection = await apiServices.CheckConnection();
+            //        if (connection.IsSuccess)
+            //        {
+            //            //ConsultaTablas();
+            //            var cambiosPendientes = await apiServices.CheckChanges();
+            //            if (cambiosPendientes.Codigo == 201)
+            //            {
+            //                MessagingCenter.Send<App>(this, "EjecutaLista");
+            //            }
+            //        }
+            //    });
+            //    return true;
+            //});
+        }
+
+
+    protected override void OnStart()
+        {
+            // Handle when your app starts
+            //CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
+            //{
+            //    Task.Run(async () =>
+            //    {
+            //        var connection = await apiServices.CheckConnection();
+            //        if (connection.IsSuccess)
+            //        {
+            //            //ConsultaTablas();
+            //            var cambiosPendientes = await apiServices.CheckChanges();
+            //            if (cambiosPendientes.Codigo == 201)
+            //            {
+            //                MessagingCenter.Send<App>(this, "EjecutaLista");
+            //            }
+            //        }
+            //    });
+            //};
+        }
+
+        protected override void OnSleep()
+        {
+            CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
             {
                 Task.Run(async () =>
                 {
@@ -47,34 +103,23 @@ namespace FloraEjemplo
                         }
                     }
                 });
-                return true;
-            });
-            
-        }
-
-        protected override void OnStart()
-        {
-            // Handle when your app starts
-        }
-
-        protected override void OnSleep()
-        {
-            Device.StartTimer(TimeSpan.FromSeconds(30), () =>
-            {
-                Task.Run(async () =>
-                {
-                    var connection = await apiServices.CheckConnection();
-                    if (connection.IsSuccess)
-                    {
-                        var cambiosPendientes = await apiServices.CheckChanges();
-                        if (cambiosPendientes.Codigo == 201)
-                        {
-                            MessagingCenter.Send<App>(this, "EjecutaLista");
-                        }
-                    }
-                });
-                return true;
-            });
+            };
+            //Device.StartTimer(TimeSpan.FromSeconds(30), () =>
+            //{
+            //    Task.Run(async () =>
+            //    {
+            //        var connection = await apiServices.CheckConnection();
+            //        if (connection.IsSuccess)
+            //        {
+            //            var cambiosPendientes = await apiServices.CheckChanges();
+            //            if (cambiosPendientes.Codigo == 201)
+            //            {
+            //                MessagingCenter.Send<App>(this, "EjecutaLista");
+            //            }
+            //        }
+            //    });
+            //    return true;
+            //});
         }
 
         protected override void OnResume()
@@ -83,4 +128,8 @@ namespace FloraEjemplo
         }
 
     }
+}
+public class ConnectivityChangedEventArgs : EventArgs
+{
+    public bool IsConnected { get; set; }
 }
