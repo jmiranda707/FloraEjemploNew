@@ -69,7 +69,7 @@ namespace FloraEjemplo.Views
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(jsonCliente, Encoding.UTF8, "application/json"));
-                    var respuesta = response.Headers.Location.ToString();
+                    //var respuesta = response.Headers.Location.ToString();
                     if (!response.IsSuccessStatusCode)
                     {
                         await Application.Current.MainPage.DisplayAlert(

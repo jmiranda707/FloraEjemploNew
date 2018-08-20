@@ -190,7 +190,6 @@ namespace FloraEjemplo.ViewModels
         }
         public async void PrimeraSincronizacion()
         {
-
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
             var Tu_NombreUsuario = "Eleazar Saavedra";
