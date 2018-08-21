@@ -30,10 +30,12 @@ namespace FloraEjemplo.Views
             var item = e.SelectedItem as ClienteModel;
             Application.Current.Properties["Id"] = item.Id.ToString();
             Application.Current.Properties["Correo"] = item.Mail.ToString();
-            Application.Current.Properties["Numero"] = item.Numero.ToString(); 
+            Application.Current.Properties["Numero"] = item.Numero.ToString();
             //Application.Current.Properties["ClientId"] = item.ClientId.ToString(); 
             await Application.Current.SavePropertiesAsync();
             var numero = Application.Current.Properties["Numero"];
+            var version = Application.Current.Properties["Version"] as string;
+            //var dispositvo = Application.Current.Properties["Dispositivo"] as string;
             //var clientId = Application.Current.Properties["ClientId"];
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
@@ -98,10 +100,14 @@ namespace FloraEjemplo.Views
                     {
                         ClienteModel modelo = (ClienteModel)e.SelectedItem;
                         //Borramos en ClienteModel
+                        
                         contexto.Eliminar(modelo);
                         var activo = "ELIMINADO";
                         var actualizaEstado = "ACTUALIZAR_ESTADO";
+                        var dispositivo = Application.Current.Properties["device"] as string;
+                        //var version = Application.Current.Properties["Version"] as string;
                         //Borramos en cliente tracking
+
                         ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                         {
                             //ClientId = Convert.ToInt32(clientId),
@@ -114,12 +120,14 @@ namespace FloraEjemplo.Views
                             Proceso = 1,
                             Usuario = modelo.Usuario,
                             FechaCreacion = modelo.FechaCreacion,
-                            FechaCreacionUtc = modelo.FechaCreacionUtc,
+                            FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
                             FechaModificacion = DateTime.Now,
-                            FechaModificacionUtc = DateTime.UtcNow,
+                            FechaModificacionUtc = DateTime.UtcNow.ToString(),
                             Id = modelo.Id,
                             Estado = activo,
-                            Transaccion = actualizaEstado
+                            Transaccion = actualizaEstado,
+                            Dispositivo = dispositivo,
+                            Version = version
                         };
                         contexto.InsertarClienteRegistro(modeloClienteRegistro);
                         await Application.Current.MainPage.DisplayAlert(

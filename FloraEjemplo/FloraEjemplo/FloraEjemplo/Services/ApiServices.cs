@@ -18,6 +18,8 @@ namespace FloraEjemplo.Services
         DataContext dataContext;
         private DateTimeOffset _lastSync = DateTimeOffset.MinValue;
 
+        public SyncIn TablaSyncIn { get; set; }
+
         public ApiServices()
         {
             dataContext = new DataContext();
@@ -72,6 +74,12 @@ namespace FloraEjemplo.Services
                     //http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro?Usuario=Tu_Usuario&Dispositivo=Tu_Identificador&Version=VersionAnterior
                     HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
                     var respuesta = response.Headers.Location.ToString();
+                    var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
+                    string jsonValidacion = response.Content.ReadAsStringAsync().Result;
+                    //var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
+                    var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
+                    Application.Current.Properties["Version"] = syncIn[0].Version.ToString();
+                    await Application.Current.SavePropertiesAsync();
                     if (!response.IsSuccessStatusCode)
                     {
                         return new Response
@@ -81,9 +89,19 @@ namespace FloraEjemplo.Services
                             Codigo = 500
                         };
                     }
-
-                    string jsonValidacion = response.Content.ReadAsStringAsync().Result;
-                    var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
+                    else
+                    {
+                        if (respuesta == respuestaOcupado)
+                        {
+                            return new Response
+                            {
+                                IsSuccess = false,
+                                Message = "Servidor ocupado, intente de nuevo",
+                                Result = jsonValidacion,
+                                Codigo = 109
+                            };
+                        }
+                    }
 
                     dataContext.DeleteAllClienteRegistro();
                     return new Response

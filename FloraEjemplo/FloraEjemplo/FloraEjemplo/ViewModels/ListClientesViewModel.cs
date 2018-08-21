@@ -74,10 +74,20 @@ namespace FloraEjemplo.ViewModels
         {
             apiServices = new ApiServices();
             dataContext = new DataContext();
-            //PrimeraSincronizacion();
-            LoadData();
-            CheckWifiContinuosly();
-            CheckWifiOnStart();
+            if (Application.Current.Properties.ContainsKey("FirstUse"))
+            {
+                //Do things if it's NOT the first run of the app...
+                LoadData();
+                CheckWifiContinuosly();
+                CheckWifiOnStart();
+            }
+            else
+            {
+                Application.Current.Properties["FirstUse"] = false;
+                //Do things if it IS the first run of the app...
+                PrimeraSincronizacion();
+            }
+            
             MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
             {
                 LoadData();
@@ -94,7 +104,7 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData();
             });
-            Device.StartTimer(TimeSpan.FromSeconds(363), () =>
+            Device.StartTimer(TimeSpan.FromSeconds(311), () =>
             {
                 Task.Run(() =>
                 {
@@ -192,8 +202,11 @@ namespace FloraEjemplo.ViewModels
         {
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
-            var Tu_NombreUsuario = "Eleazar Saavedra";
-            var Tu_Identificador = deviceIdentifier;
+            string deviceIdentifierStatic = "ff7664e1c73b5f45";
+            Application.Current.Properties["device"] = deviceIdentifierStatic;
+            await Application.Current.SavePropertiesAsync();
+            var Tu_NombreUsuario = "Freddy Vanderhers";
+            var Tu_Identificador = deviceIdentifierStatic;
             var cambiosPendientes = await apiServices.CheckChanges();
             if (cambiosPendientes.IsSuccess)
             {
@@ -205,8 +218,12 @@ namespace FloraEjemplo.ViewModels
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                     //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
                     //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
+                    //var version = "a19e2d87 - 5681 - 4be4 - 86a0 - 227e40398de5";
+                    //+ "&Version="+version
+                    var version = "a19e2d87-5681-4be4-86a0-227e40398de5";
                     HttpResponseMessage response = await httpClient.GetAsync(
-                        "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
+                "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
+
                     var result = response.Content.ReadAsStringAsync().Result;
                     if (response.IsSuccessStatusCode)
                     {
@@ -223,16 +240,19 @@ namespace FloraEjemplo.ViewModels
                         //{
                         var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
                         var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                        var version2 = json[0].Version.ToString();
+                        Application.Current.Properties["Version"] = version;
+                        await Application.Current.SavePropertiesAsync();
                         this.Clientes = new List<ClienteModel>(json);
                         this.SourceClientes = "API";
 
                         //Si la respuesta es correcta
-                        var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                        var listaClientes = this.Clientes;
-                        //almacenando en DB Borra y despues guarda
-                        dataContext.DeleteAll();
-                        dataContext.DeleteAllClienteRegistro();
-                        SaveCliente(listaClientes);
+                        //var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+                        ////var listaClientes = this.Clientes;
+                        ////almacenando en DB Borra y despues guarda
+                        //dataContext.DeleteAll();
+                        //dataContext.DeleteAllClienteRegistro();
+                        //SaveCliente(listaClientes);
                         //SaveClienteRegistro(listaClientesRegistro);
                         //}
                         //else
@@ -269,7 +289,8 @@ namespace FloraEjemplo.ViewModels
         public async void LoadClientFronApi()
         {
             var cambiosPendientes = await apiServices.CheckChanges();
-            if (cambiosPendientes.IsSuccess)
+            //Si se enviaron los cambios o no hay cambios pendientes
+            if (cambiosPendientes.Codigo == 201 || cambiosPendientes.Codigo == 200)
             {
                 try
                 {
@@ -290,13 +311,53 @@ namespace FloraEjemplo.ViewModels
                             dataContext.DeleteAll();
                             dataContext.DeleteAllClienteRegistro();
                             SaveCliente(listaClientes);
-                            //SaveClienteRegistro(listaClientesRegistro);
                         }
                         else
                         {
                             this.SourceClientes = "No hay usuarios registrados";
                             dataContext.DeleteAll();
                             dataContext.DeleteAllClienteRegistro();
+                        }
+                    }
+                    else
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        get.Message.ToString(),
+                        "Aceptar");
+                    }
+                }
+                catch (System.Exception error)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        error.Message,
+                        "Aceptar");
+                }
+            }//Si el servidor esta ocupado
+            else if (cambiosPendientes.Codigo == 109)
+            {
+                try
+                {
+                    var get = await apiServices.LoadClientFronApi();
+                    var resulta = get.Result.ToString();
+                    if (get.IsSuccess)
+                    {
+                        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                        if (json != null)
+                        {
+                            this.Clientes = new List<ClienteModel>(json);
+                            this.SourceClientes = "API";
+                            //Si la respuesta es correcta
+                            var listaClientes = this.Clientes;
+                            //almacenando en DB Borra y despues guarda
+                            dataContext.DeleteAll();
+                            SaveCliente(listaClientes);
+                        }
+                        else
+                        {
+                            this.SourceClientes = "No hay usuarios registrados";
+                            dataContext.DeleteAll();
                         }
                     }
                     else

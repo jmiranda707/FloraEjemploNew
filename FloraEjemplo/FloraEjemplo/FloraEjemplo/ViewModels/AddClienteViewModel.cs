@@ -171,6 +171,8 @@ namespace FloraEjemplo.ViewModels
         {
             var aCTIVO = "ACTIVO";
             var insertar = "INSERTAR";
+            var version = Application.Current.Properties["Version"] as string;
+            var dispositivo = Application.Current.Properties["device"] as string;
             //Almacenamos en Tabla ClienteModel
             ClienteModel modelo = new ClienteModel
             {
@@ -203,15 +205,17 @@ namespace FloraEjemplo.ViewModels
                 Mail = Mail,
                 Saldo = Saldo,
                 FechaCreacion = DateTime.Now,
-                FechaCreacionUtc = DateTime.Now,
+                FechaCreacionUtc = DateTime.Now.ToString(),
                 FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow,
+                FechaModificacionUtc = DateTime.UtcNow.ToString(),
                 Proceso = 1,
                 Usuario = Usuario,
                 Estado = aCTIVO,
                 Id = "",
                 Numero = 0,
-                Transaccion = insertar
+                Transaccion = insertar,
+                Version = version,
+                Dispositivo = dispositivo
             };
             using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
             {

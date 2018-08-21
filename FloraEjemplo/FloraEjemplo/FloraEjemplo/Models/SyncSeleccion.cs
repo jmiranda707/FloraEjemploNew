@@ -4,9 +4,9 @@ using System;
 
 namespace FloraEjemplo.Models
 {
-    public class SyncRegistro
+    public class SyncSeleccion
     {
-        [PrimaryKey, AutoIncrement, JsonProperty("Numero")]
+        [PrimaryKey, AutoIncrement]
         public int Numero { get; set; }
         public string Dispositivo { get; set; }
         public string Version { get; set; }
@@ -18,10 +18,12 @@ namespace FloraEjemplo.Models
         public double Saldo { get; set; }
         [JsonConverter(typeof(CustomDateTimeConverter))]
         public DateTime FechaCreacion { get; set; }
-        public string FechaCreacionUtc { get; set; }
+        [JsonConverter(typeof(CustomDateTimeConverter))]
+        public DateTime FechaCreacionUtc { get; set; }
         [JsonConverter(typeof(CustomDateTimeConverter))]
         public DateTime FechaModificacion { get; set; }
-        public string FechaModificacionUtc { get; set; }
+        [JsonConverter(typeof(CustomDateTimeConverter))]
+        public DateTime FechaModificacionUtc { get; set; }
         public int Proceso { get; set; }
         public string Usuario { get; set; }
         public string Estado { get; set; }

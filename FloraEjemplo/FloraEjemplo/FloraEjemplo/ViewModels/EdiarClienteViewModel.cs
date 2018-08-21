@@ -312,6 +312,10 @@ namespace FloraEjemplo.ViewModels
         {
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
+            var version = Application.Current.Properties["Version"] as string;
+            var dispositivo = Application.Current.Properties["device"] as string;
+            //var version = Application.Current.Properties["Version"] as string;
+            //var dispositvo = Application.Current.Properties["Dispositivo"] as string;
             //var clientId = (Application.Current.Properties["ClientId"]);
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
@@ -352,12 +356,15 @@ namespace FloraEjemplo.ViewModels
                     Proceso = 1,
                     Usuario = Usuario,
                     FechaCreacion = cliente.FechaCreacion,
-                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
                     FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow,
+                    FechaModificacionUtc = DateTime.UtcNow.ToString(),
                     Id = cliente.Id,
                     Estado = aCTIVO,
-                    Transaccion = aCTUALIZAR
+                    Transaccion = aCTUALIZAR,
+                    Version = version,
+                    Dispositivo = dispositivo
+
                 };
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
@@ -429,7 +436,7 @@ namespace FloraEjemplo.ViewModels
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-            //var respuesta = response.Headers.Location.ToString();
+            var respuesta = response.Headers.Location.ToString();
             if (!response.IsSuccessStatusCode)
             {
                 await Application.Current.MainPage.DisplayAlert(

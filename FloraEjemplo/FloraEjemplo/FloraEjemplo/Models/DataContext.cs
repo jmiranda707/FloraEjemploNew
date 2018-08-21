@@ -20,6 +20,7 @@ namespace FloraEjemplo.Data
             cnn = new SQLiteConnection(configuracion.plataforma, Path.Combine(configuracion.directorio, "clienteorigin.db3"));
             cnn.CreateTable<ClienteModel>();
             cnn.CreateTable<ClienteTrackingModel>();
+            cnn.CreateTable<SyncIn>();
         }
 
         #region ClienteModel
@@ -81,6 +82,35 @@ namespace FloraEjemplo.Data
         {
             //cnn.Table<Cliente>().Where(p => p.Mail == X);
             return cnn.Table<ClienteTrackingModel>().ToList().FindAll(p => p.Proceso != 0);
+        }
+        #endregion
+
+        #region SyncIn
+        public void InsertarSyncIn(SyncIn modelo)
+        {
+            cnn.Insert(modelo);
+            ConsultarSyncIn();
+        }
+        public void Actualizar(SyncIn modelo)
+        {
+            cnn.Update(modelo);
+        }
+        public void Eliminar(SyncIn modelo)
+        {
+            cnn.Delete(modelo);
+            ConsultarSyncIn();
+        }
+        public SyncIn ConsultarSyncInFirst() 
+        {
+            return cnn.Table<SyncIn>().FirstOrDefault();
+        }
+        public List<SyncIn> ConsultarSyncIn()
+        {
+            return cnn.Table<SyncIn>().ToList();
+        }
+        public void DeleteAllSyncIn()
+        {
+            cnn.DeleteAll<SyncIn>();
         }
         #endregion
 

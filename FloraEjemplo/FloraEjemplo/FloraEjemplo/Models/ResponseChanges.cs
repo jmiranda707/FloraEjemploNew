@@ -6,6 +6,5 @@ namespace FloraEjemplo.Models
         public string Id { get; set; }
         public bool Resultado { get; set; }
         public int Error { get; set; }
-        
     }
 }
