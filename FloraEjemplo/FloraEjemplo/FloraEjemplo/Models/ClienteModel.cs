@@ -19,12 +19,10 @@ namespace FloraEjemplo.Models
         public double Saldo { get; set; }
         [JsonConverter(typeof(CustomDateTimeConverter))]
         public DateTime FechaCreacion { get; set; }
-        [JsonConverter(typeof(CustomDateTimeConverter))]
-        public DateTime FechaCreacionUtc { get; set; }
+        public string FechaCreacionUtc { get; set; }
         [JsonConverter(typeof(CustomDateTimeConverter))]
         public DateTime FechaModificacion { get; set; }
-        [JsonConverter(typeof(CustomDateTimeConverter))]
-        public DateTime FechaModificacionUtc { get; set; }
+        public string FechaModificacionUtc { get; set; }
         public int Proceso { get; set; }
         public string Usuario { get; set; }
         public string Estado { get; set; }

@@ -31,12 +31,9 @@ namespace FloraEjemplo.Views
             Application.Current.Properties["Id"] = item.Id.ToString();
             Application.Current.Properties["Correo"] = item.Mail.ToString();
             Application.Current.Properties["Numero"] = item.Numero.ToString();
-            //Application.Current.Properties["ClientId"] = item.ClientId.ToString(); 
             await Application.Current.SavePropertiesAsync();
             var numero = Application.Current.Properties["Numero"];
             var version = Application.Current.Properties["Version"] as string;
-            //var dispositvo = Application.Current.Properties["Dispositivo"] as string;
-            //var clientId = Application.Current.Properties["ClientId"];
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
@@ -46,7 +43,6 @@ namespace FloraEjemplo.Views
                 {
                     var aCTIVO = "ELIMINADO";
                     var aCTUALIZAR = "ACTUALIZAR_ESTADO";
-                    //var id = Application.Current.Properties["Id"] as string;
                     ClienteModel Customer = new ClienteModel
                     {
                         Numero = item.Numero,
@@ -57,22 +53,70 @@ namespace FloraEjemplo.Views
                         Mail = item.Mail,
                         Saldo = item.Saldo,
                         FechaCreacion = item.FechaCreacion,
-                        FechaCreacionUtc = item.FechaCreacionUtc,
+                        FechaCreacionUtc = item.FechaCreacionUtc.ToString(),
                         FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow,
+                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                         Proceso = item.Proceso,
                         Usuario = item.Usuario,
                         Estado = aCTIVO,
                         Transaccion = aCTUALIZAR
                     };
+                    var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
                     var jsonCliente = JsonConvert.SerializeObject(Customer);
                     string urlValidacion = string.Empty;
                     HttpClient client = new HttpClient();
                     client.DefaultRequestHeaders.Accept.Clear();
                     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                     HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(jsonCliente, Encoding.UTF8, "application/json"));
-                    //var respuesta = response.Headers.Location.ToString();
-                    if (!response.IsSuccessStatusCode)
+                    var header = response.Headers.Location.ToString();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (header == respuestaOcupado)
+                        {
+                            using (var contexto = new DataContext())
+                            {
+                                ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                var activo = "ELIMINADO";
+                                var actualizaEstado = "ACTUALIZAR_ESTADO";
+                                var dispositivo = Application.Current.Properties["device"] as string;
+                                //Borramos en cliente tracking
+                                ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                                {
+                                    Numero = Convert.ToInt32(numero),
+                                    Nombre = modelo.Nombre.ToString(),
+                                    Edad = modelo.Edad,
+                                    Telefono = modelo.Telefono.ToString(),
+                                    Mail = modelo.Mail.ToString(),
+                                    Saldo = modelo.Saldo,
+                                    Proceso = 1,
+                                    Usuario = modelo.Usuario,
+                                    FechaCreacion = modelo.FechaCreacion,
+                                    FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
+                                    FechaModificacion = DateTime.Now,
+                                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                    Id = modelo.Id,
+                                    Estado = activo,
+                                    Transaccion = actualizaEstado,
+                                    Dispositivo = dispositivo,
+                                    Version = version
+                                };
+                                contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                                await Application.Current.MainPage.DisplayAlert(
+                                    "Hecho",
+                                    "Cliente eliminado localmente",
+                                    "Aceptar");
+                                MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+                                return;
+                            }
+                        }
+
+                        using (var contexto = new DataContext())
+                        {
+                            ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                            contexto.Eliminar(modelo);
+                        }
+                    }
+                    else
                     {
                         await Application.Current.MainPage.DisplayAlert(
                             response.IsSuccessStatusCode.ToString(),
@@ -80,12 +124,6 @@ namespace FloraEjemplo.Views
                             "Aceptar");
                         return;
                     }
-                    using (var contexto = new DataContext())
-                    {
-                        ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                        contexto.Eliminar(modelo);
-                    }
-
                     await Application.Current.MainPage.DisplayAlert(
                             "Hecho",
                             "Cliente eliminado",
@@ -105,12 +143,10 @@ namespace FloraEjemplo.Views
                         var activo = "ELIMINADO";
                         var actualizaEstado = "ACTUALIZAR_ESTADO";
                         var dispositivo = Application.Current.Properties["device"] as string;
-                        //var version = Application.Current.Properties["Version"] as string;
                         //Borramos en cliente tracking
 
                         ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                         {
-                            //ClientId = Convert.ToInt32(clientId),
                             Numero = Convert.ToInt32(numero),
                             Nombre = modelo.Nombre.ToString(),
                             Edad = modelo.Edad,
@@ -122,7 +158,7 @@ namespace FloraEjemplo.Views
                             FechaCreacion = modelo.FechaCreacion,
                             FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
                             FechaModificacion = DateTime.Now,
-                            FechaModificacionUtc = DateTime.UtcNow.ToString(),
+                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                             Id = modelo.Id,
                             Estado = activo,
                             Transaccion = actualizaEstado,
@@ -183,15 +219,5 @@ namespace FloraEjemplo.Views
                 }
             }
         }
-        //private void Delete()
-        //{
-        //    var idCliete = Application.Current.Properties["Id"] as string;
-        //    if (idCliete == string.Empty) return;
-        //    EnviarDocumentoDelete(idCliete);
-        //}
-        //public async void EnviarDocumentoDelete(string Id)
-        //{
-            
-        //}
     }
 }

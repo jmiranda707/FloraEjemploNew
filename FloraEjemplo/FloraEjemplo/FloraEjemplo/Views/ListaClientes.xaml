@@ -160,15 +160,16 @@
                     VerticalOptions="CenterAndExpand"/>
         </StackLayout>
         <StackLayout>
-            <ListView 
-                    HasUnevenRows="True"
-                    HeightRequest="1000"
-                    IsPullToRefreshEnabled="True"
-                    ItemsSource="{Binding Clientes}"
-                    Margin="6,5,6,5"
-                    SeparatorColor="#910b20"
-                    SeparatorVisibility="Default"
-                    x:Name="ListClientes">
+            <ListView
+                HasUnevenRows="True"
+                HeightRequest="1000"
+                IsPullToRefreshEnabled="True"
+                IsVisible="{Binding IsVisible}"
+                ItemsSource="{Binding Clientes}"
+                Margin="6,5,6,5"
+                SeparatorColor="#910b20"
+                SeparatorVisibility="Default"
+                x:Name="ListClientes">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <ViewCell>

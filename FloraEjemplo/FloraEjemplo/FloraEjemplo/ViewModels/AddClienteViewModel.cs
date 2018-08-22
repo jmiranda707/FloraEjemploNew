@@ -182,9 +182,9 @@ namespace FloraEjemplo.ViewModels
                 Mail = Mail,
                 Saldo = Saldo,
                 FechaCreacion = DateTime.Now,
-                FechaCreacionUtc = DateTime.Now,
+                FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                 FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow,
+                FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                 Proceso = 0,
                 Usuario = Usuario,
                 Estado = aCTIVO,
@@ -205,9 +205,9 @@ namespace FloraEjemplo.ViewModels
                 Mail = Mail,
                 Saldo = Saldo,
                 FechaCreacion = DateTime.Now,
-                FechaCreacionUtc = DateTime.Now.ToString(),
+                FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                 FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow.ToString(),
+                FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                 Proceso = 1,
                 Usuario = Usuario,
                 Estado = aCTIVO,
@@ -237,9 +237,9 @@ namespace FloraEjemplo.ViewModels
                 Mail = Mail,
                 Saldo = Saldo,
                 FechaCreacion = DateTime.Now,
-                FechaCreacionUtc = DateTime.Now,
+                FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                 FechaModificacion = DateTime.Now,
-                FechaModificacionUtc = DateTime.UtcNow,
+                FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                 Proceso = 0,
                 Usuario = Usuario,
                 Estado = aCTIVO,
@@ -287,9 +287,9 @@ namespace FloraEjemplo.ViewModels
                     Mail = this.Mail,
                     Saldo = this.Saldo,
                     FechaCreacion = DateTime.Now,
-                    FechaCreacionUtc = DateTime.UtcNow,
+                    FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                     FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow,
+                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                     Proceso = 0,
                     Usuario = this.Usuario,
                     Estado = aCTIVO,
@@ -306,16 +306,49 @@ namespace FloraEjemplo.ViewModels
         }
         public async void EnviarDocumentoPost(string json)
         {
+            var version = Application.Current.Properties["Version"] as string;
+            var dispositivo = Application.Current.Properties["device"] as string;
+            var aCTIVO = "ACTIVO";
+            var insertar = "INSERTAR";
             string urlValidacion = string.Empty;
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-            var respuesta = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
-            
+            var yaRegistrado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
+            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/-109";
+            var header = response.Headers.Location.ToString();
             if (response.IsSuccessStatusCode)
             {
-                if (respuesta == response.Headers.Location.ToString())
+                if (respuestaOcupado == response.Headers.Location.ToString())
+                {
+                    //Almacenamos en Tabla ClienteTrackingModel
+                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                    {
+                        Nombre = Nombre,
+                        Edad = Edad,
+                        Telefono = Telefono,
+                        Mail = Mail,
+                        Saldo = Saldo,
+                        FechaCreacion = DateTime.Now,
+                        FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                        FechaModificacion = DateTime.Now,
+                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                        Proceso = 1,
+                        Usuario = Usuario,
+                        Estado = aCTIVO,
+                        Id = "",
+                        Numero = 0,
+                        Transaccion = insertar,
+                        Version = version,
+                        Dispositivo = dispositivo
+                    };
+                    using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+                    {
+                        contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                    }
+                }
+                else if (yaRegistrado == response.Headers.Location.ToString())
                 {
                     await Application.Current.MainPage.DisplayAlert(
                      "Hola",
@@ -324,11 +357,13 @@ namespace FloraEjemplo.ViewModels
 
                     return;
                 }
-
-                await Application.Current.MainPage.DisplayAlert(
+                else 
+                {
+                    await Application.Current.MainPage.DisplayAlert(
                  "Hola",
-                 "Usuario agregado "+response.Headers.Location.ToString(),
+                 "Usuario agregado " + response.Headers.Location.ToString(),
                  "Aceptar");
+                }
             }
             else
             {
@@ -338,7 +373,6 @@ namespace FloraEjemplo.ViewModels
                 "Aceptar");
             }
             var result = response.Content.ReadAsStringAsync().Result;
-            //listaClientes.LoadData(); //para actualizar mi lista de clientes en el home
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
             
             this.Nombre = string.Empty;

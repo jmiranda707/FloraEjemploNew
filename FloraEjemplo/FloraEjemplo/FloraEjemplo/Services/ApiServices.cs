@@ -1,4 +1,5 @@
 ﻿using FloraEjemplo.Data;
+using FloraEjemplo.Interfaces;
 using FloraEjemplo.Models;
 using Newtonsoft.Json;
 using Plugin.Connectivity;
@@ -172,14 +173,19 @@ namespace FloraEjemplo.Services
         //
         public async Task<Response> Sincronizacion()
         {
+            IDevice device = DependencyService.Get<IDevice>();
+            string deviceIdentifier = device.GetIdentifier();
+            var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
+            var version = Application.Current.Properties["Version"] as string;
+            var Tu_Identificador = deviceIdentifier;
             try
             {
                 string resultado = string.Empty;
                 var httpClient = new HttpClient();
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-                HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente");
-                var result = response.Content.ReadAsStringAsync().Result;
+                HttpResponseMessage response = await httpClient.GetAsync(
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario="+Tu_NombreUsuario+"&Dispositivo="+Tu_Identificador+"&Version="+version);
                 if (!response.IsSuccessStatusCode)
                 {
                     return new Response
@@ -188,15 +194,12 @@ namespace FloraEjemplo.Services
                         Message = response.StatusCode.ToString(),
                     };
                 }
-
                 resultado = response.Content.ReadAsStringAsync().Result;
                 resultado = resultado.Replace("\\", "");
                 resultado = resultado.Replace("/", "");
                 resultado = resultado.Replace("\"[", "[");
                 resultado = resultado.Replace("]\"", "]");
-
                 var resulta = resultado;
-
                 return new Response
                 {
                     IsSuccess = true,

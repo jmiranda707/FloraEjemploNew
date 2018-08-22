@@ -307,16 +307,12 @@ namespace FloraEjemplo.ViewModels
                 PutWithoutConn();
             }
         }
-        //Put sin conexion
-        async void PutWithoutConn()
+        async void PutWithoutConn()//Put sin conexion
         {
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
             var version = Application.Current.Properties["Version"] as string;
             var dispositivo = Application.Current.Properties["device"] as string;
-            //var version = Application.Current.Properties["Version"] as string;
-            //var dispositvo = Application.Current.Properties["Dispositivo"] as string;
-            //var clientId = (Application.Current.Properties["ClientId"]);
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
                 var aCTIVO = "ACTIVO";
@@ -324,7 +320,6 @@ namespace FloraEjemplo.ViewModels
                 var cliente = contexto.Consultar(correo);
                 ClienteModel modelo = new ClienteModel
                 {
-                    //ClientId = Convert.ToInt32(clientId),
                     Nombre = Nombre,
                     Edad = Edad,
                     Telefono = Telefono,
@@ -333,9 +328,9 @@ namespace FloraEjemplo.ViewModels
                     Proceso = 0,
                     Usuario = Usuario,
                     FechaCreacion = cliente.FechaCreacion,
-                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
                     FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow,
+                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                     Id = cliente.Id,
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR,
@@ -346,7 +341,6 @@ namespace FloraEjemplo.ViewModels
 
                 ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                 {
-                    //ClientId = Convert.ToInt32(clientId),
                     Numero = Convert.ToInt32(numero),
                     Nombre = Nombre,
                     Edad = Edad,
@@ -358,7 +352,7 @@ namespace FloraEjemplo.ViewModels
                     FechaCreacion = cliente.FechaCreacion,
                     FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
                     FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow.ToString(),
+                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                     Id = cliente.Id,
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR,
@@ -375,7 +369,6 @@ namespace FloraEjemplo.ViewModels
         {
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
-            //var clientId = (Application.Current.Properties["ClientId"]);
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
             {
                 var aCTIVO = "ACTIVO";
@@ -383,7 +376,6 @@ namespace FloraEjemplo.ViewModels
                 var cliente = contexto.Consultar(correo);
                 ClienteModel modelo = new ClienteModel
                 {
-                    //ClientId = Convert.ToInt32(clientId),
                     Nombre = Nombre,
                     Edad = Edad,
                     Telefono = Telefono,
@@ -392,9 +384,9 @@ namespace FloraEjemplo.ViewModels
                     Proceso = 0,
                     Usuario = Usuario,
                     FechaCreacion = cliente.FechaCreacion,
-                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
                     FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow,
+                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                     Id = cliente.Id,
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR
@@ -418,7 +410,7 @@ namespace FloraEjemplo.ViewModels
                     Mail = this.Mail,
                     Saldo = this.Saldo,
                     FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow,
+                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                     Proceso = 0,
                     Usuario = this.Usuario,
                     Estado = aCTIVO,
@@ -430,13 +422,17 @@ namespace FloraEjemplo.ViewModels
         }
         public async void EnviarDocumentoPut(string json)
         {
+            var aCTIVO = "ACTIVO";
+            var aCTUALIZAR = "ACTUALIZAR";
+            var version = Application.Current.Properties["Version"] as string;
+            var dispositivo = Application.Current.Properties["device"] as string;
+            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
             string urlValidacion = string.Empty;
-
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-            var respuesta = response.Headers.Location.ToString();
+            var header = response.Headers.Location.ToString();
             if (!response.IsSuccessStatusCode)
             {
                 await Application.Current.MainPage.DisplayAlert(
@@ -447,13 +443,49 @@ namespace FloraEjemplo.ViewModels
                 return;
             }
 
+            if (respuestaOcupado == header)
+            {
+                var correo = (Application.Current.Properties["Correo"] as string);
+                var numero = (Application.Current.Properties["Numero"]);
+                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                {
+                    //Actualizamos en tabla registro
+                    var cliente = contexto.Consultar(correo);
+                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                    {
+                        Numero = Convert.ToInt32(numero),
+                        Nombre = Nombre,
+                        Edad = Edad,
+                        Telefono = Telefono,
+                        Mail = Mail,
+                        Saldo = Saldo,
+                        Proceso = 1,
+                        Usuario = Usuario,
+                        FechaCreacion = cliente.FechaCreacion,
+                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
+                        FechaModificacion = DateTime.Now,
+                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                        Id = cliente.Id,
+                        Estado = aCTIVO,
+                        Transaccion = aCTUALIZAR,
+                        Version = version,
+                        Dispositivo = dispositivo
+                    };
+                    contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Hola",
+                        "Actualizado en local, el servidor esta ocupado" + header,
+                        "Aceptar");
+                    MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
+                    return;
+                }
+            }
             await Application.Current.MainPage.DisplayAlert(
                     response.IsSuccessStatusCode.ToString(),
-                    "Actualizado",
+                    "Actualizado" + header,
                     "Aceptar");
             //Ejecuamos Metodo para refrescar listview de Lista principal
             MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
-
             await Application.Current.MainPage.Navigation.PopAsync();
         }
         async void Volver()
@@ -483,25 +515,3 @@ namespace FloraEjemplo.ViewModels
     }
 }
 
-
-////Actualizamos en tabla registro
-
-//ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-//{
-//    Numero = Convert.ToInt32(numero),
-//    Nombre = Nombre,
-//    Edad = Edad,
-//    Telefono = Telefono,
-//    Mail = Mail,
-//    Saldo = Saldo,
-//    Proceso = 0,
-//    Usuario = Usuario,
-//    FechaCreacion = cliente.FechaCreacion,
-//    FechaCreacionUtc = cliente.FechaCreacionUtc,
-//    FechaModificacion = cliente.FechaModificacion,
-//    FechaModificacionUtc = cliente.FechaModificacionUtc,
-//    Id = cliente.Id,
-//    Estado = aCTIVO,
-//    Transaccion = aCTUALIZAR
-//};
-//contexto.InsertarClienteRegistro(modeloClienteRegistro);
