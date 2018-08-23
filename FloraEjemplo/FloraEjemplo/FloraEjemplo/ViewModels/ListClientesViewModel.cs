@@ -90,7 +90,7 @@ namespace FloraEjemplo.ViewModels
                 //Do things if it's NOT the first run of the app...
                 LoadData();
                 CheckWifiContinuosly();
-                CheckWifiOnStart();
+                //CheckWifiOnStart();
             }
             else
             {
@@ -99,23 +99,8 @@ namespace FloraEjemplo.ViewModels
                 PrimeraSincronizacion();
             }
 
-            MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            MessagingCenter.Subscribe<ListaClientes>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            Device.StartTimer(TimeSpan.FromSeconds(311), () =>
+           
+            Device.StartTimer(TimeSpan.FromSeconds(60), () =>
             {
                 Task.Run(() =>
                 {
@@ -180,6 +165,25 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
+        public void hola()
+        {
+            MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<ListaClientes>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+        }
         public void CheckWifiContinuosly()
         {
             Conn = CrossConnectivity.Current.IsConnected ? "online.png" : "offline";
@@ -194,6 +198,7 @@ namespace FloraEjemplo.ViewModels
         }
         public async void LoadData()
         {
+
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
@@ -515,6 +520,7 @@ namespace FloraEjemplo.ViewModels
         #endregion
     }
 }
+
 
 //if (resultado == string.empty)
 //{

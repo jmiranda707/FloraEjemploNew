@@ -2,9 +2,11 @@
 using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
+using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -145,16 +147,16 @@ namespace FloraEjemplo.ViewModels
                         "Entendido");
                     return;
                 }
-                var usuarioIngresado = this.Usuario;
-                var user = contexto.ConsultarUsuario(usuarioIngresado);
-                if (user != null)
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                        "Mensaje",
-                        "Usuario ya registrado, intente usuando otro usuario",
-                        "Entendido");
-                    return;
-                }
+                //var usuarioIngresado = this.Usuario;
+                //var user = contexto.ConsultarUsuario(usuarioIngresado);
+                //if (user != null)
+                //{
+                //    await Application.Current.MainPage.DisplayAlert(
+                //        "Mensaje",
+                //        "Usuario ya registrado, intente usuando otro usuario",
+                //        "Entendido");
+                //    return;
+                //}
             }
 
             var connection = await apiServices.CheckConnection();
@@ -222,7 +224,15 @@ namespace FloraEjemplo.ViewModels
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
-            await Application.Current.MainPage.Navigation.PopAsync();
+            //await Application.Current.MainPage.Navigation.PopAsync();
+            //Instanciamos pila de navegacion
+            IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
+            //accedemos a pagina en la pila de navegacion
+            Page addCliente = navStack[navStack.Count - 1];
+            await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
+            //removemos elemento de la pila de navegacion
+            Application.Current.MainPage.Navigation.RemovePage(addCliente);
+            //Aqui podemos navegar hacia donde deseamos 
         }
         async void PostWithConn()
         {
@@ -250,30 +260,7 @@ namespace FloraEjemplo.ViewModels
             {
                 contexto.Insertar(modelo);
             }
-
-            //Almacenamos en Tabla ClienteTrackingModel
-            //ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-            //{
-            //    Nombre = Nombre,
-            //    Edad = Edad,
-            //    Telefono = Telefono,
-            //    Mail = Mail,
-            //    Saldo = Saldo,
-            //    FechaCreacion = DateTime.Now,
-            //    FechaCreacionUtc = DateTime.Now,
-            //    FechaModificacion = DateTime.Now,
-            //    FechaModificacionUtc = DateTime.UtcNow,
-            //    Proceso = 0,
-            //    Usuario = Usuario,
-            //    Estado = aCTIVO,
-            //    Id = "",
-            //    Numero = 0,
-            //    Transaccion = insertar
-            //};
-            //using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
-            //{
-            //    contexto.InsertarClienteRegistro(modeloClienteRegistro);
-            //}
+            
             //Enviamos al API
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
@@ -316,7 +303,7 @@ namespace FloraEjemplo.ViewModels
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
             var yaRegistrado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
-            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/-109";
+            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-109";
             var header = response.Headers.Location.ToString();
             if (response.IsSuccessStatusCode)
             {
@@ -357,13 +344,6 @@ namespace FloraEjemplo.ViewModels
 
                     return;
                 }
-                else 
-                {
-                    await Application.Current.MainPage.DisplayAlert(
-                 "Hola",
-                 "Usuario agregado " + response.Headers.Location.ToString(),
-                 "Aceptar");
-                }
             }
             else
             {
@@ -373,7 +353,7 @@ namespace FloraEjemplo.ViewModels
                 "Aceptar");
             }
             var result = response.Content.ReadAsStringAsync().Result;
-            MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
+            
             
             this.Nombre = string.Empty;
             this.Edad = 0;
@@ -382,7 +362,20 @@ namespace FloraEjemplo.ViewModels
             this.Saldo = 0;
             this.Usuario = string.Empty;
             this.Estado = string.Empty;
+            await Application.Current.MainPage.DisplayAlert(
+                 "Hola",
+                 "Usuario agregado " + response.Headers.Location.ToString(),
+                 "Aceptar");
+            MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
             await Application.Current.MainPage.Navigation.PopAsync();
+            ////Instanciamos pila de navegacion
+            //IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
+            ////accedemos a pagina en la pila de navegacion
+            //Page addCliente = navStack[navStack.Count - 1];
+            //await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
+            ////removemos elemento de la pila de navegacion
+            //Application.Current.MainPage.Navigation.RemovePage(addCliente);
+            ////Aqui podemos navegar hacia donde deseamos 
         }
         async void Volver()
         {

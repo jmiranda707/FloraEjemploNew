@@ -1,6 +1,7 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
+using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
@@ -209,6 +210,14 @@ namespace FloraEjemplo.ViewModels
                 resultado = resultado.Replace("]\"", "]");
                 var resulta = resultado;
                 var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                if (json == null)
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                       "Error",
+                       "Este cliente ha sido eliminado",
+                       "Aceptar");
+                    return;
+                }
                 this.Nombre = json[0].Nombre.ToString();
                 this.Edad = Convert.ToInt32(json[0].Edad);
                 this.Mail = json[0].Mail.ToString();
@@ -237,10 +246,6 @@ namespace FloraEjemplo.ViewModels
             //var isNumericApellido = int.TryParse(apellido, out n);
             var isNumericNombre = int.TryParse(this.Nombre, out n);
             var isNumericTelefono = double.TryParse(Telefono, out m);
-
-            //Conexion DB
-            //var context = new DataContext();
-            //var perso = context.Mail.Where(f => f.Equals.M.Correo.Equals(this.Mail)).FirstOrDefault();
 
             if (string.IsNullOrEmpty(Nombre) || string.IsNullOrEmpty(Telefono) ||
                 string.IsNullOrEmpty(Mail) || string.IsNullOrEmpty(Usuario) || this.Edad == 0 || this.Saldo == 0)
@@ -273,29 +278,6 @@ namespace FloraEjemplo.ViewModels
                 await App.Current.MainPage.DisplayAlert("Error", "Ingrese un correo valido", "Aceptar");
                 return;
             }
-
-            //using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
-            //{
-            //    var correoIngresado = this.Mail;
-            //    var mail = contexto.Consultar(correoIngresado);
-            //    if (mail != null)
-            //    {
-            //        await Application.Current.MainPage.DisplayAlert("Mensaje",
-            //            "Correo electronico ya registrado, intente utilizando otra cuenta de correo",
-            //            "Entendido");
-            //        return;
-            //    }
-            //    var usuarioIngresado = this.Usuario;
-            //    var user = contexto.ConsultarUsuario(usuarioIngresado);
-            //    if (user == null)
-            //    {
-            //        await Application.Current.MainPage.DisplayAlert(
-            //            "Mensaje",
-            //            "Usuario ya registrado, intente usuando otro usuario",
-            //            "Entendido");
-            //        return;
-            //    }
-            //}
 
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
@@ -486,7 +468,17 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             //Ejecuamos Metodo para refrescar listview de Lista principal
             MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
-            await Application.Current.MainPage.Navigation.PopAsync();
+            //await Application.Current.MainPage.Navigation.PopAsync();
+            //Instanciamos pila de navegacion
+            IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
+            //accedemos a pagina en la pila de navegacion
+            Page editarCliente = navStack[navStack.Count - 1];
+            await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
+            //removemos elemento de la pila de navegacion
+            Application.Current.MainPage.Navigation.RemovePage(editarCliente);
+
+            //Aqui podemos navegar hacia donde deseamos 
+            
         }
         async void Volver()
         {

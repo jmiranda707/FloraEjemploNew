@@ -60,69 +60,135 @@ namespace FloraEjemplo.Services
         //Revisa si hay cambios en DB local y los envía
         public async Task<Response> CheckChanges()
         {
-            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            if (Application.Current.Properties.ContainsKey("Sincronizacion"))
             {
-                List<ClienteModel> clienteModel = new List<ClienteModel>(contexto.Consultar());
-                List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
-                if (clienteTrackingModel.Count != 0)
+                //Do things if it's NOT the first run of the app...
+                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
                 {
-                    List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
-                    var json = JsonConvert.SerializeObject(modeloRegistro);
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    //http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/
-                    //http://efrain1234-001-site1.ftempurl.com/api/SyncIn
-                    //http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro?Usuario=Tu_Usuario&Dispositivo=Tu_Identificador&Version=VersionAnterior
-                    HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
-                    var respuesta = response.Headers.Location.ToString();
-                    var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
-                    string jsonValidacion = response.Content.ReadAsStringAsync().Result;
-                    //var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
-                    var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
-                    Application.Current.Properties["Version"] = syncIn[0].Version.ToString();
-                    await Application.Current.SavePropertiesAsync();
-                    if (!response.IsSuccessStatusCode)
+                    List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
+                    if (clienteTrackingModel.Count != 0)
                     {
-                        return new Response
-                        {
-                            IsSuccess = false,
-                            Message = response.RequestMessage.ToString(),
-                            Codigo = 500
-                        };
-                    }
-                    else
-                    {
-                        if (respuesta == respuestaOcupado)
+                        List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
+                        var json = JsonConvert.SerializeObject(modeloRegistro);
+                        HttpClient client = new HttpClient();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
+                        var respuesta = response.Headers.Location.ToString();
+                        var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
+                        string jsonValidacion = response.Content.ReadAsStringAsync().Result;
+                        //var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
+                        var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
+                        Application.Current.Properties["Version"] = syncIn[0].Version.ToString();
+                        await Application.Current.SavePropertiesAsync();
+                        if (!response.IsSuccessStatusCode)
                         {
                             return new Response
                             {
                                 IsSuccess = false,
-                                Message = "Servidor ocupado, intente de nuevo",
-                                Result = jsonValidacion,
-                                Codigo = 109
+                                Message = response.RequestMessage.ToString(),
+                                Codigo = 500
                             };
                         }
-                    }
+                        else
+                        {
+                            if (respuesta == respuestaOcupado)
+                            {
+                                return new Response
+                                {
+                                    IsSuccess = false,
+                                    Message = "Servidor ocupado, intente de nuevo",
+                                    Result = jsonValidacion,
+                                    Codigo = 109
+                                };
+                            }
+                        }
 
-                    dataContext.DeleteAllClienteRegistro();
-                    return new Response
+                        dataContext.DeleteAllClienteRegistro();
+                        return new Response
+                        {
+                            IsSuccess = true,
+                            Message = "Cambios pendientes enviados",
+                            Result = jsonValidacion,
+                            Codigo = 201
+                        };
+                    }
+                    else
                     {
-                        IsSuccess = true,
-                        Message = "Cambios pendientes enviados",
-                        Result = jsonValidacion,
-                        Codigo = 201
-                    };
-                }
-                else
-                {
-                    return new Response
-                    {
-                        IsSuccess = true,
-                        Message = "Sin cambios pendientes",
-                        Codigo = 200
-                    };
+                        return new Response
+                        {
+                            IsSuccess = true,
+                            Message = "Sin cambios pendientes",
+                            Codigo = 200
+                        };
+                    }
                 }
             }
+            else
+            {
+                Application.Current.Properties["Sincronizacion"] = false;
+                //Do things if it IS the first run of the app...
+
+                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                {
+                    List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
+                    if (clienteTrackingModel.Count != 0)
+                    {
+                        List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
+                        var json = JsonConvert.SerializeObject(modeloRegistro);
+                        HttpClient client = new HttpClient();
+                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                        HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
+                        var respuesta = response.Headers.Location.ToString();
+                        var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
+                        string jsonValidacion = response.Content.ReadAsStringAsync().Result;
+                        //var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
+                        var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
+                        Application.Current.Properties["Version"] = syncIn[0].Version.ToString();
+                        await Application.Current.SavePropertiesAsync();
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            return new Response
+                            {
+                                IsSuccess = false,
+                                Message = response.RequestMessage.ToString(),
+                                Codigo = 500
+                            };
+                        }
+                        else
+                        {
+                            if (respuesta == respuestaOcupado)
+                            {
+                                return new Response
+                                {
+                                    IsSuccess = false,
+                                    Message = "Servidor ocupado, intente de nuevo",
+                                    Result = jsonValidacion,
+                                    Codigo = 109
+                                };
+                            }
+                        }
+
+                        dataContext.DeleteAllClienteRegistro();
+                        return new Response
+                        {
+                            IsSuccess = true,
+                            Message = "Cambios pendientes enviados",
+                            Result = jsonValidacion,
+                            Codigo = 201
+                        };
+                    }
+                    else
+                    {
+                        return new Response
+                        {
+                            IsSuccess = true,
+                            Message = "Sin cambios pendientes",
+                            Codigo = 200
+                        };
+                    }
+                }
+            }
+            
         }
 
         //Obtiene lista de clientes
@@ -233,6 +299,58 @@ namespace FloraEjemplo.Services
             catch (WebException)
             {
                 return false;
+            }
+        }
+
+
+
+
+
+
+
+
+        public async Task<Response> SincronizacionVoid()
+        {
+            IDevice device = DependencyService.Get<IDevice>();
+            string deviceIdentifier = device.GetIdentifier();
+            var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
+            var Tu_Identificador = deviceIdentifier;
+            try
+            {
+                string resultado = string.Empty;
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                HttpResponseMessage response = await httpClient.GetAsync(
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
+                if (!response.IsSuccessStatusCode)
+                {
+                    return new Response
+                    {
+                        IsSuccess = false,
+                        Message = response.StatusCode.ToString(),
+                    };
+                }
+                resultado = response.Content.ReadAsStringAsync().Result;
+                resultado = resultado.Replace("\\", "");
+                resultado = resultado.Replace("/", "");
+                resultado = resultado.Replace("\"[", "[");
+                resultado = resultado.Replace("]\"", "]");
+                var resulta = resultado;
+                return new Response
+                {
+                    IsSuccess = true,
+                    Message = "Ok",
+                    Result = resultado,
+                };
+            }
+            catch (System.Exception error)
+            {
+                return new Response
+                {
+                    IsSuccess = false,
+                    Message = error.Message,
+                };
             }
         }
     }
