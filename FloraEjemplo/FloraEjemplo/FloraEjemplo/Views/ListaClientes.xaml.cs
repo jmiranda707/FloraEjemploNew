@@ -32,7 +32,7 @@ namespace FloraEjemplo.Views
             Application.Current.Properties["Correo"] = item.Mail.ToString();
             Application.Current.Properties["Numero"] = item.Numero.ToString();
             await Application.Current.SavePropertiesAsync();
-            var numero = Application.Current.Properties["Numero"];
+            var numero = item.Numero.ToString();
             var version = Application.Current.Properties["Version"] as string;
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
@@ -50,6 +50,12 @@ namespace FloraEjemplo.Views
                         //Si hay conexion
                         if (connection.IsSuccess)
                         {
+                            //Eliminamos en local ClienteModel
+                            using (var contexto = new DataContext())
+                            {
+                                ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                contexto.Eliminar(modelo);
+                            }
                             var aCTIVO = "ELIMINADO";
                             var aCTUALIZAR = "ACTUALIZAR_ESTADO";
                             ClienteModel Customer = new ClienteModel
@@ -72,14 +78,13 @@ namespace FloraEjemplo.Views
                             };
                             var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
                             var jsonCliente = JsonConvert.SerializeObject(Customer);
-                            string urlValidacion = string.Empty;
                             HttpClient client = new HttpClient();
                             client.DefaultRequestHeaders.Accept.Clear();
                             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                             HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(jsonCliente, Encoding.UTF8, "application/json"));
-                            var header = response.Headers.Location.ToString();
-                            if (response.IsSuccessStatusCode)
+                            if (response.IsSuccessStatusCode)//IsSuccessStatusCode
                             {
+                                var header = response.Headers.Location.ToString();
                                 if (header == respuestaOcupado)
                                 {
                                     using (var contexto = new DataContext())
@@ -88,7 +93,7 @@ namespace FloraEjemplo.Views
                                         var activo = "ELIMINADO";
                                         var actualizaEstado = "ACTUALIZAR_ESTADO";
                                         var dispositivo = Application.Current.Properties["device"] as string;
-                                        //Borramos en cliente tracking
+                                        //Agregamso el cliente borrado en ClienteTrackingModel
                                         ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                                         {
                                             Numero = Convert.ToInt32(numero),
@@ -118,21 +123,52 @@ namespace FloraEjemplo.Views
                                         return;
                                     }
                                 }
-
-                                using (var contexto = new DataContext())
-                                {
-                                    ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                                    contexto.Eliminar(modelo);
-                                }
                             }
                             else
-                            {
+                            {//Si hubo un error al enviar al servidor, almacenamos en ClienteTrackingModel
+
                                 await Application.Current.MainPage.DisplayAlert(
                                     response.IsSuccessStatusCode.ToString(),
                                     response.RequestMessage.ToString(),
                                     "Aceptar");
-                                return;
+
+                                using (var contexto = new DataContext())
+                                {
+                                    ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                    var activo = "ELIMINADO";
+                                    var actualizaEstado = "ACTUALIZAR_ESTADO";
+                                    var dispositivo = Application.Current.Properties["device"] as string;
+                                    //Agregamso el cliente borrado en ClienteTrackingModel
+                                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                                    {
+                                        Numero = Convert.ToInt32(numero),
+                                        Nombre = modelo.Nombre.ToString(),
+                                        Edad = modelo.Edad,
+                                        Telefono = modelo.Telefono.ToString(),
+                                        Mail = modelo.Mail.ToString(),
+                                        Saldo = modelo.Saldo,
+                                        Proceso = 1,
+                                        Usuario = modelo.Usuario,
+                                        FechaCreacion = modelo.FechaCreacion,
+                                        FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
+                                        FechaModificacion = DateTime.Now,
+                                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        Id = modelo.Id,
+                                        Estado = activo,
+                                        Transaccion = actualizaEstado,
+                                        Dispositivo = dispositivo,
+                                        Version = version
+                                    };
+                                    contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                                    await Application.Current.MainPage.DisplayAlert(
+                                        "Hecho",
+                                        "Cliente eliminado localmente",
+                                        "Aceptar");
+                                    MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+                                    return;
+                                }
                             }
+
                             await Application.Current.MainPage.DisplayAlert(
                                     "Hecho",
                                     "Cliente eliminado",

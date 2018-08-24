@@ -2,11 +2,9 @@
 using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
-using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -309,6 +307,7 @@ namespace FloraEjemplo.ViewModels
                 var header = response.Headers.Location.ToString();
                 if (response.IsSuccessStatusCode)
                 {
+                    //Servidor ocupado
                     if (respuestaOcupado == response.Headers.Location.ToString())
                     {
                         //Almacenamos en Tabla ClienteTrackingModel
@@ -336,7 +335,7 @@ namespace FloraEjemplo.ViewModels
                         {
                             contexto.InsertarClienteRegistro(modeloClienteRegistro);
                         }
-                    }
+                    }//Correo electronico ya registrado en DB
                     else if (yaRegistrado == response.Headers.Location.ToString())
                     {
                         await Application.Current.MainPage.DisplayAlert(
@@ -354,8 +353,8 @@ namespace FloraEjemplo.ViewModels
                     response.RequestMessage.ToString(),
                     "Aceptar");
                 }
+                //IsSuccessStatusCode
                 var result = response.Content.ReadAsStringAsync().Result;
-
                 this.Nombre = string.Empty;
                 this.Edad = 0;
                 this.Telefono = string.Empty;
@@ -363,11 +362,14 @@ namespace FloraEjemplo.ViewModels
                 this.Saldo = 0;
                 this.Usuario = string.Empty;
                 this.Estado = string.Empty;
+
                 await Application.Current.MainPage.DisplayAlert(
                      "Hola",
                      "Usuario agregado " + response.Headers.Location.ToString(),
                      "Aceptar");
+
                 MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
+
                 await Application.Current.MainPage.Navigation.PopAsync();
             }
             catch (Exception error)

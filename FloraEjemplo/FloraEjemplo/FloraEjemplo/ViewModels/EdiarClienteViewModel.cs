@@ -1,7 +1,6 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
-using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
@@ -203,8 +202,13 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     "Ha ocurrido un error enviando la solicitud",
                     "Aceptar");
-                }
 
+                    //Cargamos desde la DB local
+                    LoadClientFromLocal();
+
+                    return;
+                }
+                //IsSuccessStatusCode
                 resultado = response.Content.ReadAsStringAsync().Result;
                 resultado = resultado.Replace("\\", "");
                 resultado = resultado.Replace("/", "");
@@ -233,11 +237,11 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     error.Message,
                     "Aceptar");
+                //Cargamos desde el local
                 LoadClientFromLocal();
             }
         }
-
-        async void LoadClientFromLocal()
+        async void LoadClientFromLocal()//Cargamos desde la DB local
         {
             var idLocalCliente = (Application.Current.Properties["Correo"] as string);
 
@@ -253,7 +257,6 @@ namespace FloraEjemplo.ViewModels
             }
             await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
         }
-
         async void Put()
         {
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
@@ -282,6 +285,16 @@ namespace FloraEjemplo.ViewModels
             else if (isNumericNombre)
             {
                 await App.Current.MainPage.DisplayAlert("Error", "Ingrese solo letras en campo Nombre", "Aceptar");
+                return;
+            }
+            else if (Edad < 0)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Campo Edad no admite valores negativos", "Aceptar");
+                return;
+            }
+            else if (Edad > 99)
+            {
+                await App.Current.MainPage.DisplayAlert("Error", "Campo Edad no debe ser mayor a 99 años", "Aceptar");
                 return;
             }
             else if (Telefono.Length < 10 || Telefono.Length > 13)
@@ -365,44 +378,44 @@ namespace FloraEjemplo.ViewModels
                 };
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
-            await Application.Current.MainPage.DisplayAlert("Mensaje", "Actualizado Localmente", "Ok");
+            await Application.Current.MainPage.DisplayAlert(
+                "Mensaje", 
+                "Actualizado Localmente", 
+                "Ok");
+
             MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
         }
-        async void PutWithConn()
+        async void PutWithConn()//para obtener todos mis Clientes desde Local y preparar para enviar
         {
-            //Application.Current.Properties["Messaging"] = "true";
-            //await Application.Current.SavePropertiesAsync();
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
-            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
-            {
-                var aCTIVO = "ACTIVO";
-                var aCTUALIZAR = "ACTUALIZAR";
-                var cliente = contexto.Consultar(correo);
-                ClienteModel modelo = new ClienteModel
-                {
-                    Nombre = Nombre,
-                    Edad = Edad,
-                    Telefono = Telefono,
-                    Mail = Mail,
-                    Saldo = Saldo,
-                    Proceso = 0,
-                    Usuario = Usuario,
-                    FechaCreacion = cliente.FechaCreacion,
-                    FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                    FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                    Id = cliente.Id,
-                    Estado = aCTIVO,
-                    Transaccion = aCTUALIZAR
-                };
-                contexto.Actualizar(modelo);
-            }
+            var aCTIVO = "ACTIVO";
+            var aCTUALIZAR = "ACTUALIZAR";
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
-                var aCTIVO = "ACTIVO";
-                var aCTUALIZAR = "ACTUALIZAR";
+                using (var contexto = new DataContext()) 
+                {
+                    var cliente = contexto.Consultar(correo);
+                    ClienteModel modelo = new ClienteModel
+                    {
+                        Nombre = Nombre,
+                        Edad = Edad,
+                        Telefono = Telefono,
+                        Mail = Mail,
+                        Saldo = Saldo,
+                        Proceso = 0,
+                        Usuario = Usuario,
+                        FechaCreacion = cliente.FechaCreacion,
+                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
+                        FechaModificacion = DateTime.Now,
+                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                        Id = cliente.Id,
+                        Estado = aCTIVO,
+                        Transaccion = aCTUALIZAR
+                    };
+                    contexto.Actualizar(modelo);
+                }
                 var id = Application.Current.Properties["Id"] as string;
                 ClienteModel Customer = new ClienteModel
                 {
@@ -420,11 +433,15 @@ namespace FloraEjemplo.ViewModels
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR
                 };
-                var jsonCliente = JsonConvert.SerializeObject(Customer);
+                var jsonCliente = JsonConvert.SerializeObject(Customer);//serializamos el modelo
                 EnviarDocumentoPut(jsonCliente);
             }
+            else
+            {
+                PutWithoutConn();
+            }
         }
-        public async void EnviarDocumentoPut(string json)
+        public async void EnviarDocumentoPut(string json)//Enviando con conexion
         {
             try
             {
@@ -433,21 +450,20 @@ namespace FloraEjemplo.ViewModels
                 var version = Application.Current.Properties["Version"] as string;
                 var dispositivo = Application.Current.Properties["device"] as string;
                 var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
-                string urlValidacion = string.Empty;
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-                var header = response.Headers.Location.ToString();
                 if (!response.IsSuccessStatusCode)
                 {
                     await Application.Current.MainPage.DisplayAlert(
                         response.IsSuccessStatusCode.ToString(),
                         response.RequestMessage.ToString(),
                         "Aceptar");
+                    PutWithoutConn();
                     return;
                 }
-
+                var header = response.Headers.Location.ToString();
                 if (respuestaOcupado == header)
                 {
                     var correo = (Application.Current.Properties["Correo"] as string);

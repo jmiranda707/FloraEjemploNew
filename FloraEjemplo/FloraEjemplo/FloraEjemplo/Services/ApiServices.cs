@@ -245,6 +245,7 @@ namespace FloraEjemplo.Services
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
             var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
+            var version = Application.Current.Properties["Version"] as string;
             var Tu_Identificador = deviceIdentifier;
             try
             {
@@ -253,7 +254,7 @@ namespace FloraEjemplo.Services
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                 HttpResponseMessage response = await httpClient.GetAsync(
-                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncObtener?Usuario="+Tu_NombreUsuario+"&Dispositivo="+Tu_Identificador+"&Version="+version);
                 if (!response.IsSuccessStatusCode)
                 {
                     return new Response
