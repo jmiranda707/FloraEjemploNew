@@ -82,6 +82,7 @@
             </Grid>
         </StackLayout>
         <StackLayout
+            Margin="10"
             Orientation="Horizontal">
             <Label
                 HorizontalOptions="Start"
@@ -93,7 +94,8 @@
                 Text="Pincha"
                 VerticalOptions="Center"/>
         </StackLayout>
-        <StackLayout>
+        <StackLayout
+            Margin="5">
             <ListView 
                     HasUnevenRows="True"
                     HeightRequest="1000"

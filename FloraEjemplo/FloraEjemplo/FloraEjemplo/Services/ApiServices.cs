@@ -17,7 +17,8 @@ namespace FloraEjemplo.Services
     public class ApiServices
     {
         DataContext dataContext;
-        private DateTimeOffset _lastSync = DateTimeOffset.MinValue;
+
+        //private DateTimeOffset _lastSync = DateTimeOffset.MinValue;
 
         public SyncIn TablaSyncIn { get; set; }
 
@@ -38,9 +39,6 @@ namespace FloraEjemplo.Services
                     Message = "Por favor, revisa tu configuración de internet",
                 };
             }
-            //hace ping a google para saber si hay internet
-            //var isReachable = await CrossConnectivity.Current.IsRemoteReachable(
-            //    "www.google.com.ve");
             var isReachable = IsReachableUri();
             if (!isReachable)
             {
@@ -60,9 +58,8 @@ namespace FloraEjemplo.Services
         //Revisa si hay cambios en DB local y los envía
         public async Task<Response> CheckChanges()
         {
-            if (Application.Current.Properties.ContainsKey("Sincronizacion"))
+            try
             {
-                //Do things if it's NOT the first run of the app...
                 using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
                 {
                     List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
@@ -123,72 +120,15 @@ namespace FloraEjemplo.Services
                     }
                 }
             }
-            else
+            catch (Exception error)
             {
-                Application.Current.Properties["Sincronizacion"] = false;
-                //Do things if it IS the first run of the app...
-
-                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                return new Response
                 {
-                    List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
-                    if (clienteTrackingModel.Count != 0)
-                    {
-                        List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
-                        var json = JsonConvert.SerializeObject(modeloRegistro);
-                        HttpClient client = new HttpClient();
-                        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                        HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
-                        var respuesta = response.Headers.Location.ToString();
-                        var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
-                        string jsonValidacion = response.Content.ReadAsStringAsync().Result;
-                        //var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
-                        var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
-                        Application.Current.Properties["Version"] = syncIn[0].Version.ToString();
-                        await Application.Current.SavePropertiesAsync();
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            return new Response
-                            {
-                                IsSuccess = false,
-                                Message = response.RequestMessage.ToString(),
-                                Codigo = 500
-                            };
-                        }
-                        else
-                        {
-                            if (respuesta == respuestaOcupado)
-                            {
-                                return new Response
-                                {
-                                    IsSuccess = false,
-                                    Message = "Servidor ocupado, intente de nuevo",
-                                    Result = jsonValidacion,
-                                    Codigo = 109
-                                };
-                            }
-                        }
-
-                        dataContext.DeleteAllClienteRegistro();
-                        return new Response
-                        {
-                            IsSuccess = true,
-                            Message = "Cambios pendientes enviados",
-                            Result = jsonValidacion,
-                            Codigo = 201
-                        };
-                    }
-                    else
-                    {
-                        return new Response
-                        {
-                            IsSuccess = true,
-                            Message = "Sin cambios pendientes",
-                            Codigo = 200
-                        };
-                    }
-                }
+                    IsSuccess = false,
+                    Message = error.Message.ToString(),
+                    Codigo = 500
+                };
             }
-            
         }
 
         //Obtiene lista de clientes
@@ -208,6 +148,7 @@ namespace FloraEjemplo.Services
                     {
                         IsSuccess = false,
                         Message = response.StatusCode.ToString(),
+                        Result = response.RequestMessage.ToString()
                     };
                 }
 
@@ -235,7 +176,6 @@ namespace FloraEjemplo.Services
                 };
             }
         }
-
         //
         public async Task<Response> Sincronizacion()
         {
@@ -251,7 +191,7 @@ namespace FloraEjemplo.Services
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                 HttpResponseMessage response = await httpClient.GetAsync(
-                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario="+Tu_NombreUsuario+"&Dispositivo="+Tu_Identificador+"&Version="+version);
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Version=" + version);
                 if (!response.IsSuccessStatusCode)
                 {
                     return new Response
@@ -282,7 +222,6 @@ namespace FloraEjemplo.Services
                 };
             }
         }
-
         //Hace ping a Google para verificar si en realidad hay conexion a internet
         public static bool IsReachableUri()
         {
@@ -301,14 +240,6 @@ namespace FloraEjemplo.Services
                 return false;
             }
         }
-
-
-
-
-
-
-
-
         public async Task<Response> SincronizacionVoid()
         {
             IDevice device = DependencyService.Get<IDevice>();

@@ -37,49 +37,123 @@ namespace FloraEjemplo.Views
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {
-                var connection = await apiServices.CheckConnection();
-                //Si hay conexion
-                if (connection.IsSuccess)
+                Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
                 {
-                    var aCTIVO = "ELIMINADO";
-                    var aCTUALIZAR = "ACTUALIZAR_ESTADO";
-                    ClienteModel Customer = new ClienteModel
+                    var result = await Application.Current.MainPage.DisplayAlert(
+                        "Alerta!",
+                        "Desea eliminar el cliente seleccionado?",
+                        "Si", "No");
+
+                    if (result)
                     {
-                        Numero = item.Numero,
-                        Id = item.Id,
-                        Nombre = item.Nombre,
-                        Edad = item.Edad,
-                        Telefono = item.Telefono,
-                        Mail = item.Mail,
-                        Saldo = item.Saldo,
-                        FechaCreacion = item.FechaCreacion,
-                        FechaCreacionUtc = item.FechaCreacionUtc.ToString(),
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Proceso = item.Proceso,
-                        Usuario = item.Usuario,
-                        Estado = aCTIVO,
-                        Transaccion = aCTUALIZAR
-                    };
-                    var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
-                    var jsonCliente = JsonConvert.SerializeObject(Customer);
-                    string urlValidacion = string.Empty;
-                    HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(jsonCliente, Encoding.UTF8, "application/json"));
-                    var header = response.Headers.Location.ToString();
-                    if (response.IsSuccessStatusCode)
-                    {
-                        if (header == respuestaOcupado)
+                        var connection = await apiServices.CheckConnection();
+                        //Si hay conexion
+                        if (connection.IsSuccess)
                         {
+                            var aCTIVO = "ELIMINADO";
+                            var aCTUALIZAR = "ACTUALIZAR_ESTADO";
+                            ClienteModel Customer = new ClienteModel
+                            {
+                                Numero = item.Numero,
+                                Id = item.Id,
+                                Nombre = item.Nombre,
+                                Edad = item.Edad,
+                                Telefono = item.Telefono,
+                                Mail = item.Mail,
+                                Saldo = item.Saldo,
+                                FechaCreacion = item.FechaCreacion,
+                                FechaCreacionUtc = item.FechaCreacionUtc.ToString(),
+                                FechaModificacion = DateTime.Now,
+                                FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                Proceso = item.Proceso,
+                                Usuario = item.Usuario,
+                                Estado = aCTIVO,
+                                Transaccion = aCTUALIZAR
+                            };
+                            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
+                            var jsonCliente = JsonConvert.SerializeObject(Customer);
+                            string urlValidacion = string.Empty;
+                            HttpClient client = new HttpClient();
+                            client.DefaultRequestHeaders.Accept.Clear();
+                            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                            HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(jsonCliente, Encoding.UTF8, "application/json"));
+                            var header = response.Headers.Location.ToString();
+                            if (response.IsSuccessStatusCode)
+                            {
+                                if (header == respuestaOcupado)
+                                {
+                                    using (var contexto = new DataContext())
+                                    {
+                                        ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                        var activo = "ELIMINADO";
+                                        var actualizaEstado = "ACTUALIZAR_ESTADO";
+                                        var dispositivo = Application.Current.Properties["device"] as string;
+                                        //Borramos en cliente tracking
+                                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                                        {
+                                            Numero = Convert.ToInt32(numero),
+                                            Nombre = modelo.Nombre.ToString(),
+                                            Edad = modelo.Edad,
+                                            Telefono = modelo.Telefono.ToString(),
+                                            Mail = modelo.Mail.ToString(),
+                                            Saldo = modelo.Saldo,
+                                            Proceso = 1,
+                                            Usuario = modelo.Usuario,
+                                            FechaCreacion = modelo.FechaCreacion,
+                                            FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
+                                            FechaModificacion = DateTime.Now,
+                                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                            Id = modelo.Id,
+                                            Estado = activo,
+                                            Transaccion = actualizaEstado,
+                                            Dispositivo = dispositivo,
+                                            Version = version
+                                        };
+                                        contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                                        await Application.Current.MainPage.DisplayAlert(
+                                            "Hecho",
+                                            "Cliente eliminado localmente",
+                                            "Aceptar");
+                                        MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+                                        return;
+                                    }
+                                }
+
+                                using (var contexto = new DataContext())
+                                {
+                                    ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                    contexto.Eliminar(modelo);
+                                }
+                            }
+                            else
+                            {
+                                await Application.Current.MainPage.DisplayAlert(
+                                    response.IsSuccessStatusCode.ToString(),
+                                    response.RequestMessage.ToString(),
+                                    "Aceptar");
+                                return;
+                            }
+                            await Application.Current.MainPage.DisplayAlert(
+                                    "Hecho",
+                                    "Cliente eliminado",
+                                    "Aceptar");
+
+                            MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+                        }
+                        else
+                        {
+                            //Si no hay conexion
                             using (var contexto = new DataContext())
                             {
                                 ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                //Borramos en ClienteModel
+
+                                contexto.Eliminar(modelo);
                                 var activo = "ELIMINADO";
                                 var actualizaEstado = "ACTUALIZAR_ESTADO";
                                 var dispositivo = Application.Current.Properties["device"] as string;
                                 //Borramos en cliente tracking
+
                                 ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                                 {
                                     Numero = Convert.ToInt32(numero),
@@ -106,73 +180,10 @@ namespace FloraEjemplo.Views
                                     "Cliente eliminado localmente",
                                     "Aceptar");
                                 MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
-                                return;
                             }
                         }
-
-                        using (var contexto = new DataContext())
-                        {
-                            ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                            contexto.Eliminar(modelo);
-                        }
                     }
-                    else
-                    {
-                        await Application.Current.MainPage.DisplayAlert(
-                            response.IsSuccessStatusCode.ToString(),
-                            response.RequestMessage.ToString(),
-                            "Aceptar");
-                        return;
-                    }
-                    await Application.Current.MainPage.DisplayAlert(
-                            "Hecho",
-                            "Cliente eliminado",
-                            "Aceptar");
-
-                    MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
-                }
-                else
-                {
-                    //Si no hay conexion
-                    using (var contexto = new DataContext())
-                    {
-                        ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                        //Borramos en ClienteModel
-                        
-                        contexto.Eliminar(modelo);
-                        var activo = "ELIMINADO";
-                        var actualizaEstado = "ACTUALIZAR_ESTADO";
-                        var dispositivo = Application.Current.Properties["device"] as string;
-                        //Borramos en cliente tracking
-
-                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-                        {
-                            Numero = Convert.ToInt32(numero),
-                            Nombre = modelo.Nombre.ToString(),
-                            Edad = modelo.Edad,
-                            Telefono = modelo.Telefono.ToString(),
-                            Mail = modelo.Mail.ToString(),
-                            Saldo = modelo.Saldo,
-                            Proceso = 1,
-                            Usuario = modelo.Usuario,
-                            FechaCreacion = modelo.FechaCreacion,
-                            FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
-                            FechaModificacion = DateTime.Now,
-                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                            Id = modelo.Id,
-                            Estado = activo,
-                            Transaccion = actualizaEstado,
-                            Dispositivo = dispositivo,
-                            Version = version
-                        };
-                        contexto.InsertarClienteRegistro(modeloClienteRegistro);
-                        await Application.Current.MainPage.DisplayAlert(
-                            "Hecho",
-                            "Cliente eliminado localmente",
-                            "Aceptar");
-                        MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
-                    }
-                }
+                });
             }
             else if (action == "Editar")
             {

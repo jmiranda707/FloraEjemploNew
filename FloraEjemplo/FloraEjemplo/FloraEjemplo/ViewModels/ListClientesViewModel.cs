@@ -90,7 +90,6 @@ namespace FloraEjemplo.ViewModels
                 //Do things if it's NOT the first run of the app...
                 LoadData();
                 CheckWifiContinuosly();
-                //CheckWifiOnStart();
             }
             else
             {
@@ -98,8 +97,31 @@ namespace FloraEjemplo.ViewModels
                 //Do things if it IS the first run of the app...
                 PrimeraSincronizacion();
             }
-
-           
+            
+            //Device.StartTimer(TimeSpan.FromSeconds(217), () =>
+            //{
+            //    Task.Run(() =>
+            //    {
+            //        LoadData2();
+            //    });
+            //    return true;
+            //});
+            MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<ListaClientes>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            //MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
+            //{
+            //    LoadData();
+            //});
             Device.StartTimer(TimeSpan.FromSeconds(60), () =>
             {
                 Task.Run(() =>
@@ -108,7 +130,6 @@ namespace FloraEjemplo.ViewModels
                 });
                 return true;
             });
-
         }
         #endregion
 
@@ -165,37 +186,18 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-        public void hola()
-        {
-            MessagingCenter.Subscribe<EdiarClienteViewModel>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            MessagingCenter.Subscribe<ListaClientes>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-            MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
-            {
-                LoadData();
-            });
-        }
         public void CheckWifiContinuosly()
         {
             Conn = CrossConnectivity.Current.IsConnected ? "online.png" : "offline";
         }
-        public void CheckWifiOnStart()
-        {
-            CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
-            {
-                Conn = args.IsConnected ? "online.png" : "offline";
-                LoadData();
-            };
-        }
+        //public void CheckWifiOnStart()
+        //{
+        //    CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
+        //    {
+        //        Conn = args.IsConnected ? "online.png" : "offline";
+        //        LoadData();
+        //    };
+        //}
         public async void LoadData()
         {
 
@@ -286,7 +288,7 @@ namespace FloraEjemplo.ViewModels
                         "Error",
                         response.RequestMessage.ToString(),
                         "Aceptar");
-                        
+
                     }
                 }
                 catch (System.Exception error)
@@ -335,10 +337,11 @@ namespace FloraEjemplo.ViewModels
                     }
                     else
                     {
-                        this.IsVisible = false;
-                        this.SourceClientes = "No hay usuarios registrados";
+                        //this.IsVisible = false;
+                        //this.SourceClientes = "No hay usuarios registrados";
                         dataContext.DeleteAll();
                         dataContext.DeleteAllClienteRegistro();
+                        LoadClientFronApi();
                     }
                 }
                 else
@@ -363,9 +366,9 @@ namespace FloraEjemplo.ViewModels
             {
                 this.IsVisible = true;
                 var get = await apiServices.LoadClientFronApi();
-                var resulta = get.Result.ToString();
                 if (get.IsSuccess)
                 {
+                    var resulta = get.Result.ToString();
                     var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
                     var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
                     if (json != null)
@@ -399,10 +402,11 @@ namespace FloraEjemplo.ViewModels
             }
             catch (System.Exception error)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    error.Message,
-                    "Aceptar");
+                //await Application.Current.MainPage.DisplayAlert(
+                //    "Ha ocurrido un error con el servidor",
+                //    error.Message,
+                //    "Aceptar");
+                LoadClientFronLocal();
             }
         }
         public async void CambiosPendientesSincronizar()//Codigo 109 Sincronizacion en proceso
@@ -517,6 +521,98 @@ namespace FloraEjemplo.ViewModels
 
             Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
         }
+        //async void LoadData2()
+        //{
+        //    var connection = await apiServices.CheckConnection();
+        //    if (!connection.IsSuccess)
+        //    {
+        //        LoadClientFronLocal(); //From Local
+        //    }
+        //    else
+        //    {
+        //        //Dependiendo a la respuesta se presentaran los siguientes casos
+        //        var cambiosPendientes = await apiServices.CheckChanges();
+        //        if (cambiosPendientes.Codigo == 201)//Si los cambios pendientes se realizaron
+        //        {
+        //            GetSincronizacion();
+        //        }
+        //        else if (cambiosPendientes.Codigo == 200)//Si no hay cambios pendientes por realizar
+        //        {
+        //            LoadSincronizacion();
+        //        }
+        //        else if (cambiosPendientes.Codigo == 109)//Si el servidor esta ocupado con una sincronizacion en procesp
+        //        {
+        //            CambiosPendientesSincronizar();
+        //        }
+        //        else //En caso de fallas las anteriores se carga desde local
+        //        {
+        //            LoadClientFronLocal();
+        //        }
+        //    }
+        //}
+        //async void LoadSincronizacion()
+        //{
+        //    IDevice device = DependencyService.Get<IDevice>();
+        //    string deviceIdentifier = device.GetIdentifier();
+        //    var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
+        //    var version = Application.Current.Properties["Version"] as string;
+        //    var Tu_Identificador = deviceIdentifier;
+        //    try
+        //    {
+        //        string resultado = string.Empty;
+        //        var httpClient = new HttpClient();
+        //        httpClient.DefaultRequestHeaders.Accept.Clear();
+        //        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+        //        HttpResponseMessage response = await httpClient.GetAsync(
+        //            "http://efrain1234-001-site1.ftempurl.com/api/SycnSelect?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Versio=" + version);
+        //        if (!response.IsSuccessStatusCode)
+        //        {
+        //            //await Application.Current.MainPage.DisplayAlert(
+        //            //response.IsSuccessStatusCode.ToString(),
+        //            //response.RequestMessage.ToString(),
+        //            //"Aceptar");
+        //            LoadClientFronApi();
+
+        //        }
+        //        var header = response.Headers.Location.ToString();
+        //        resultado = response.Content.ReadAsStringAsync().Result;
+        //        resultado = resultado.Replace("\\", "");
+        //        resultado = resultado.Replace("/", "");
+        //        resultado = resultado.Replace("\"[", "[");
+        //        resultado = resultado.Replace("]\"", "]");
+        //        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resultado);
+        //        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resultado);
+        //        if (json != null)
+        //        {
+        //            this.IsVisible = true;
+        //            this.Clientes = new List<ClienteModel>(json);
+        //            this.SourceClientes = "API";
+        //            //Si la respuesta es correcta
+        //            var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+        //            var listaClientes = this.Clientes;
+        //            //almacenando en DB Borra y despues guarda
+        //            dataContext.DeleteAll();
+        //            dataContext.DeleteAllClienteRegistro();
+        //            SaveCliente(listaClientes);
+        //        }
+        //        else
+        //        {
+        //            //this.IsVisible = false;
+        //            //this.SourceClientes = "No hay usuarios registrados";
+        //            dataContext.DeleteAll();
+        //            dataContext.DeleteAllClienteRegistro();
+        //            LoadClientFronApi();
+        //        }
+
+        //    }
+        //    catch (System.Exception error)
+        //    {
+        //        await Application.Current.MainPage.DisplayAlert(
+        //            "Error",
+        //            error.Message,
+        //            "Aceptar");
+        //    }
+        //}
         #endregion
     }
 }

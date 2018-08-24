@@ -224,14 +224,14 @@ namespace FloraEjemplo.ViewModels
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
-            //await Application.Current.MainPage.Navigation.PopAsync();
+            await Application.Current.MainPage.Navigation.PopAsync();
             //Instanciamos pila de navegacion
-            IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
-            //accedemos a pagina en la pila de navegacion
-            Page addCliente = navStack[navStack.Count - 1];
-            await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
+            //IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
+            ////accedemos a pagina en la pila de navegacion
+            //Page addCliente = navStack[navStack.Count - 1];
+            //await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
             //removemos elemento de la pila de navegacion
-            Application.Current.MainPage.Navigation.RemovePage(addCliente);
+           // Application.Current.MainPage.Navigation.RemovePage(addCliente);
             //Aqui podemos navegar hacia donde deseamos 
         }
         async void PostWithConn()
@@ -293,89 +293,91 @@ namespace FloraEjemplo.ViewModels
         }
         public async void EnviarDocumentoPost(string json)
         {
-            var version = Application.Current.Properties["Version"] as string;
-            var dispositivo = Application.Current.Properties["device"] as string;
-            var aCTIVO = "ACTIVO";
-            var insertar = "INSERTAR";
-            string urlValidacion = string.Empty;
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-            var yaRegistrado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
-            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-109";
-            var header = response.Headers.Location.ToString();
-            if (response.IsSuccessStatusCode)
+            try
             {
-                if (respuestaOcupado == response.Headers.Location.ToString())
+                var version = Application.Current.Properties["Version"] as string;
+                var dispositivo = Application.Current.Properties["device"] as string;
+                var aCTIVO = "ACTIVO";
+                var insertar = "INSERTAR";
+                string urlValidacion = string.Empty;
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/NuevoCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
+                var yaRegistrado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
+                var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-109";
+                var header = response.Headers.Location.ToString();
+                if (response.IsSuccessStatusCode)
                 {
-                    //Almacenamos en Tabla ClienteTrackingModel
-                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                    if (respuestaOcupado == response.Headers.Location.ToString())
                     {
-                        Nombre = Nombre,
-                        Edad = Edad,
-                        Telefono = Telefono,
-                        Mail = Mail,
-                        Saldo = Saldo,
-                        FechaCreacion = DateTime.Now,
-                        FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Proceso = 1,
-                        Usuario = Usuario,
-                        Estado = aCTIVO,
-                        Id = "",
-                        Numero = 0,
-                        Transaccion = insertar,
-                        Version = version,
-                        Dispositivo = dispositivo
-                    };
-                    using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+                        //Almacenamos en Tabla ClienteTrackingModel
+                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                        {
+                            Nombre = Nombre,
+                            Edad = Edad,
+                            Telefono = Telefono,
+                            Mail = Mail,
+                            Saldo = Saldo,
+                            FechaCreacion = DateTime.Now,
+                            FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                            FechaModificacion = DateTime.Now,
+                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                            Proceso = 1,
+                            Usuario = Usuario,
+                            Estado = aCTIVO,
+                            Id = "",
+                            Numero = 0,
+                            Transaccion = insertar,
+                            Version = version,
+                            Dispositivo = dispositivo
+                        };
+                        using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+                        {
+                            contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                        }
+                    }
+                    else if (yaRegistrado == response.Headers.Location.ToString())
                     {
-                        contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                        await Application.Current.MainPage.DisplayAlert(
+                         "Hola",
+                         "Correo electrónico en existencia, por favor utilice otra cuenta de correo",
+                         "Aceptar");
+
+                        return;
                     }
                 }
-                else if (yaRegistrado == response.Headers.Location.ToString())
+                else
                 {
                     await Application.Current.MainPage.DisplayAlert(
-                     "Hola",
-                     "Correo electrónico en existencia, por favor utilice otra cuenta de correo",
-                     "Aceptar");
-
-                    return;
+                    "Error " + response.IsSuccessStatusCode.ToString(),
+                    response.RequestMessage.ToString(),
+                    "Aceptar");
                 }
+                var result = response.Content.ReadAsStringAsync().Result;
+
+                this.Nombre = string.Empty;
+                this.Edad = 0;
+                this.Telefono = string.Empty;
+                this.Mail = string.Empty;
+                this.Saldo = 0;
+                this.Usuario = string.Empty;
+                this.Estado = string.Empty;
+                await Application.Current.MainPage.DisplayAlert(
+                     "Hola",
+                     "Usuario agregado " + response.Headers.Location.ToString(),
+                     "Aceptar");
+                MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
+                await Application.Current.MainPage.Navigation.PopAsync();
             }
-            else
+            catch (Exception error)
             {
                 await Application.Current.MainPage.DisplayAlert(
-                "Error "+response.IsSuccessStatusCode.ToString(),
-                response.RequestMessage.ToString(),
-                "Aceptar");
+                   "Error",
+                   error.Message,
+                   "Aceptar");
+                PostWitoutConn();
             }
-            var result = response.Content.ReadAsStringAsync().Result;
-            
-            
-            this.Nombre = string.Empty;
-            this.Edad = 0;
-            this.Telefono = string.Empty;
-            this.Mail = string.Empty;
-            this.Saldo = 0;
-            this.Usuario = string.Empty;
-            this.Estado = string.Empty;
-            await Application.Current.MainPage.DisplayAlert(
-                 "Hola",
-                 "Usuario agregado " + response.Headers.Location.ToString(),
-                 "Aceptar");
-            MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
-            await Application.Current.MainPage.Navigation.PopAsync();
-            ////Instanciamos pila de navegacion
-            //IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
-            ////accedemos a pagina en la pila de navegacion
-            //Page addCliente = navStack[navStack.Count - 1];
-            //await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
-            ////removemos elemento de la pila de navegacion
-            //Application.Current.MainPage.Navigation.RemovePage(addCliente);
-            ////Aqui podemos navegar hacia donde deseamos 
         }
         async void Volver()
         {

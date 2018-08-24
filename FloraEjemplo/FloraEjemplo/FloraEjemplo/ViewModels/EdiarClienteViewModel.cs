@@ -38,6 +38,7 @@ namespace FloraEjemplo.ViewModels
         double _saldo;
         string _usuario;
         string _estado;
+        ListClientesViewModel listviewmodel;
         #endregion
 
         #region Properties
@@ -155,6 +156,7 @@ namespace FloraEjemplo.ViewModels
         public EdiarClienteViewModel()
         {
             apiServices = new ApiServices();
+            listviewmodel = new ListClientesViewModel();
             LoadData();
         }
         #endregion
@@ -231,8 +233,27 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     error.Message,
                     "Aceptar");
+                LoadClientFromLocal();
             }
         }
+
+        async void LoadClientFromLocal()
+        {
+            var idLocalCliente = (Application.Current.Properties["Correo"] as string);
+
+            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            {
+                var Lis = contexto.Consultar(idLocalCliente);
+                this.Nombre = Lis.Nombre;
+                this.Edad = Lis.Edad;
+                this.Mail = Lis.Mail;
+                this.Telefono = Lis.Telefono;
+                this.Saldo = Lis.Saldo;
+                this.Usuario = Lis.Usuario;
+            }
+            await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
+        }
+
         async void Put()
         {
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
@@ -349,6 +370,8 @@ namespace FloraEjemplo.ViewModels
         }
         async void PutWithConn()
         {
+            //Application.Current.Properties["Messaging"] = "true";
+            //await Application.Current.SavePropertiesAsync();
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
@@ -375,7 +398,6 @@ namespace FloraEjemplo.ViewModels
                 };
                 contexto.Actualizar(modelo);
             }
-
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
@@ -404,81 +426,81 @@ namespace FloraEjemplo.ViewModels
         }
         public async void EnviarDocumentoPut(string json)
         {
-            var aCTIVO = "ACTIVO";
-            var aCTUALIZAR = "ACTUALIZAR";
-            var version = Application.Current.Properties["Version"] as string;
-            var dispositivo = Application.Current.Properties["device"] as string;
-            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
-            string urlValidacion = string.Empty;
-            HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Clear();
-            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-            var header = response.Headers.Location.ToString();
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    response.IsSuccessStatusCode.ToString(),
-                    response.RequestMessage.ToString(),
-                    "Aceptar");
-
-                return;
-            }
-
-            if (respuestaOcupado == header)
-            {
-                var correo = (Application.Current.Properties["Correo"] as string);
-                var numero = (Application.Current.Properties["Numero"]);
-                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                var aCTIVO = "ACTIVO";
+                var aCTUALIZAR = "ACTUALIZAR";
+                var version = Application.Current.Properties["Version"] as string;
+                var dispositivo = Application.Current.Properties["device"] as string;
+                var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
+                string urlValidacion = string.Empty;
+                HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
+                var header = response.Headers.Location.ToString();
+                if (!response.IsSuccessStatusCode)
                 {
-                    //Actualizamos en tabla registro
-                    var cliente = contexto.Consultar(correo);
-                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-                    {
-                        Numero = Convert.ToInt32(numero),
-                        Nombre = Nombre,
-                        Edad = Edad,
-                        Telefono = Telefono,
-                        Mail = Mail,
-                        Saldo = Saldo,
-                        Proceso = 1,
-                        Usuario = Usuario,
-                        FechaCreacion = cliente.FechaCreacion,
-                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Id = cliente.Id,
-                        Estado = aCTIVO,
-                        Transaccion = aCTUALIZAR,
-                        Version = version,
-                        Dispositivo = dispositivo
-                    };
-                    contexto.InsertarClienteRegistro(modeloClienteRegistro);
                     await Application.Current.MainPage.DisplayAlert(
-                        "Hola",
-                        "Actualizado en local, el servidor esta ocupado" + header,
+                        response.IsSuccessStatusCode.ToString(),
+                        response.RequestMessage.ToString(),
                         "Aceptar");
-                    MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
                     return;
                 }
-            }
-            await Application.Current.MainPage.DisplayAlert(
-                    response.IsSuccessStatusCode.ToString(),
-                    "Actualizado" + header,
-                    "Aceptar");
-            //Ejecuamos Metodo para refrescar listview de Lista principal
-            MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
-            //await Application.Current.MainPage.Navigation.PopAsync();
-            //Instanciamos pila de navegacion
-            IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
-            //accedemos a pagina en la pila de navegacion
-            Page editarCliente = navStack[navStack.Count - 1];
-            await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
-            //removemos elemento de la pila de navegacion
-            Application.Current.MainPage.Navigation.RemovePage(editarCliente);
 
-            //Aqui podemos navegar hacia donde deseamos 
-            
+                if (respuestaOcupado == header)
+                {
+                    var correo = (Application.Current.Properties["Correo"] as string);
+                    var numero = (Application.Current.Properties["Numero"]);
+                    using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                    {
+                        //Actualizamos en tabla registro
+                        var cliente = contexto.Consultar(correo);
+                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                        {
+                            Numero = Convert.ToInt32(numero),
+                            Nombre = Nombre,
+                            Edad = Edad,
+                            Telefono = Telefono,
+                            Mail = Mail,
+                            Saldo = Saldo,
+                            Proceso = 1,
+                            Usuario = Usuario,
+                            FechaCreacion = cliente.FechaCreacion,
+                            FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
+                            FechaModificacion = DateTime.Now,
+                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                            Id = cliente.Id,
+                            Estado = aCTIVO,
+                            Transaccion = aCTUALIZAR,
+                            Version = version,
+                            Dispositivo = dispositivo
+                        };
+                        contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                        await Application.Current.MainPage.DisplayAlert(
+                            "Hola",
+                            "Actualizado en local, servidor ocupado "+header,
+                            "Aceptar");
+                        MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
+                        return;
+                    }
+                }
+                await Application.Current.MainPage.DisplayAlert(
+                        response.IsSuccessStatusCode.ToString(),
+                        "Actualizado" + header,
+                        "Aceptar");
+
+                //Ejecuamos Metodo para refrescar listview de Lista principal
+                MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
+            }
+            catch (Exception error)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    error.Message,
+                    "Aceptar");
+                PutWithoutConn();
+            }
         }
         async void Volver()
         {

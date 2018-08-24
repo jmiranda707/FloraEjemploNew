@@ -23,20 +23,18 @@ namespace FloraEjemplo
     {
         public static MasterDetailPage MasterD { get; set; }
 
-        private ApiServices apiServices;
+        //private ApiServices apiServices;
 
-        private ListClientesViewModel listaClientes;
+        //event ConnectivityChangedEventHandler ConnectivityChanged;
 
-        event ConnectivityChangedEventHandler ConnectivityChanged;
-
-        public delegate void ConnectivityChangedEventHandler(object sender, ConnectivityChangedEventArgs e);
+        //public delegate void ConnectivityChangedEventHandler(object sender, ConnectivityChangedEventArgs e);
 
         public App()
         {
             InitializeComponent();
-            apiServices = new ApiServices();
-            listaClientes = new ListClientesViewModel();
+            //apiServices = new ApiServices();
             MainPage = new NavigationPage(new ListaClientesMD());
+            //MainPage = new NavigationPage(new Agenda());
             //CrossConnectivity.Current.ConnectivityChanged += async (sender, args) =>
             //{
             //    var cambiosPendientes = await apiServices.CheckChanges();
@@ -65,25 +63,10 @@ namespace FloraEjemplo
         }
 
 
-    protected override void OnStart()
+        protected override void OnStart()
         {
-            // Handle when your app starts
-            //CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
-            //{
-            //    Task.Run(async () =>
-            //    {
-            //        var connection = await apiServices.CheckConnection();
-            //        if (connection.IsSuccess)
-            //        {
-            //            //ConsultaTablas();
-            //            var cambiosPendientes = await apiServices.CheckChanges();
-            //            if (cambiosPendientes.Codigo == 201)
-            //            {
-            //                MessagingCenter.Send<App>(this, "EjecutaLista");
-            //            }
-            //        }
-            //    });
-            //};
+
+
         }
 
         protected override void OnSleep()
@@ -104,22 +87,6 @@ namespace FloraEjemplo
             //        }
             //    });
             //};
-            //Device.StartTimer(TimeSpan.FromSeconds(30), () =>
-            //{
-            //    Task.Run(async () =>
-            //    {
-            //        var connection = await apiServices.CheckConnection();
-            //        if (connection.IsSuccess)
-            //        {
-            //            var cambiosPendientes = await apiServices.CheckChanges();
-            //            if (cambiosPendientes.Codigo == 201)
-            //            {
-            //                MessagingCenter.Send<App>(this, "EjecutaLista");
-            //            }
-            //        }
-            //    });
-            //    return true;
-            //});
         }
 
         protected override void OnResume()
@@ -129,7 +96,7 @@ namespace FloraEjemplo
 
     }
 }
-public class ConnectivityChangedEventArgs : EventArgs
-{
-    public bool IsConnected { get; set; }
-}
+//public class ConnectivityChangedEventArgs : EventArgs
+//{
+//    public bool IsConnected { get; set; }
+//}
