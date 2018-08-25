@@ -37,6 +37,7 @@ namespace FloraEjemplo.ViewModels
         double _saldo;
         string _usuario;
         string _estado;
+        bool isEnabled;
         ListClientesViewModel listviewmodel;
         #endregion
 
@@ -104,6 +105,15 @@ namespace FloraEjemplo.ViewModels
                 OnPropertyChanged("Estado");
             }
         }
+        public bool IsEnabled
+        {
+            get { return isEnabled; }
+            set
+            {
+                isEnabled = value;
+                OnPropertyChanged("IsEnabled");
+            }
+        }
         #endregion
 
         #region Commands
@@ -154,6 +164,7 @@ namespace FloraEjemplo.ViewModels
         #region Constructor
         public EdiarClienteViewModel()
         {
+            this.IsEnabled = true;
             apiServices = new ApiServices();
             listviewmodel = new ListClientesViewModel();
             LoadData();
@@ -163,6 +174,7 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         public async void LoadData()
         {
+            this.IsEnabled = true;
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
@@ -187,6 +199,7 @@ namespace FloraEjemplo.ViewModels
         }
         async void GetCliente()
         {
+            this.IsEnabled = false;
             try
             {
                 var idCliente = Application.Current.Properties["Id"] as string;
@@ -202,6 +215,8 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     "Ha ocurrido un error enviando la solicitud",
                     "Aceptar");
+
+                    this.IsEnabled = false;
 
                     //Cargamos desde la DB local
                     LoadClientFromLocal();
@@ -222,6 +237,9 @@ namespace FloraEjemplo.ViewModels
                        "Error",
                        "Este cliente ha sido eliminado",
                        "Aceptar");
+
+                    this.IsEnabled = true;
+
                     return;
                 }
                 this.Nombre = json[0].Nombre.ToString();
@@ -230,6 +248,8 @@ namespace FloraEjemplo.ViewModels
                 this.Telefono = json[0].Telefono.ToString();
                 this.Saldo = json[0].Saldo;
                 this.Usuario = json[0].Usuario.ToString();
+
+                this.IsEnabled = true;
             }
             catch (System.Exception error)
             {
@@ -237,12 +257,18 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     error.Message,
                     "Aceptar");
+
+                this.IsEnabled = false;
+
                 //Cargamos desde el local
                 LoadClientFromLocal();
             }
+
+            this.IsEnabled = true;
         }
         async void LoadClientFromLocal()//Cargamos desde la DB local
         {
+            this.IsEnabled = false;
             var idLocalCliente = (Application.Current.Properties["Correo"] as string);
 
             using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
@@ -256,9 +282,11 @@ namespace FloraEjemplo.ViewModels
                 this.Usuario = Lis.Usuario;
             }
             await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
+            this.IsEnabled = true;
         }
         async void Put()
         {
+            this.IsEnabled = true;
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
             double m;
             int n;
@@ -325,6 +353,7 @@ namespace FloraEjemplo.ViewModels
         }
         async void PutWithoutConn()//Put sin conexion
         {
+            this.IsEnabled = false;
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
             var version = Application.Current.Properties["Version"] as string;
@@ -383,10 +412,13 @@ namespace FloraEjemplo.ViewModels
                 "Actualizado Localmente", 
                 "Ok");
 
+            this.IsEnabled = true;
+
             MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
         }
         async void PutWithConn()//para obtener todos mis Clientes desde Local y preparar para enviar
         {
+            this.IsEnabled = false;
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
             var aCTIVO = "ACTIVO";
@@ -433,7 +465,9 @@ namespace FloraEjemplo.ViewModels
                     Estado = aCTIVO,
                     Transaccion = aCTUALIZAR
                 };
+
                 var jsonCliente = JsonConvert.SerializeObject(Customer);//serializamos el modelo
+
                 EnviarDocumentoPut(jsonCliente);
             }
             else
@@ -445,6 +479,7 @@ namespace FloraEjemplo.ViewModels
         {
             try
             {
+                this.IsEnabled = false;
                 var aCTIVO = "ACTIVO";
                 var aCTUALIZAR = "ACTUALIZAR";
                 var version = Application.Current.Properties["Version"] as string;
@@ -460,7 +495,11 @@ namespace FloraEjemplo.ViewModels
                         response.IsSuccessStatusCode.ToString(),
                         response.RequestMessage.ToString(),
                         "Aceptar");
+
                     PutWithoutConn();
+
+                    this.IsEnabled = true;
+
                     return;
                 }
                 var header = response.Headers.Location.ToString();
@@ -501,6 +540,7 @@ namespace FloraEjemplo.ViewModels
                         return;
                     }
                 }
+
                 await Application.Current.MainPage.DisplayAlert(
                         response.IsSuccessStatusCode.ToString(),
                         "Actualizado" + header,
@@ -508,6 +548,8 @@ namespace FloraEjemplo.ViewModels
 
                 //Ejecuamos Metodo para refrescar listview de Lista principal
                 MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
+
+                this.IsEnabled = true;
             }
             catch (Exception error)
             {
@@ -515,6 +557,9 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     error.Message,
                     "Aceptar");
+
+                this.IsEnabled = true;
+
                 PutWithoutConn();
             }
         }

@@ -98,14 +98,7 @@ namespace FloraEjemplo.ViewModels
                 PrimeraSincronizacion();
             }
             
-            //Device.StartTimer(TimeSpan.FromSeconds(217), () =>
-            //{
-            //    Task.Run(() =>
-            //    {
-            //        LoadData2();
-            //    });
-            //    return true;
-            //});
+           
             MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
             {
                 LoadData();
@@ -127,6 +120,14 @@ namespace FloraEjemplo.ViewModels
                 Task.Run(() =>
                 {
                     LoadData();
+                });
+                return true;
+            });
+            Device.StartTimer(TimeSpan.FromSeconds(217), () =>
+            {
+                Task.Run(() =>
+                {
+                    LoadData2();
                 });
                 return true;
             });
@@ -195,12 +196,10 @@ namespace FloraEjemplo.ViewModels
         //    CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
         //    {
         //        Conn = args.IsConnected ? "online.png" : "offline";
-        //        LoadData();
         //    };
         //}
         public async void LoadData()
         {
-
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
             {
@@ -398,6 +397,10 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     get.Message.ToString(),
                     "Aceptar");
+
+                    LoadClientFronLocal();
+
+                    return;
                 }
             }
             catch (System.Exception error)
@@ -521,103 +524,112 @@ namespace FloraEjemplo.ViewModels
 
             Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
         }
-        //async void LoadData2()
-        //{
-        //    var connection = await apiServices.CheckConnection();
-        //    if (!connection.IsSuccess)
-        //    {
-        //        LoadClientFronLocal(); //From Local
-        //    }
-        //    else
-        //    {
-        //        //Dependiendo a la respuesta se presentaran los siguientes casos
-        //        var cambiosPendientes = await apiServices.CheckChanges();
-        //        if (cambiosPendientes.Codigo == 201)//Si los cambios pendientes se realizaron
-        //        {
-        //            GetSincronizacion();
-        //        }
-        //        else if (cambiosPendientes.Codigo == 200)//Si no hay cambios pendientes por realizar
-        //        {
-        //            LoadSincronizacion();
-        //        }
-        //        else if (cambiosPendientes.Codigo == 109)//Si el servidor esta ocupado con una sincronizacion en procesp
-        //        {
-        //            CambiosPendientesSincronizar();
-        //        }
-        //        else //En caso de fallas las anteriores se carga desde local
-        //        {
-        //            LoadClientFronLocal();
-        //        }
-        //    }
-        //}
-        //async void LoadSincronizacion()
-        //{
-        //    IDevice device = DependencyService.Get<IDevice>();
-        //    string deviceIdentifier = device.GetIdentifier();
-        //    var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
-        //    var version = Application.Current.Properties["Version"] as string;
-        //    var Tu_Identificador = deviceIdentifier;
-        //    try
-        //    {
-        //        string resultado = string.Empty;
-        //        var httpClient = new HttpClient();
-        //        httpClient.DefaultRequestHeaders.Accept.Clear();
-        //        httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-        //        HttpResponseMessage response = await httpClient.GetAsync(
-        //            "http://efrain1234-001-site1.ftempurl.com/api/SycnSelect?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Versio=" + version);
-        //        if (!response.IsSuccessStatusCode)
-        //        {
-        //            //await Application.Current.MainPage.DisplayAlert(
-        //            //response.IsSuccessStatusCode.ToString(),
-        //            //response.RequestMessage.ToString(),
-        //            //"Aceptar");
-        //            LoadClientFronApi();
+        async void LoadData2()//Para sincronizar sin hacer Post
+        {
+            var connection = await apiServices.CheckConnection();
+            if (!connection.IsSuccess)
+            {
+                LoadClientFronLocal(); //From Local
+            }
+            else
+            {
+                //Dependiendo a la respuesta se presentaran los siguientes casos
+                var cambiosPendientes = await apiServices.CheckChanges();
+                if (cambiosPendientes.Codigo == 201)//Si los cambios pendientes se realizaron
+                {
+                    GetSincronizacion();
+                }
+                else if (cambiosPendientes.Codigo == 200)//Si no hay cambios pendientes por realizar
+                {
+                    SincronizacionVoid();
+                }
+                else if (cambiosPendientes.Codigo == 109)//Si el servidor esta ocupado con una sincronizacion en procesp
+                {
+                    CambiosPendientesSincronizar();
+                }
+                else //En caso de fallas las anteriores se carga desde local
+                {
+                    LoadClientFronLocal();
+                }
+            }
+        }
+        async void SincronizacionVoid()
+        {
+            IDevice device = DependencyService.Get<IDevice>();
+            string deviceIdentifier = device.GetIdentifier();
+            var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
+            var version = Application.Current.Properties["Version"] as string;
+            var Tu_Identificador = deviceIdentifier;
+            try
+            {
+                string resultado = string.Empty;
+                var httpClient = new HttpClient();
+                httpClient.DefaultRequestHeaders.Accept.Clear();
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
+                HttpResponseMessage response = await httpClient.GetAsync(
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncObtener?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Version=" + version);
+                if (!response.IsSuccessStatusCode)
+                {
+                    //await Application.Current.MainPage.DisplayAlert(
+                    //response.IsSuccessStatusCode.ToString(),
+                    //response.RequestMessage.ToString(),
+                    //"Aceptar");
+                    //await Application.Current.MainPage.DisplayAlert(
+                    //"Error",
+                    //"Ha ocurrido un error miestras se enviaba la solicitud",
+                    //"Aceptar");
 
-        //        }
-        //        var header = response.Headers.Location.ToString();
-        //        resultado = response.Content.ReadAsStringAsync().Result;
-        //        resultado = resultado.Replace("\\", "");
-        //        resultado = resultado.Replace("/", "");
-        //        resultado = resultado.Replace("\"[", "[");
-        //        resultado = resultado.Replace("]\"", "]");
-        //        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resultado);
-        //        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resultado);
-        //        if (json != null)
-        //        {
-        //            this.IsVisible = true;
-        //            this.Clientes = new List<ClienteModel>(json);
-        //            this.SourceClientes = "API";
-        //            //Si la respuesta es correcta
-        //            var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-        //            var listaClientes = this.Clientes;
-        //            //almacenando en DB Borra y despues guarda
-        //            dataContext.DeleteAll();
-        //            dataContext.DeleteAllClienteRegistro();
-        //            SaveCliente(listaClientes);
-        //        }
-        //        else
-        //        {
-        //            //this.IsVisible = false;
-        //            //this.SourceClientes = "No hay usuarios registrados";
-        //            dataContext.DeleteAll();
-        //            dataContext.DeleteAllClienteRegistro();
-        //            LoadClientFronApi();
-        //        }
+                    LoadClientFronApi();
 
-        //    }
-        //    catch (System.Exception error)
-        //    {
-        //        await Application.Current.MainPage.DisplayAlert(
-        //            "Error",
-        //            error.Message,
-        //            "Aceptar");
-        //    }
-        //}
+                    return;
+                }
+                //var header = response.Headers.Location.ToString();
+                resultado = response.Content.ReadAsStringAsync().Result;
+                resultado = resultado.Replace("\\", "");
+                resultado = resultado.Replace("/", "");
+                resultado = resultado.Replace("\"[", "[");
+                resultado = resultado.Replace("]\"", "]");
+                var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resultado);
+                var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resultado);
+                if (json != null)
+                {
+                    this.IsVisible = true;
+                    this.Clientes = new List<ClienteModel>(json);
+                    this.SourceClientes = "API";
+                    //Si la respuesta es correcta
+                    var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+                    var listaClientes = this.Clientes;
+                    //almacenando en DB Borra y despues guarda
+                    Application.Current.Properties["Version"] = json[0].Version.ToString();
+                    await Application.Current.SavePropertiesAsync();
+                    dataContext.DeleteAll();
+                    dataContext.DeleteAllClienteRegistro();
+                    SaveCliente(listaClientes);
+                }
+                else
+                {
+                    //this.IsVisible = false;
+                    //this.SourceClientes = "No hay usuarios registrados";
+                    //dataContext.DeleteAll();
+                    //dataContext.DeleteAllClienteRegistro();
+                    LoadClientFronApi();
+                }
+            }
+            catch (System.Exception error)
+            {
+                await Application.Current.MainPage.DisplayAlert(
+                    "Error",
+                    "Un error a ocurrido",
+                    "Aceptar");
+
+                LoadClientFronLocal();
+
+                return;
+            }
+        }
         #endregion
     }
 }
-
-
 //if (resultado == string.empty)
 //{
 //no hay datos}

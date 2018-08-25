@@ -5,6 +5,7 @@ using FloraEjemplo.Services;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
 using System;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -14,10 +15,22 @@ using Xamarin.Forms;
 
 namespace FloraEjemplo.ViewModels
 {
-    public class AddClienteViewModel
+    public class AddClienteViewModel : INotifyPropertyChanged
     {
+        #region INotifyPropertyChanged
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+        #endregion
+
         #region Attributes
         ListClientesViewModel listaClientes;
+        bool isEnabled;
         #endregion
 
         #region Properties
@@ -30,6 +43,15 @@ namespace FloraEjemplo.ViewModels
         public string Usuario { get; set; }
         public string Estado { get; set; }
         public string Transaccion { get; set; }
+        public bool IsEnabled
+        {
+            get { return isEnabled; }
+            set
+            {
+                isEnabled = value;
+                OnPropertyChanged("IsEnabled");
+            }
+        }
         #endregion
 
         #region Constructors
@@ -38,6 +60,7 @@ namespace FloraEjemplo.ViewModels
             apiServices = new ApiServices();
             listaClientes = new ListClientesViewModel();
             this.Transaccion = "Insertar";
+            this.IsEnabled = true;
         }
         #endregion
 
@@ -89,6 +112,7 @@ namespace FloraEjemplo.ViewModels
         #region Methods
         private async void Post()
         {
+            this.IsEnabled = true;
             //Validaciones
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
             double m;
@@ -169,6 +193,7 @@ namespace FloraEjemplo.ViewModels
         }
         async void PostWitoutConn()
         {
+            this.IsEnabled = false;
             var aCTIVO = "ACTIVO";
             var insertar = "INSERTAR";
             var version = Application.Current.Properties["Version"] as string;
@@ -222,18 +247,13 @@ namespace FloraEjemplo.ViewModels
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
+            this.IsEnabled = true;
             await Application.Current.MainPage.Navigation.PopAsync();
-            //Instanciamos pila de navegacion
-            //IReadOnlyList<Page> navStack = Application.Current.MainPage.Navigation.NavigationStack;
-            ////accedemos a pagina en la pila de navegacion
-            //Page addCliente = navStack[navStack.Count - 1];
-            //await Application.Current.MainPage.Navigation.PushAsync(new ListaClientes());
-            //removemos elemento de la pila de navegacion
-           // Application.Current.MainPage.Navigation.RemovePage(addCliente);
-            //Aqui podemos navegar hacia donde deseamos 
+            
         }
         async void PostWithConn()
         {
+            this.IsEnabled = false;
             var aCTIVO = "ACTIVO";
             var insertar = "INSERTAR";
             //Almacenamos en Tabla ClienteModel
@@ -287,12 +307,14 @@ namespace FloraEjemplo.ViewModels
             else
             {
                 await Application.Current.MainPage.DisplayAlert("Mensaje", "Datos Guardados Localmente", "Entendido");
+                this.IsEnabled = true;
             }
         }
         public async void EnviarDocumentoPost(string json)
         {
             try
             {
+                this.IsEnabled = false;
                 var version = Application.Current.Properties["Version"] as string;
                 var dispositivo = Application.Current.Properties["device"] as string;
                 var aCTIVO = "ACTIVO";
@@ -343,6 +365,8 @@ namespace FloraEjemplo.ViewModels
                          "Correo electrónico en existencia, por favor utilice otra cuenta de correo",
                          "Aceptar");
 
+                        this.IsEnabled = true;
+
                         return;
                     }
                 }
@@ -352,6 +376,10 @@ namespace FloraEjemplo.ViewModels
                     "Error " + response.IsSuccessStatusCode.ToString(),
                     response.RequestMessage.ToString(),
                     "Aceptar");
+
+                    this.IsEnabled = true;
+
+                    return;
                 }
                 //IsSuccessStatusCode
                 var result = response.Content.ReadAsStringAsync().Result;
@@ -370,6 +398,8 @@ namespace FloraEjemplo.ViewModels
 
                 MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
 
+                this.IsEnabled = true;
+
                 await Application.Current.MainPage.Navigation.PopAsync();
             }
             catch (Exception error)
@@ -378,6 +408,9 @@ namespace FloraEjemplo.ViewModels
                    "Error",
                    error.Message,
                    "Aceptar");
+
+                this.IsEnabled = false;
+
                 PostWitoutConn();
             }
         }
