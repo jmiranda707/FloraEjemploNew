@@ -16,9 +16,9 @@
             <Grid
                 HeightRequest="70">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.1*"/>
+                    <ColumnDefinition Width="0.8*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="0.5*"/>
                 </Grid.ColumnDefinitions>
                 <StackLayout
                         Grid.Column="0"
@@ -41,12 +41,19 @@
                             Margin="5,0"
                             VerticalOptions="Center">
                         <Label
-                            FontSize="18"
                             HorizontalOptions="Start"
                             Margin="0,-2,0,0"
+                            LineBreakMode="TailTruncation"
                             Text="Agregar cliente"
                             TextColor="White"
-                            VerticalOptions="Start"/>
+                            VerticalOptions="Start">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="20"/>
+                            </Label.FontSize>
+                        </Label>
                     </StackLayout>
                 </StackLayout>
                 <StackLayout
@@ -110,7 +117,7 @@
         <ScrollView>
             <StackLayout>
                 <StackLayout
-                Margin="0,15,25,5">
+                Margin="5,15,25,5">
                     <Grid
                     Margin="0,0,0,0">
                         <Grid.RowDefinitions>
@@ -130,7 +137,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.1*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.3*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <!--Row #0-->
@@ -147,15 +154,30 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Grid.Row="0"
+                        LineBreakMode="TailTruncation"
                         Text="Su Nombre"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="0"
                         Keyboard="Text"
                         Text="{Binding Nombre}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
                         <!--Row #1-->
                         <Label
                         FontSize="Medium"
@@ -170,15 +192,30 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Grid.Row="1"
+                        LineBreakMode="TailTruncation"
                         Text="Su Edad"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="1"
                         Keyboard="Numeric"
                         Text="{Binding Edad}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
                         <!--Row #2-->
                         <Label
                         FontSize="Medium"
@@ -193,15 +230,30 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Grid.Row="2"
+                        LineBreakMode="TailTruncation"      
                         Text="Su Telefono"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="2"
                         Keyboard="Telephone"
                         Text="{Binding Telefono}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
                         <!--Row #3-->
                         <Label
                         FontSize="Medium"
@@ -216,15 +268,30 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Grid.Row="3"
+                        LineBreakMode="TailTruncation"    
                         Text="Su Mail"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="3"
                         Keyboard="Email"
                         Text="{Binding Mail}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
                         <!--Row #4-->
                         <Label
                         FontSize="Medium"
@@ -239,15 +306,30 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Grid.Row="4"
+                        LineBreakMode="TailTruncation"    
                         Text="Su Saldo"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="4"
                         Keyboard="Numeric"
                         Text="{Binding Saldo}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
                         <!--Row #5-->
                         <Label
                         FontSize="Medium"
@@ -262,15 +344,30 @@
                         Grid.Column="1"
                         Grid.ColumnSpan="2"
                         Grid.Row="5"
-                        Text="Su Usuario"
+                        LineBreakMode="TailTruncation"    
+                        Text="Usuario"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <customs:CustomEntry
                         Grid.Column="3"
                         Grid.Row="5"
                         Keyboard="Text"
                         Text="{Binding Usuario}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
                     </Grid>
                     <Label/>
                     <Button 
@@ -282,10 +379,17 @@
                         HeightRequest="50"
                         HorizontalOptions="FillAndExpand"
                         IsEnabled="{Binding IsEnabled}"
-                        Margin="25,0,0,0"
+                        Margin="20,0,0,0"
                         Text="Guardar"
                         TextColor="White"
-                        VerticalOptions="CenterAndExpand"/>
+                        VerticalOptions="CenterAndExpand">
+                        <Button.FontSize>
+                            <OnIdiom 
+                                x:TypeArguments="x:Double"
+                                Phone="14"
+                                Tablet="16"/>
+                        </Button.FontSize>
+                    </Button>
 
                     <Button 
                         BackgroundColor="#901D3E"
@@ -296,10 +400,17 @@
                         HeightRequest="50"
                         HorizontalOptions="FillAndExpand"
                         IsEnabled="{Binding IsEnabled}"
-                        Margin="25,0,0,0"
+                        Margin="20,0,0,0"
                         Text="Volver"
                         TextColor="White"
-                        VerticalOptions="CenterAndExpand"/>
+                        VerticalOptions="CenterAndExpand">
+                        <Button.FontSize>
+                            <OnIdiom 
+                                x:TypeArguments="x:Double"
+                                Phone="14"
+                                Tablet="16"/>
+                        </Button.FontSize>
+                    </Button>
                     <Label/>
                 </StackLayout>
             </StackLayout>

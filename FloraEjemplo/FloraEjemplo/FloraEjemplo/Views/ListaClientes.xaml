@@ -10,15 +10,15 @@
     <StackLayout>
         <StackLayout
             BackgroundColor="#901D3E"
-            HeightRequest="130"
             Padding="0,5"
-            VerticalOptions="Center">
+            VerticalOptions="Center"
+            x:Name="barraNavegacion">
             <Grid
-                HeightRequest="130">
+                x:Name="grilla">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.8*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="0.5*"/>
                 </Grid.ColumnDefinitions>
                 <StackLayout
                         Grid.Column="0"
@@ -41,19 +41,18 @@
                             Margin="5,0"
                             VerticalOptions="Center">
                         <Label
-                                FontSize="18"
-                                HorizontalOptions="Start"
-                                Margin="0,0,0,-2"
-                                Text="Abejas Nativas"
-                                TextColor="White"
-                                VerticalOptions="End"/>
-                        <Label
-                                FontSize="18"
-                                HorizontalOptions="Start"
-                                Margin="0,-2,0,0"
-                                Text="Meliponarios"
-                                TextColor="White"
-                                VerticalOptions="Start"/>
+                            HorizontalOptions="Start"
+                            Margin="0,0,0,-2"
+                            Text="Clientes"
+                            TextColor="White"
+                            VerticalOptions="End">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="20"/>
+                            </Label.FontSize>
+                        </Label>
                     </StackLayout>
                 </StackLayout>
                 <StackLayout
@@ -121,8 +120,10 @@
                 FontAttributes="Bold"
                 HorizontalOptions="Center"
                 Text="{Binding SourceClientes, StringFormat='Lista cargada de: {0}'}" 
-                VerticalOptions="Center"/>
+                VerticalOptions="Center"
+                x:Name="label3"/>
             <Image
+                HeightRequest="40"
                 HorizontalOptions="End"
                 Source="{Binding Conn}"
                 VerticalOptions="Start"/>
@@ -132,14 +133,21 @@
             Margin="5"
             Orientation="Horizontal">
             <Button 
-                    BackgroundColor="#901D3E"
-                    BorderRadius="8"
-                    Command="{Binding PinchaCommand}"
-                    FontAttributes="Bold"
-                    HorizontalOptions="Center"
-                    Text="Recargar"
-                    TextColor="White"
-                    VerticalOptions="CenterAndExpand"/>
+                BackgroundColor="#901D3E"
+                BorderRadius="8"
+                Command="{Binding PinchaCommand}"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Recargar"
+                TextColor="White"
+                VerticalOptions="CenterAndExpand">
+                <Button.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Button.FontSize>
+            </Button>
             <Button 
                     BackgroundColor="#901D3E"
                     BorderRadius="8"
@@ -148,16 +156,30 @@
                     HorizontalOptions="Center"
                     Text="Lista de tabla de registros"
                     TextColor="White"
-                    VerticalOptions="CenterAndExpand"/>
+                    VerticalOptions="CenterAndExpand">
+                <Button.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Button.FontSize>
+            </Button>
             <Button 
-                    BackgroundColor="#901D3E"
-                    BorderRadius="8"
-                    Command="{Binding DeviceIdentifierCommand}"
-                    FontAttributes="Bold"
-                    HorizontalOptions="Center"
-                    Text="Identificador de dispositivos"
-                    TextColor="White"
-                    VerticalOptions="CenterAndExpand"/>
+                BackgroundColor="#901D3E"
+                BorderRadius="8"
+                Command="{Binding DeviceIdentifierCommand}"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Identificador de dispositivos"
+                TextColor="White"
+                VerticalOptions="CenterAndExpand">
+                <Button.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Button.FontSize>
+            </Button>
         </StackLayout>
         <StackLayout>
             <ListView
@@ -181,7 +203,7 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"></ColumnDefinition>
-                                        <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                                        <ColumnDefinition Width="0.7*"></ColumnDefinition>
                                         <ColumnDefinition Width="*"></ColumnDefinition>
                                     </Grid.ColumnDefinitions>
                                     <StackLayout 
@@ -190,17 +212,32 @@
                                         VerticalOptions="Center">
                                         <Label 
                                             FontAttributes="Bold"
-                                            FontSize="Small" 
                                             HorizontalOptions="Center"
+                                            LineBreakMode="WordWrap"
                                             Text="{Binding Nombre}" 
-                                            TextColor="White"/>
+                                            TextColor="White"
+                                            x:Name="nombre">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
                                         <Label
                                             FontAttributes="Bold"
-                                            FontSize="Small"
                                             HorizontalOptions="Center"
                                             Text="{Binding Edad}" 
                                             TextColor="White"
-                                            VerticalOptions="Center"/>
+                                            VerticalOptions="Center"
+                                            x:Name="edad">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
                                     </StackLayout>
                                     <StackLayout 
                                         Grid.Column="1"
@@ -208,18 +245,33 @@
                                         VerticalOptions="Center">
                                         <Label 
                                             FontAttributes="Bold"
-                                            FontSize="Small" 
                                             HorizontalOptions="Center"
                                             LineBreakMode="TailTruncation"
                                             Text="{Binding Mail}" 
-                                            TextColor="White"/>
+                                            TextColor="White"
+                                            x:Name="mail">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
                                         <Label
                                             FontAttributes="Bold"
-                                            FontSize="Small"
                                             HorizontalOptions="Center"
+                                            LineBreakMode="TailTruncation"
                                             Text="{Binding Usuario}" 
                                             TextColor="White"
-                                            VerticalOptions="Center"/>
+                                            VerticalOptions="Center"
+                                            x:Name="usuario">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
                                     </StackLayout>
                                     <StackLayout 
                                         Grid.Column="3"
@@ -227,18 +279,34 @@
                                         VerticalOptions="Center">
                                         <Label
                                             FontAttributes="Bold"
-                                            FontSize="Small"
                                             HorizontalOptions="Center"
+                                            LineBreakMode="TailTruncation"
                                             Text="{Binding Telefono}" 
                                             TextColor="White"
-                                            VerticalOptions="Center"/>
+                                            VerticalOptions="Center"
+                                            x:Name="telefono">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
                                         <Label
                                             FontAttributes="Bold"
-                                            FontSize="Small"
                                             HorizontalOptions="Center"
+                                            LineBreakMode="TailTruncation"
                                             Text="{Binding Saldo}" 
                                             TextColor="White"
-                                            VerticalOptions="Center"/>
+                                            VerticalOptions="Center"
+                                            x:Name="saldo">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
                                     </StackLayout>
                                 </Grid>
                             </Frame>

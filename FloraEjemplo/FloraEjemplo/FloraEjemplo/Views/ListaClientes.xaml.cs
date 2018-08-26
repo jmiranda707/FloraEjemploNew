@@ -247,20 +247,32 @@ namespace FloraEjemplo.Views
                     if (width > height)
                     {
                         Hamb.IsVisible = true;
+                        barraNavegacion.HeightRequest = 300;
+                        grilla.HeightRequest = 300;
+                        label3.FontSize = 14;
                     }
                     else
                     {
                         Hamb.IsVisible = true;
+                        barraNavegacion.HeightRequest = 180;
+                        grilla.HeightRequest = 180;
+                        label3.FontSize = 14;
                     }
                 }
                 else
                 {
                     if (width > height)
                     {
+                        barraNavegacion.HeightRequest = 130;
+                        grilla.HeightRequest = 130;
+                        label3.FontSize = 18;
                         Hamb.IsVisible = false;
                     }
                     else
                     {
+                        barraNavegacion.HeightRequest = 130;
+                        grilla.HeightRequest = 130;
+                        label3.FontSize = 18;
                         Hamb.IsVisible = true;
                     }
                 }

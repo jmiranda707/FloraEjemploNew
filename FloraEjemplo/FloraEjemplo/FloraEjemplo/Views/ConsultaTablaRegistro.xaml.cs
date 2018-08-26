@@ -56,10 +56,14 @@ namespace FloraEjemplo.Views
                 {
                     if (width > height)
                     {
+                        barraNavegacion.HeightRequest = 300;
+                        grilla.HeightRequest = 300;
                         Hamb.IsVisible = true;
                     }
                     else
                     {
+                        barraNavegacion.HeightRequest = 180;
+                        grilla.HeightRequest = 180;
                         Hamb.IsVisible = true;
                     }
                 }
@@ -67,10 +71,14 @@ namespace FloraEjemplo.Views
                 {
                     if (width > height)
                     {
+                        barraNavegacion.HeightRequest = 130;
+                        grilla.HeightRequest = 130;
                         Hamb.IsVisible = false;
                     }
                     else
                     {
+                        barraNavegacion.HeightRequest = 130;
+                        grilla.HeightRequest = 130;
                         Hamb.IsVisible = true;
                     }
                 }
