@@ -51,7 +51,7 @@
                             <Label.FontSize>
                                 <OnIdiom 
                                     x:TypeArguments="x:Double"
-                                    Phone="14"
+                                    Phone="16"
                                     Tablet="20"/>
                             </Label.FontSize>
                         </Label>

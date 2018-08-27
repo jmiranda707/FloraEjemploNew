@@ -16,9 +16,9 @@
             <Grid
                 HeightRequest="70">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="0.05*"/>
+                    <ColumnDefinition Width="0.8*"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="0.5*"/>
                 </Grid.ColumnDefinitions>
                 <StackLayout
                         Grid.Column="0"
@@ -46,7 +46,14 @@
                             Margin="0,-2,0,0"
                             Text="Ver cliente"
                             TextColor="White"
-                            VerticalOptions="Start"/>
+                            VerticalOptions="Start">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="16"
+                                    Tablet="20"/>
+                            </Label.FontSize>
+                        </Label>
                     </StackLayout>
                 </StackLayout>
                 <StackLayout
@@ -110,7 +117,7 @@
         <ScrollView>
             <StackLayout>
                 <StackLayout
-                Margin="0,15,25,5">
+                Margin="5,15,25,5">
                     <Grid
                     Margin="0,0,0,0">
                         <Grid.RowDefinitions>
@@ -130,7 +137,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="0.1*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.3*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <!--Row #0-->
@@ -149,7 +156,14 @@
                         Grid.Column="3"
                         Grid.Row="0"
                         Text="{Binding Nombre}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <!--Row #1-->
                         <Label
                         FontAttributes="Bold"
@@ -159,14 +173,28 @@
                         Grid.Row="1"
                         Text="Su Edad"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <Label
                         FontAttributes="Bold"
                         FontSize="Medium"
                         Grid.Column="3"
                         Grid.Row="1"
                         Text="{Binding Edad}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <!--Row #2-->
                         <Label
                         FontAttributes="Bold"
@@ -176,14 +204,28 @@
                         Grid.Row="2"
                         Text="Su Telefono"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <Label
                         FontAttributes="Bold"
                         FontSize="Medium"    
                         Grid.Column="3"
                         Grid.Row="2"
                         Text="{Binding Telefono}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <!--Row #3-->
                         <Label
                         FontAttributes="Bold"
@@ -193,14 +235,28 @@
                         Grid.Row="3"
                         Text="Su Mail"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <Label
                         FontAttributes="Bold"
                         FontSize="Medium"        
                         Grid.Column="3"
                         Grid.Row="3"
                         Text="{Binding Mail}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <!--Row #4-->
                         <Label
                         FontAttributes="Bold"
@@ -210,14 +266,28 @@
                         Grid.Row="4"
                         Text="Su Saldo"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <Label
                         FontAttributes="Bold"
                         FontSize="Medium"            
                         Grid.Column="3"
                         Grid.Row="4"
                         Text="{Binding Saldo}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <!--Row #5-->
                         <Label
                         FontAttributes="Bold"
@@ -227,14 +297,28 @@
                         Grid.Row="5"
                         Text="Su Usuario"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <Label
                         FontAttributes="Bold"
                         FontSize="Medium"     
                         Grid.Column="3"
                         Grid.Row="5"
                         Text="{Binding Usuario}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <!--Row #6-->
                         <Label
                         FontAttributes="Bold"
@@ -244,14 +328,28 @@
                         Grid.Row="6"
                         Text="Su Id"
                         TextColor="Black"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                         <Label
                         FontAttributes="Bold"
                         FontSize="Medium"     
                         Grid.Column="3"
                         Grid.Row="6"
                         Text="{Binding Id}"
-                        VerticalOptions="Center"/>
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
                     </Grid>
                     <Label/>
                     <Label/>

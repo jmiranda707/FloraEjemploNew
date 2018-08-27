@@ -89,7 +89,7 @@ namespace FloraEjemplo.ViewModels
             {
                 //Do things if it's NOT the first run of the app...
                 LoadData();
-                CheckWifiContinuosly();
+                //CheckWifiContinuosly();
             }
             else
             {
@@ -97,8 +97,6 @@ namespace FloraEjemplo.ViewModels
                 //Do things if it IS the first run of the app...
                 PrimeraSincronizacion();
             }
-            
-           
             MessagingCenter.Subscribe<AddClienteViewModel>(this, "EjecutaLista", (sender) =>
             {
                 LoadData();
@@ -111,10 +109,6 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData();
             });
-            //MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
-            //{
-            //    LoadData();
-            //});
             Device.StartTimer(TimeSpan.FromSeconds(60), () =>
             {
                 Task.Run(() =>
@@ -187,10 +181,10 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-        public void CheckWifiContinuosly()
-        {
-            Conn = CrossConnectivity.Current.IsConnected ? "online.png" : "offline";
-        }
+        //public void CheckWifiContinuosly()
+        //{
+        //    Conn = CrossConnectivity.Current.IsConnected ? "online.png" : "offline";
+        //}
         //public void CheckWifiOnStart()
         //{
         //    CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
@@ -229,6 +223,7 @@ namespace FloraEjemplo.ViewModels
         }
         public async void PrimeraSincronizacion()//Primera sincronizacion
         {
+            this.Conn = "online";
             this.IsVisible = true;
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
@@ -301,6 +296,7 @@ namespace FloraEjemplo.ViewModels
         }
         public void LoadClientFronLocal()//Carga los clientes desde la DB local
         {
+            this.Conn = "offline";
             this.IsVisible = true;
             this.SourceClientes = "Base de datos local";
 
@@ -314,6 +310,7 @@ namespace FloraEjemplo.ViewModels
         {
             try
             {
+                this.Conn = "online";
                 this.IsVisible = true;
                 var get = await apiServices.Sincronizacion();
                 var resulta = get.Result.ToString();
@@ -363,6 +360,7 @@ namespace FloraEjemplo.ViewModels
         {
             try
             {
+                this.Conn = "online";
                 this.IsVisible = true;
                 var get = await apiServices.LoadClientFronApi();
                 if (get.IsSuccess)
@@ -416,6 +414,7 @@ namespace FloraEjemplo.ViewModels
         {
             try
             {
+                this.Conn = "online";
                 var get = await apiServices.LoadClientFronApi();
                 var resulta = get.Result.ToString();
                 if (get.IsSuccess)
@@ -457,73 +456,6 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
             }
         }
-        void SaveClienteRegistro(List<ClienteTrackingModel> listaClientesRegistro)
-        {
-            using (var da = new DataContext())
-            {
-                foreach (var record in listaClientesRegistro)
-                {
-                    InsertOrUpdateSaveClienteRegistro(record);
-                }
-            }
-        }
-        void InsertOrUpdateSaveClienteRegistro(ClienteTrackingModel record)
-        {
-            using (var da = new DataContext())
-            {
-                da.InsertarClienteRegistro(record);
-            }
-        }
-        void SaveCliente(List<ClienteModel> listaClientes)
-        {
-            using (var da = new DataContext())
-            {
-                foreach (var record in listaClientes)
-                {
-                    InsertOrUpdateSaveCliente(record);
-                }
-            }
-        }
-        void InsertOrUpdateSaveCliente(ClienteModel record)
-        {
-            using (var da = new DataContext())
-            {
-                da.Insertar(record);
-            }
-        }
-        async void SaveTool()
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Hola",
-                "Guardar",
-                "Aceptar");
-        }
-        async void EditTool()
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Hola",
-                "EditTool",
-                "Aceptar");
-        }
-        async void BackTool()
-        {
-            await Application.Current.MainPage.Navigation.PopAsync();
-        }
-        async void AddTool()
-        {
-            await Application.Current.MainPage.Navigation.PushAsync(new AddClienteMD());
-        }
-        async void Registros()
-        {
-            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistroMD());
-        }
-        private static void DeviceIdentifier()
-        {
-            IDevice device = DependencyService.Get<IDevice>();
-            string deviceIdentifier = device.GetIdentifier();
-
-            Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
-        }
         async void LoadData2()//Para sincronizar sin hacer Post
         {
             var connection = await apiServices.CheckConnection();
@@ -534,6 +466,7 @@ namespace FloraEjemplo.ViewModels
             else
             {
                 //Dependiendo a la respuesta se presentaran los siguientes casos
+
                 var cambiosPendientes = await apiServices.CheckChanges();
                 if (cambiosPendientes.Codigo == 201)//Si los cambios pendientes se realizaron
                 {
@@ -555,6 +488,7 @@ namespace FloraEjemplo.ViewModels
         }
         async void SincronizacionVoid()
         {
+            this.Conn = "online";
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
             var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
@@ -627,6 +561,74 @@ namespace FloraEjemplo.ViewModels
                 return;
             }
         }
+        void SaveClienteRegistro(List<ClienteTrackingModel> listaClientesRegistro)
+        {
+            using (var da = new DataContext())
+            {
+                foreach (var record in listaClientesRegistro)
+                {
+                    InsertOrUpdateSaveClienteRegistro(record);
+                }
+            }
+        }
+        void InsertOrUpdateSaveClienteRegistro(ClienteTrackingModel record)
+        {
+            using (var da = new DataContext())
+            {
+                da.InsertarClienteRegistro(record);
+            }
+        }
+        void SaveCliente(List<ClienteModel> listaClientes)
+        {
+            using (var da = new DataContext())
+            {
+                foreach (var record in listaClientes)
+                {
+                    InsertOrUpdateSaveCliente(record);
+                }
+            }
+        }
+        void InsertOrUpdateSaveCliente(ClienteModel record)
+        {
+            using (var da = new DataContext())
+            {
+                da.Insertar(record);
+            }
+        }
+        async void SaveTool()
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Hola",
+                "Guardar",
+                "Aceptar");
+        }
+        async void EditTool()
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Hola",
+                "EditTool",
+                "Aceptar");
+        }
+        async void BackTool()
+        {
+            await Application.Current.MainPage.Navigation.PopAsync();
+        }
+        async void AddTool()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new AddClienteMD());
+        }
+        async void Registros()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistroMD());
+        }
+        private static void DeviceIdentifier()
+        {
+            IDevice device = DependencyService.Get<IDevice>();
+            string deviceIdentifier = device.GetIdentifier();
+
+            Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
+        }
+        
         #endregion
     }
 }
