@@ -5,11 +5,9 @@ using FloraEjemplo.Services;
 using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
-using Plugin.Connectivity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -89,7 +87,6 @@ namespace FloraEjemplo.ViewModels
             {
                 //Do things if it's NOT the first run of the app...
                 LoadData();
-                //CheckWifiContinuosly();
             }
             else
             {
@@ -106,6 +103,10 @@ namespace FloraEjemplo.ViewModels
                 LoadData();
             });
             MessagingCenter.Subscribe<ListaClientes>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData();
+            });
+            MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
             {
                 LoadData();
             });
@@ -181,18 +182,8 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-        //public void CheckWifiContinuosly()
-        //{
-        //    Conn = CrossConnectivity.Current.IsConnected ? "online.png" : "offline";
-        //}
-        //public void CheckWifiOnStart()
-        //{
-        //    CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
-        //    {
-        //        Conn = args.IsConnected ? "online.png" : "offline";
-        //    };
-        //}
-        public async void LoadData()
+        
+        public async void LoadData()//Elegimos que metodo ejecutamos
         {
             var connection = await apiServices.CheckConnection();
             if (!connection.IsSuccess)
@@ -211,7 +202,7 @@ namespace FloraEjemplo.ViewModels
                 {
                     LoadClientFronApi();
                 }
-                else if (cambiosPendientes.Codigo == 109)//Si el servidor esta ocupado con una sincronizacion en procesp
+                else if (cambiosPendientes.Codigo == 109)//Si el servidor esta ocupado con una sincronizacion en proceso
                 {
                     CambiosPendientesSincronizar();
                 }
@@ -238,9 +229,6 @@ namespace FloraEjemplo.ViewModels
                     var httpClient = new HttpClient();
                     httpClient.DefaultRequestHeaders.Accept.Clear();
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
-                    //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
-                    //http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=Tu-Usuario&Dispositivo=Tu_Identificador
-                    //+ "&Version="+version
                     HttpResponseMessage response = await httpClient.GetAsync(
                         "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
                     var result = response.Content.ReadAsStringAsync().Result;
@@ -265,16 +253,10 @@ namespace FloraEjemplo.ViewModels
                         await Application.Current.SavePropertiesAsync();
 
                         //Si la respuesta es correcta
-                        //var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                        ////var listaClientes = this.Clientes;
                         ////almacenando en DB Borra y despues guarda
-                        //dataContext.DeleteAll();
-                        //dataContext.DeleteAllClienteRegistro();
-                        //SaveCliente(listaClientes);
-                        //SaveClienteRegistro(listaClientesRegistro);
-                        //}
-                        //else
-                        //{
+                        dataContext.DeleteAll();
+                        dataContext.DeleteAllClienteRegistro();
+                        SaveCliente(Clientes);
                     }
                     else
                     {
@@ -282,7 +264,6 @@ namespace FloraEjemplo.ViewModels
                         "Error",
                         response.RequestMessage.ToString(),
                         "Aceptar");
-
                     }
                 }
                 catch (System.Exception error)
@@ -318,27 +299,28 @@ namespace FloraEjemplo.ViewModels
                 {
                     var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
                     var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
-                    if (json != null)
-                    {
-                        this.IsVisible = true;
-                        this.Clientes = new List<ClienteModel>(json);
-                        this.SourceClientes = "API";
-                        //Si la respuesta es correcta
-                        var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                        var listaClientes = this.Clientes;
-                        //almacenando en DB Borra y despues guarda
-                        dataContext.DeleteAll();
-                        dataContext.DeleteAllClienteRegistro();
-                        SaveCliente(listaClientes);
-                    }
-                    else
-                    {
-                        //this.IsVisible = false;
-                        //this.SourceClientes = "No hay usuarios registrados";
-                        dataContext.DeleteAll();
-                        dataContext.DeleteAllClienteRegistro();
-                        LoadClientFronApi();
-                    }
+                    LoadClientFronApi();
+                    //if (json != null)
+                    //{
+                    //    this.IsVisible = true;
+                    //    this.Clientes = new List<ClienteModel>(json);
+                    //    this.SourceClientes = "API";
+                    //    //Si la respuesta es correcta
+                    //    var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
+                    //    var listaClientes = this.Clientes;
+                    //    //almacenando en DB Borra y despues guarda
+                    //    dataContext.DeleteAll();
+                    //    dataContext.DeleteAllClienteRegistro();
+                    //    SaveCliente(listaClientes);
+                    //}
+                    //else
+                    //{
+                    //    //this.IsVisible = false;
+                    //    //this.SourceClientes = "No hay usuarios registrados";
+                    //    dataContext.DeleteAll();
+                    //    dataContext.DeleteAllClienteRegistro();
+                    //    LoadClientFronApi();
+                    //}
                 }
                 else
                 {
@@ -346,6 +328,10 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     get.Message.ToString(),
                     "Aceptar");
+
+                    LoadClientFronApi();
+
+                    return;
                 }
             }
             catch (System.Exception error)
@@ -354,6 +340,10 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     error.Message,
                     "Aceptar");
+
+                LoadClientFronApi();
+
+                return;
             }
         }
         public async void LoadClientFronApi()//Carga usuarios desde la Api
@@ -446,6 +436,8 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     get.Message.ToString(),
                     "Aceptar");
+
+                    LoadClientFronLocal();
                 }
             }
             catch (System.Exception error)
@@ -454,6 +446,8 @@ namespace FloraEjemplo.ViewModels
                     "Error",
                     error.Message,
                     "Aceptar");
+
+                LoadClientFronLocal();
             }
         }
         async void LoadData2()//Para sincronizar sin hacer Post
@@ -504,15 +498,6 @@ namespace FloraEjemplo.ViewModels
                     "http://efrain1234-001-site1.ftempurl.com/api/SyncObtener?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Version=" + version);
                 if (!response.IsSuccessStatusCode)
                 {
-                    //await Application.Current.MainPage.DisplayAlert(
-                    //response.IsSuccessStatusCode.ToString(),
-                    //response.RequestMessage.ToString(),
-                    //"Aceptar");
-                    //await Application.Current.MainPage.DisplayAlert(
-                    //"Error",
-                    //"Ha ocurrido un error miestras se enviaba la solicitud",
-                    //"Aceptar");
-
                     LoadClientFronApi();
 
                     return;
@@ -525,38 +510,11 @@ namespace FloraEjemplo.ViewModels
                 resultado = resultado.Replace("]\"", "]");
                 var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resultado);
                 var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resultado);
-                if (json != null)
-                {
-                    this.IsVisible = true;
-                    this.Clientes = new List<ClienteModel>(json);
-                    this.SourceClientes = "API";
-                    //Si la respuesta es correcta
-                    var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                    var listaClientes = this.Clientes;
-                    //almacenando en DB Borra y despues guarda
-                    Application.Current.Properties["Version"] = json[0].Version.ToString();
-                    await Application.Current.SavePropertiesAsync();
-                    dataContext.DeleteAll();
-                    dataContext.DeleteAllClienteRegistro();
-                    SaveCliente(listaClientes);
-                }
-                else
-                {
-                    //this.IsVisible = false;
-                    //this.SourceClientes = "No hay usuarios registrados";
-                    //dataContext.DeleteAll();
-                    //dataContext.DeleteAllClienteRegistro();
-                    LoadClientFronApi();
-                }
+                LoadClientFronApi();
             }
             catch (System.Exception error)
             {
-                await Application.Current.MainPage.DisplayAlert(
-                    "Error",
-                    "Un error a ocurrido",
-                    "Aceptar");
-
-                LoadClientFronLocal();
+                LoadClientFronApi();
 
                 return;
             }
@@ -632,13 +590,4 @@ namespace FloraEjemplo.ViewModels
         #endregion
     }
 }
-//if (resultado == string.empty)
-//{
-//no hay datos}
-//if(resultado == "ExisteSync")
-//{
-//Otro usuario se sincroniza}
-//els
-//{
-//resultado = desserializa la clase cliente
-//}
+

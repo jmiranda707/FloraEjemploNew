@@ -23,7 +23,7 @@ namespace FloraEjemplo
     {
         public static MasterDetailPage MasterD { get; set; }
 
-        //private ApiServices apiServices;
+        private ApiServices apiServices;
 
         //event ConnectivityChangedEventHandler ConnectivityChanged;
 
@@ -32,34 +32,8 @@ namespace FloraEjemplo
         public App()
         {
             InitializeComponent();
-            //apiServices = new ApiServices();
+            apiServices = new ApiServices();
             MainPage = new NavigationPage(new ListaClientesMD());
-            //MainPage = new NavigationPage(new Agenda());
-            //CrossConnectivity.Current.ConnectivityChanged += async (sender, args) =>
-            //{
-            //    var cambiosPendientes = await apiServices.CheckChanges();
-            //    if (cambiosPendientes.Codigo == 201)
-            //    {
-            //        MessagingCenter.Send<App>(this, "EjecutaLista");
-            //    }
-            //};
-            //Device.StartTimer(TimeSpan.FromSeconds(30), () =>
-            //{
-            //    Task.Run(async () =>
-            //    {
-            //        var connection = await apiServices.CheckConnection();
-            //        if (connection.IsSuccess)
-            //        {
-            //            //ConsultaTablas();
-            //            var cambiosPendientes = await apiServices.CheckChanges();
-            //            if (cambiosPendientes.Codigo == 201)
-            //            {
-            //                MessagingCenter.Send<App>(this, "EjecutaLista");
-            //            }
-            //        }
-            //    });
-            //    return true;
-            //});
         }
 
 
@@ -71,29 +45,46 @@ namespace FloraEjemplo
 
         protected override void OnSleep()
         {
-            //CrossConnectivity.Current.ConnectivityChanged += (sender, args) =>
-            //{
-            //    Task.Run(async () =>
-            //    {
-            //        var connection = await apiServices.CheckConnection();
-            //        if (connection.IsSuccess)
-            //        {
-            //            //ConsultaTablas();
-            //            var cambiosPendientes = await apiServices.CheckChanges();
-            //            if (cambiosPendientes.Codigo == 201)
-            //            {
-            //                MessagingCenter.Send<App>(this, "EjecutaLista");
-            //            }
-            //        }
-            //    });
-            //};
+            Device.StartTimer(TimeSpan.FromSeconds(150), () =>
+            {
+                Task.Run(async () =>
+                {
+                    var connection = await apiServices.CheckConnection();
+                    if (connection.IsSuccess)
+                    {
+                        //ConsultaTablas();
+                        var cambiosPendientes = await apiServices.CheckChanges();
+                        if (cambiosPendientes.Codigo == 201)
+                        {
+                            MessagingCenter.Send<App>(this, "EjecutaLista");
+                        }
+                    }
+                });
+                return true;
+            });
         }
 
         protected override void OnResume()
         {
             // Handle when your app resumes
+            Device.StartTimer(TimeSpan.FromSeconds(160), () =>
+            {
+                Task.Run(async () =>
+                {
+                    var connection = await apiServices.CheckConnection();
+                    if (connection.IsSuccess)
+                    {
+                        //ConsultaTablas();
+                        var cambiosPendientes = await apiServices.CheckChanges();
+                        if (cambiosPendientes.Codigo == 201)
+                        {
+                            MessagingCenter.Send<App>(this, "EjecutaLista");
+                        }
+                    }
+                });
+                return true;
+            });
         }
-
     }
 }
 //public class ConnectivityChangedEventArgs : EventArgs

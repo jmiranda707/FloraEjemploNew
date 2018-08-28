@@ -60,7 +60,7 @@ namespace FloraEjemplo.Services
         {
             try
             {
-                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                using (var contexto = new DataContext())
                 {
                     List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
                     if (clienteTrackingModel.Count != 0)
@@ -240,6 +240,7 @@ namespace FloraEjemplo.Services
                 return false;
             }
         }
+
         public async Task<Response> SincronizacionVoid()
         {
             IDevice device = DependencyService.Get<IDevice>();

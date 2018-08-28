@@ -56,6 +56,7 @@ namespace FloraEjemplo.Views
                                 ClienteModel modelo = (ClienteModel)e.SelectedItem;
                                 contexto.Eliminar(modelo);
                             }
+                            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
                             var aCTIVO = "ELIMINADO";
                             var aCTUALIZAR = "ACTUALIZAR_ESTADO";
                             ClienteModel Customer = new ClienteModel
@@ -76,7 +77,7 @@ namespace FloraEjemplo.Views
                                 Estado = aCTIVO,
                                 Transaccion = aCTUALIZAR
                             };
-                            var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
+                            
                             var jsonCliente = JsonConvert.SerializeObject(Customer);
                             HttpClient client = new HttpClient();
                             client.DefaultRequestHeaders.Accept.Clear();
@@ -115,11 +116,14 @@ namespace FloraEjemplo.Views
                                             Version = version
                                         };
                                         contexto.InsertarClienteRegistro(modeloClienteRegistro);
+
                                         await Application.Current.MainPage.DisplayAlert(
                                             "Hecho",
                                             "Cliente eliminado localmente",
                                             "Aceptar");
+
                                         MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+
                                         return;
                                     }
                                 }
@@ -159,12 +163,16 @@ namespace FloraEjemplo.Views
                                         Dispositivo = dispositivo,
                                         Version = version
                                     };
+
                                     contexto.InsertarClienteRegistro(modeloClienteRegistro);
+
                                     await Application.Current.MainPage.DisplayAlert(
                                         "Hecho",
                                         "Cliente eliminado localmente",
                                         "Aceptar");
+
                                     MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
+
                                     return;
                                 }
                             }
@@ -210,11 +218,14 @@ namespace FloraEjemplo.Views
                                     Dispositivo = dispositivo,
                                     Version = version
                                 };
+
                                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
+
                                 await Application.Current.MainPage.DisplayAlert(
                                     "Hecho",
                                     "Cliente eliminado localmente",
                                     "Aceptar");
+
                                 MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
                             }
                         }

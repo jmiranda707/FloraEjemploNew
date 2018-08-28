@@ -172,15 +172,15 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-        public async void LoadData()
+        public async void LoadData()//Cargamos datos sel cliente seleccionado
         {
             this.IsEnabled = true;
             var connection = await apiServices.CheckConnection();
-            if (!connection.IsSuccess)
+            if (!connection.IsSuccess)//Si no hay conexion, cargamos los datos de la DB local
             {
                 var idLocalCliente = (Application.Current.Properties["Correo"] as string);
 
-                using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                using (var contexto = new DataContext())
                 {
                     var Lis = contexto.Consultar(idLocalCliente);
                     this.Nombre = Lis.Nombre;
@@ -191,13 +191,13 @@ namespace FloraEjemplo.ViewModels
                     this.Usuario = Lis.Usuario;
                 }
                 await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
-            } //from Local
+            } 
             else
             {
-                GetCliente(); //From Api
+                GetCliente(); //Obtenemos de la Api
             }
         }
-        async void GetCliente()
+        async void GetCliente()//Obtenemos datos del cliente de la Api
         {
             this.IsEnabled = false;
             try
@@ -209,7 +209,7 @@ namespace FloraEjemplo.ViewModels
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                 HttpResponseMessage response = await httpClient.GetAsync("http://efrain1234-001-site1.ftempurl.com/api/Cliente/" + idCliente);
                 var result = response.Content.ReadAsStringAsync().Result;
-                if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)//Si existe algun error en la peticion, cargamos del local
                 {
                     await Application.Current.MainPage.DisplayAlert(
                     "Error",
@@ -251,7 +251,7 @@ namespace FloraEjemplo.ViewModels
 
                 this.IsEnabled = true;
             }
-            catch (System.Exception error)
+            catch (System.Exception error)//Algun error cargamos los datos del local
             {
                 await Application.Current.MainPage.DisplayAlert(
                     "Error",
@@ -260,7 +260,6 @@ namespace FloraEjemplo.ViewModels
 
                 this.IsEnabled = false;
 
-                //Cargamos desde el local
                 LoadClientFromLocal();
             }
 
@@ -284,7 +283,7 @@ namespace FloraEjemplo.ViewModels
             await Application.Current.MainPage.DisplayAlert("Mensaje", "Data Cargada desde BD Local", "ok");
             this.IsEnabled = true;
         }
-        async void Put()
+        async void Put()//Validamos antes de enviar
         {
             this.IsEnabled = true;
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
@@ -340,7 +339,7 @@ namespace FloraEjemplo.ViewModels
                 await App.Current.MainPage.DisplayAlert("Error", "Ingrese un correo valido", "Aceptar");
                 return;
             }
-
+            //Verificamos conexion para elegir metodo
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
@@ -358,11 +357,12 @@ namespace FloraEjemplo.ViewModels
             var numero = (Application.Current.Properties["Numero"]);
             var version = Application.Current.Properties["Version"] as string;
             var dispositivo = Application.Current.Properties["device"] as string;
-            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            using (var contexto = new DataContext()) 
             {
                 var aCTIVO = "ACTIVO";
                 var aCTUALIZAR = "ACTUALIZAR";
                 var cliente = contexto.Consultar(correo);
+                //Creamos el modelo y actualizamos en el local
                 ClienteModel modelo = new ClienteModel
                 {
                     Nombre = Nombre,
@@ -382,8 +382,8 @@ namespace FloraEjemplo.ViewModels
                     Numero = Convert.ToInt32(numero)
                 };
                 contexto.Actualizar(modelo);
-                //Actualizamos en tabla registro
 
+                //Insertamos en tabla registro
                 ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                 {
                     Numero = Convert.ToInt32(numero),
@@ -416,19 +416,21 @@ namespace FloraEjemplo.ViewModels
 
             MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
         }
-        async void PutWithConn()//para obtener todos mis Clientes desde Local y preparar para enviar
+        async void PutWithConn()//Put con conexión
         {
             this.IsEnabled = false;
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
             var aCTIVO = "ACTIVO";
             var aCTUALIZAR = "ACTUALIZAR";
+            //Verificamos conexion
             var connection = await apiServices.CheckConnection();
-            if (connection.IsSuccess)
+            if (connection.IsSuccess)//Si hay conexion
             {
                 using (var contexto = new DataContext()) 
                 {
                     var cliente = contexto.Consultar(correo);
+                    //Actualizamos en Cliente
                     ClienteModel modelo = new ClienteModel
                     {
                         Nombre = Nombre,
@@ -449,6 +451,7 @@ namespace FloraEjemplo.ViewModels
                     contexto.Actualizar(modelo);
                 }
                 var id = Application.Current.Properties["Id"] as string;
+                //Preparamos modelo
                 ClienteModel Customer = new ClienteModel
                 {
                     Numero = Convert.ToInt32(numero),
@@ -485,11 +488,12 @@ namespace FloraEjemplo.ViewModels
                 var version = Application.Current.Properties["Version"] as string;
                 var dispositivo = Application.Current.Properties["device"] as string;
                 var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
+                var noExisteId = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-103";
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
-                if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)//Si no fue exitoso, cargamos en tabla registro
                 {
                     await Application.Current.MainPage.DisplayAlert(
                         response.IsSuccessStatusCode.ToString(),
@@ -503,13 +507,13 @@ namespace FloraEjemplo.ViewModels
                     return;
                 }
                 var header = response.Headers.Location.ToString();
-                if (respuestaOcupado == header)
+                if (respuestaOcupado == header)//Si el servidor esta ocupado
                 {
                     var correo = (Application.Current.Properties["Correo"] as string);
                     var numero = (Application.Current.Properties["Numero"]);
-                    using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+                    using (var contexto = new DataContext()) 
                     {
-                        //Actualizamos en tabla registro
+                        //Actualizamos en tabla registro para enviar luego
                         var cliente = contexto.Consultar(correo);
                         ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                         {
@@ -531,14 +535,28 @@ namespace FloraEjemplo.ViewModels
                             Version = version,
                             Dispositivo = dispositivo
                         };
+
                         contexto.InsertarClienteRegistro(modeloClienteRegistro);
+
                         await Application.Current.MainPage.DisplayAlert(
                             "Hola",
                             "Actualizado en local, servidor ocupado "+header,
                             "Aceptar");
+
                         MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
+
                         return;
                     }
+                }
+
+                if (header == noExisteId)//No existe Id del cliente
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                            "Hola",
+                            "No existe el cliente seleccionado" + header,
+                            "Aceptar");
+
+                    return;
                 }
 
                 await Application.Current.MainPage.DisplayAlert(

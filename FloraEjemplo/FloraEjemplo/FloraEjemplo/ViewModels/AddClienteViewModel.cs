@@ -110,10 +110,10 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
+        //Validamos antes de enviar
         private async void Post()
         {
             this.IsEnabled = true;
-            //Validaciones
             const string passwordRegex = @"^(?=.*[A-Za-z])(?=.*\d)(?=.*[$@$!%*#?&])[A-Za-z\d$@$!%*#?&]{8,}$";
             double m;
             int n;
@@ -180,7 +180,7 @@ namespace FloraEjemplo.ViewModels
                 //    return;
                 //}
             }
-
+            //Validamos conexion
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
@@ -191,6 +191,7 @@ namespace FloraEjemplo.ViewModels
                 PostWitoutConn();
             }
         }
+        //Post sin conexión
         async void PostWitoutConn()
         {
             this.IsEnabled = false;
@@ -198,6 +199,7 @@ namespace FloraEjemplo.ViewModels
             var insertar = "INSERTAR";
             var version = Application.Current.Properties["Version"] as string;
             var dispositivo = Application.Current.Properties["device"] as string;
+
             //Almacenamos en Tabla ClienteModel
             ClienteModel modelo = new ClienteModel
             {
@@ -216,7 +218,8 @@ namespace FloraEjemplo.ViewModels
                 Id = "",
                 Transaccion = insertar
             };
-            using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            //aqui inserto en mi bdLocal
+            using (var contexto = new DataContext()) 
             {
                 contexto.Insertar(modelo);
             }
@@ -242,15 +245,20 @@ namespace FloraEjemplo.ViewModels
                 Version = version,
                 Dispositivo = dispositivo
             };
-            using (var contexto = new DataContext()) //aqui inserto en mi bdLocal
+            //aqui inserto en mi bdLocal Tabla Seguimiento
+            using (var contexto = new DataContext()) 
             {
                 contexto.InsertarClienteRegistro(modeloClienteRegistro);
             }
+
             MessagingCenter.Send<AddClienteViewModel>(this, "EjecutaLista");
+
             this.IsEnabled = true;
+
             await Application.Current.MainPage.Navigation.PopAsync();
             
         }
+        //Post con conexion
         async void PostWithConn()
         {
             this.IsEnabled = false;
@@ -279,10 +287,11 @@ namespace FloraEjemplo.ViewModels
                 contexto.Insertar(modelo);
             }
             
-            //Enviamos al API
+            //Verificamos conexion
             var connection = await apiServices.CheckConnection();
             if (connection.IsSuccess)
             {
+                //Creamos modelo
                 ClienteModel Customer = new ClienteModel
                 {
                     Id = string.Empty,
@@ -301,7 +310,9 @@ namespace FloraEjemplo.ViewModels
                     Transaccion = insertar,
                     Numero = 0
                 };
+                //Serializamos
                 var jsonCliente = JsonConvert.SerializeObject(Customer);
+                //Enviamos al metodo EnviarDocumentoPost()
                 EnviarDocumentoPost(jsonCliente);
             }
             else
@@ -372,10 +383,13 @@ namespace FloraEjemplo.ViewModels
                 }
                 else
                 {
+                    //Algun error en el servidor almacenamos en Tabla segimiento
                     await Application.Current.MainPage.DisplayAlert(
                     "Error " + response.IsSuccessStatusCode.ToString(),
                     response.RequestMessage.ToString(),
                     "Aceptar");
+
+                    PostWitoutConn();
 
                     this.IsEnabled = true;
 
@@ -404,6 +418,8 @@ namespace FloraEjemplo.ViewModels
             }
             catch (Exception error)
             {
+                //Algun error almacenamos en Tabla segimiento
+
                 await Application.Current.MainPage.DisplayAlert(
                    "Error",
                    error.Message,
