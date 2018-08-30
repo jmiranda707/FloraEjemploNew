@@ -189,37 +189,92 @@ namespace FloraEjemplo.Views
                             //Si no hay conexion
                             using (var contexto = new DataContext())
                             {
+                                
                                 ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                                //Borramos en ClienteModel
 
-                                contexto.Eliminar(modelo);
-                                var activo = "ELIMINADO";
-                                var actualizaEstado = "ACTUALIZAR_ESTADO";
-                                var dispositivo = Application.Current.Properties["device"] as string;
-                                //Borramos en cliente tracking
-
-                                ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                                var cliente = contexto.Consultar(item.Mail.ToString());
+                                var cliente2 = contexto.ConsultarCorreoTracking(item.Mail.ToString());
+                                if (string.IsNullOrEmpty(cliente.Id.ToString()) && !string.IsNullOrEmpty(cliente.Mail.ToString()))
                                 {
-                                    Numero = Convert.ToInt32(numero),
-                                    Nombre = modelo.Nombre.ToString(),
-                                    Edad = modelo.Edad,
-                                    Telefono = modelo.Telefono.ToString(),
-                                    Mail = modelo.Mail.ToString(),
-                                    Saldo = modelo.Saldo,
-                                    Proceso = 1,
-                                    Usuario = modelo.Usuario,
-                                    FechaCreacion = modelo.FechaCreacion,
-                                    FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
-                                    FechaModificacion = DateTime.Now,
-                                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                                    Id = modelo.Id,
-                                    Estado = activo,
-                                    Transaccion = actualizaEstado,
-                                    Dispositivo = dispositivo,
-                                    Version = version
-                                };
+                                    contexto.EliminarClienteTracking(cliente2);
+                                }
+                                
+                                if (cliente == null)
+                                {
+                                    await Application.Current.MainPage.DisplayAlert(
+                                    "Error",
+                                    "Este cliente no existe localmente",
+                                    "Aceptar");
 
-                                contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                                    return;
+                                }
+
+                                if (cliente2 == null)
+                                {
+                                    var activo = "ELIMINADO";
+                                    var actualizaEstado = "ACTUALIZAR_ESTADO";
+                                    var dispositivo = Application.Current.Properties["device"] as string;
+                                    //Borramos en cliente tracking
+
+                                    ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                                    {
+                                        Nombre = modelo.Nombre.ToString(),
+                                        Edad = modelo.Edad,
+                                        Telefono = modelo.Telefono.ToString(),
+                                        Mail = modelo.Mail.ToString(),
+                                        Saldo = modelo.Saldo,
+                                        Proceso = 1,
+                                        Usuario = modelo.Usuario,
+                                        FechaCreacion = modelo.FechaCreacion,
+                                        FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
+                                        FechaModificacion = DateTime.Now,
+                                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        Id = modelo.Id,
+                                        Estado = activo,
+                                        Transaccion = actualizaEstado,
+                                        Dispositivo = dispositivo,
+                                        Version = version
+                                    };
+
+                                    contexto.InsertarClienteRegistro(modeloClienteRegistro);
+                                }
+                                else
+                                {
+                                    if (!string.IsNullOrEmpty(cliente2.Id.ToString()) && !string.IsNullOrEmpty(cliente2.Mail.ToString()))
+                                    {
+                                        var activo = "ELIMINADO";
+                                        var actualizaEstado = "ACTUALIZAR_ESTADO";
+                                        var dispositivo = Application.Current.Properties["device"] as string;
+                                        //Borramos en cliente tracking
+
+                                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
+                                        {
+                                            Numero = Convert.ToInt32(cliente2.Numero),
+                                            Nombre = modelo.Nombre.ToString(),
+                                            Edad = modelo.Edad,
+                                            Telefono = modelo.Telefono.ToString(),
+                                            Mail = modelo.Mail.ToString(),
+                                            Saldo = modelo.Saldo,
+                                            Proceso = 1,
+                                            Usuario = modelo.Usuario,
+                                            FechaCreacion = modelo.FechaCreacion,
+                                            FechaCreacionUtc = modelo.FechaCreacionUtc.ToString(),
+                                            FechaModificacion = DateTime.Now,
+                                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                            Id = modelo.Id,
+                                            Estado = activo,
+                                            Transaccion = actualizaEstado,
+                                            Dispositivo = dispositivo,
+                                            Version = version
+                                        };
+
+                                        contexto.ActualizarClienteRegistro(modeloClienteRegistro);
+
+                                    }
+                                }
+
+                                //Borramos en ClienteModel
+                                contexto.Eliminar(modelo);
 
                                 await Application.Current.MainPage.DisplayAlert(
                                     "Hecho",
