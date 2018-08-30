@@ -89,6 +89,7 @@
     <CodesignEntitlements>Entitlements.plist</CodesignEntitlements>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CloseApplication.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="IOSDevice.cs" />
     <Compile Include="Main.cs" />

@@ -197,7 +197,7 @@ namespace FloraEjemplo.ViewModels
             this.IsEnabled = false;
             var aCTIVO = "ACTIVO";
             var insertar = "INSERTAR";
-            var version = Application.Current.Properties["Version"] as string;
+            var version = Application.Current.Properties["VersionNew"] as string;
             var dispositivo = Application.Current.Properties["device"] as string;
 
             //Almacenamos en Tabla ClienteModel
@@ -326,7 +326,7 @@ namespace FloraEjemplo.ViewModels
             try
             {
                 this.IsEnabled = false;
-                var version = Application.Current.Properties["Version"] as string;
+                var version = Application.Current.Properties["VersionNew"] as string;
                 var dispositivo = Application.Current.Properties["device"] as string;
                 var aCTIVO = "ACTIVO";
                 var insertar = "INSERTAR";

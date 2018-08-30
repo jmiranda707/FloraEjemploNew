@@ -33,7 +33,7 @@ namespace FloraEjemplo.Views
             Application.Current.Properties["Numero"] = item.Numero.ToString();
             await Application.Current.SavePropertiesAsync();
             var numero = item.Numero.ToString();
-            var version = Application.Current.Properties["Version"] as string;
+            var version = Application.Current.Properties["VersionNew"] as string;
             string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar", "Ver");
             if (action == "Eliminar")
             {

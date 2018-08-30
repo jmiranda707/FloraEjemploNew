@@ -110,6 +110,22 @@
                         Tablet="16"/>
                 </Button.FontSize>
             </Button>
+            <Button
+                BackgroundColor="#901D3E"
+                BorderRadius="8"
+                Command="{Binding BorrarTablaCommand}"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Borrar tabla"
+                TextColor="White"
+                VerticalOptions="CenterAndExpand">
+                <Button.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Button.FontSize>
+            </Button>
         </StackLayout>
         <StackLayout
             Margin="5">

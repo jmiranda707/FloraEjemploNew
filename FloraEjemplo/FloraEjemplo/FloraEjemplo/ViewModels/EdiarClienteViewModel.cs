@@ -355,7 +355,7 @@ namespace FloraEjemplo.ViewModels
             this.IsEnabled = false;
             var correo = (Application.Current.Properties["Correo"] as string);
             var numero = (Application.Current.Properties["Numero"]);
-            var version = Application.Current.Properties["Version"] as string;
+            var version = Application.Current.Properties["VersionNew"] as string;
             var dispositivo = Application.Current.Properties["device"] as string;
             using (var contexto = new DataContext()) 
             {
@@ -485,7 +485,7 @@ namespace FloraEjemplo.ViewModels
                 this.IsEnabled = false;
                 var aCTIVO = "ACTIVO";
                 var aCTUALIZAR = "ACTUALIZAR";
-                var version = Application.Current.Properties["Version"] as string;
+                var version = Application.Current.Properties["VersionNew"] as string;
                 var dispositivo = Application.Current.Properties["device"] as string;
                 var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
                 var noExisteId = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-103";

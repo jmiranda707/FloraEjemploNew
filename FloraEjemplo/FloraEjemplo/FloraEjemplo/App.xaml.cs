@@ -45,45 +45,45 @@ namespace FloraEjemplo
 
         protected override void OnSleep()
         {
-            Device.StartTimer(TimeSpan.FromSeconds(150), () =>
-            {
-                Task.Run(async () =>
-                {
-                    var connection = await apiServices.CheckConnection();
-                    if (connection.IsSuccess)
-                    {
-                        //ConsultaTablas();
-                        var cambiosPendientes = await apiServices.CheckChanges();
-                        if (cambiosPendientes.Codigo == 201)
-                        {
-                            MessagingCenter.Send<App>(this, "EjecutaLista");
-                        }
-                    }
-                });
-                return true;
-            });
+            //Device.StartTimer(TimeSpan.FromSeconds(150), () =>
+            //{
+            //    Task.Run(async () =>
+            //    {
+            //        var connection = await apiServices.CheckConnection();
+            //        if (connection.IsSuccess)
+            //        {
+            //            //ConsultaTablas();
+            //            var cambiosPendientes = await apiServices.CheckChanges();
+            //            if (cambiosPendientes.Codigo == 201)
+            //            {
+            //                MessagingCenter.Send<App>(this, "EjecutaLista");
+            //            }
+            //        }
+            //    });
+            //    return true;
+            //});
         }
 
         protected override void OnResume()
         {
             // Handle when your app resumes
-            Device.StartTimer(TimeSpan.FromSeconds(160), () =>
-            {
-                Task.Run(async () =>
-                {
-                    var connection = await apiServices.CheckConnection();
-                    if (connection.IsSuccess)
-                    {
-                        //ConsultaTablas();
-                        var cambiosPendientes = await apiServices.CheckChanges();
-                        if (cambiosPendientes.Codigo == 201)
-                        {
-                            MessagingCenter.Send<App>(this, "EjecutaLista");
-                        }
-                    }
-                });
-                return true;
-            });
+            //Device.StartTimer(TimeSpan.FromSeconds(160), () =>
+            //{
+            //    Task.Run(async () =>
+            //    {
+            //        var connection = await apiServices.CheckConnection();
+            //        if (connection.IsSuccess)
+            //        {
+            //            //ConsultaTablas();
+            //            var cambiosPendientes = await apiServices.CheckChanges();
+            //            if (cambiosPendientes.Codigo == 201)
+            //            {
+            //                MessagingCenter.Send<App>(this, "EjecutaLista");
+            //            }
+            //        }
+            //    });
+            //    return true;
+            //});
         }
     }
 }

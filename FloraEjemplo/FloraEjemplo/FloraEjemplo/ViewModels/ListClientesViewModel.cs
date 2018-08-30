@@ -110,22 +110,22 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData();
             });
-            Device.StartTimer(TimeSpan.FromSeconds(60), () =>
-            {
-                Task.Run(() =>
-                {
-                    LoadData();
-                });
-                return true;
-            });
-            Device.StartTimer(TimeSpan.FromSeconds(217), () =>
-            {
-                Task.Run(() =>
-                {
-                    LoadData2();
-                });
-                return true;
-            });
+            //Device.StartTimer(TimeSpan.FromSeconds(60), () =>
+            //{
+            //    Task.Run(() =>
+            //    {
+            //        LoadData();
+            //    });
+            //    return true;
+            //});
+            //Device.StartTimer(TimeSpan.FromSeconds(120), () =>
+            //{
+            //    Task.Run(() =>
+            //    {
+            //        LoadData2();
+            //    });
+            //    return true;
+            //});
         }
         #endregion
 
@@ -172,17 +172,17 @@ namespace FloraEjemplo.ViewModels
                 return new RelayCommand(Registros);
             }
         }
-        public ICommand DeviceIdentifierCommand
+        public ICommand ClienteConflictoCommand
         {
             get
             {
-                return new RelayCommand(DeviceIdentifier);
+                return new RelayCommand(ClienteConflicto);
             }
         }
         #endregion
 
         #region Methods
-        
+
         public async void LoadData()//Elegimos que metodo ejecutamos
         {
             var connection = await apiServices.CheckConnection();
@@ -218,7 +218,8 @@ namespace FloraEjemplo.ViewModels
             this.IsVisible = true;
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
-            var Tu_NombreUsuario = "José Hernández";
+            var Tu_NombreUsuario = "Eleazar Saavedra";
+            //var Tu_NombreUsuario = "Jose Saavedra";
             var Tu_Identificador = deviceIdentifier;
             var cambiosPendientes = await apiServices.CheckChanges();
             if (cambiosPendientes.IsSuccess)
@@ -231,32 +232,47 @@ namespace FloraEjemplo.ViewModels
                     httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                     HttpResponseMessage response = await httpClient.GetAsync(
                         "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador);
-                    var result = response.Content.ReadAsStringAsync().Result;
                     if (response.IsSuccessStatusCode)
                     {
-                        resultado = response.Content.ReadAsStringAsync().Result;
-                        resultado = resultado.Replace("\\", "");
-                        resultado = resultado.Replace("/", "");
-                        resultado = resultado.Replace("\"[", "[");
-                        resultado = resultado.Replace("]\"", "]");
-                        var resulta = resultado;
-                        var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
-                        var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
-                        var version2 = json[0].Version.ToString();
-                        Application.Current.Properties["Version"] = version2;
-                        await Application.Current.SavePropertiesAsync();
-                        this.Clientes = new List<ClienteModel>(json);
-                        this.SourceClientes = "API";
-                        this.IsVisible = true;
-                        Application.Current.Properties["device"] = Tu_Identificador;
-                        Application.Current.Properties["Usuario"] = Tu_NombreUsuario;
-                        await Application.Current.SavePropertiesAsync();
+                        var result = response.Content.ReadAsStringAsync().Result;
+                        if (result != "\"-109\"")
+                        {
+                            resultado = response.Content.ReadAsStringAsync().Result;
+                            resultado = resultado.Replace("\\", "");
+                            resultado = resultado.Replace("/", "");
+                            resultado = resultado.Replace("\"[", "[");
+                            resultado = resultado.Replace("]\"", "]");
+                            var resulta = resultado;
+                            var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
+                            var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+                            var version2 = json[0].Version.ToString();
+                            Application.Current.Properties["VersionNew"] = version2;
+                            await Application.Current.SavePropertiesAsync();
+                            this.Clientes = new List<ClienteModel>(json);
+                            this.SourceClientes = "API";
+                            this.IsVisible = true;
+                            Application.Current.Properties["device"] = Tu_Identificador;
+                            Application.Current.Properties["Usuario"] = Tu_NombreUsuario;
+                            await Application.Current.SavePropertiesAsync();
 
-                        //Si la respuesta es correcta
-                        ////almacenando en DB Borra y despues guarda
-                        dataContext.DeleteAll();
-                        dataContext.DeleteAllClienteRegistro();
-                        SaveCliente(Clientes);
+                            //Si la respuesta es correcta
+                            ////almacenando en DB Borra y despues guarda
+                            dataContext.DeleteAll();
+                            dataContext.DeleteAllClienteRegistro();
+                            SaveCliente(Clientes);
+                        }
+                        else
+                        {
+                            Application.Current.Properties["FirstUse"] = string.Empty;
+
+                            await Application.Current.MainPage.DisplayAlert(
+                                "Aviso",
+                                "El servidor se encuentra ocupado, por favor inicie la aplicación en unos minutos.",
+                                "Aceptar");
+
+                            var closer = DependencyService.Get<ICloseApplication>();
+                            closer?.closeApplication();
+                        }
                     }
                     else
                     {
@@ -486,7 +502,7 @@ namespace FloraEjemplo.ViewModels
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
             var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
-            var version = Application.Current.Properties["Version"] as string;
+            var version = Application.Current.Properties["VersionNew"] as string;
             var Tu_Identificador = deviceIdentifier;
             try
             {
@@ -508,8 +524,17 @@ namespace FloraEjemplo.ViewModels
                 resultado = resultado.Replace("/", "");
                 resultado = resultado.Replace("\"[", "[");
                 resultado = resultado.Replace("]\"", "]");
-                var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resultado);
-                var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resultado);
+                if (resultado != "\"\"")
+                {
+                    var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resultado);
+                    var versionLlegada = json[0].Version.ToString();
+                    if (!string.IsNullOrEmpty(versionLlegada))
+                    {
+                        Application.Current.Properties["VersionNew"] = json[0].Version.ToString();
+                        await Application.Current.SavePropertiesAsync();
+                    }
+                }
+
                 LoadClientFronApi();
             }
             catch (System.Exception error)
@@ -518,6 +543,40 @@ namespace FloraEjemplo.ViewModels
 
                 return;
             }
+        }
+        async void SaveTool()
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Hola",
+                "Guardar",
+                "Aceptar");
+        }
+        async void EditTool()
+        {
+            await Application.Current.MainPage.DisplayAlert(
+                "Hola",
+                "EditTool",
+                "Aceptar");
+        }
+        async void BackTool()
+        {
+            await Application.Current.MainPage.Navigation.PopAsync();
+        }
+        async void AddTool()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new AddClienteMD());
+        }
+        async void Registros()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistroMD());
+        }
+        async void ClienteConflicto()
+        {
+            //IDevice device = DependencyService.Get<IDevice>();
+            //string deviceIdentifier = device.GetIdentifier();
+
+            //Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
+            await Application.Current.MainPage.Navigation.PushAsync(new ClienteConflictoMD());
         }
         void SaveClienteRegistro(List<ClienteTrackingModel> listaClientesRegistro)
         {
@@ -553,40 +612,7 @@ namespace FloraEjemplo.ViewModels
                 da.Insertar(record);
             }
         }
-        async void SaveTool()
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Hola",
-                "Guardar",
-                "Aceptar");
-        }
-        async void EditTool()
-        {
-            await Application.Current.MainPage.DisplayAlert(
-                "Hola",
-                "EditTool",
-                "Aceptar");
-        }
-        async void BackTool()
-        {
-            await Application.Current.MainPage.Navigation.PopAsync();
-        }
-        async void AddTool()
-        {
-            await Application.Current.MainPage.Navigation.PushAsync(new AddClienteMD());
-        }
-        async void Registros()
-        {
-            await Application.Current.MainPage.Navigation.PushAsync(new ConsultaTablaRegistroMD());
-        }
-        private static void DeviceIdentifier()
-        {
-            IDevice device = DependencyService.Get<IDevice>();
-            string deviceIdentifier = device.GetIdentifier();
 
-            Application.Current.MainPage.DisplayAlert("Indetificador de Dispositivo", deviceIdentifier, "Ok");
-        }
-        
         #endregion
     }
 }

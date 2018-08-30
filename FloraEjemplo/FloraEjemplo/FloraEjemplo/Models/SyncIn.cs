@@ -12,5 +12,6 @@ namespace FloraEjemplo.Models
         public bool Resultado { get; set; }
         public int Error { get; set; }
         public string Version { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -167,10 +167,10 @@
             <Button 
                 BackgroundColor="#901D3E"
                 BorderRadius="8"
-                Command="{Binding DeviceIdentifierCommand}"
+                Command="{Binding ClienteConflictoCommand}"
                 FontAttributes="Bold"
                 HorizontalOptions="Center"
-                Text="Identificador de dispositivos"
+                Text="Clientes conflictos"
                 TextColor="White"
                 VerticalOptions="CenterAndExpand">
                 <Button.FontSize>

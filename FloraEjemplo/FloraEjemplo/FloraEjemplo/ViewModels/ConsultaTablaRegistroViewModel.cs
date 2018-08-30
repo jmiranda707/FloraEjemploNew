@@ -1,7 +1,9 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
 using FloraEjemplo.Services;
+using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -56,6 +58,10 @@ namespace FloraEjemplo.ViewModels
             apiServices = new ApiServices();
             dataContext = new DataContext();
             LoadClientFronLocal();
+            MessagingCenter.Subscribe<ConsultaTablaRegistro>(this, "ListaTrack", (sender) =>
+            {
+                LoadClientFronLocal();
+            });
         }
         #endregion
 
@@ -74,6 +80,13 @@ namespace FloraEjemplo.ViewModels
                 return new RelayCommand(BackTool);
             }
         }
+        public ICommand BorrarTablaCommand
+        {
+            get
+            {
+                return new RelayCommand(BorrarTabla);
+            }
+        }
         #endregion
 
         #region Methods
@@ -90,6 +103,12 @@ namespace FloraEjemplo.ViewModels
         async void BackTool()
         {
             await Application.Current.MainPage.Navigation.PopAsync();
+        }
+        private void BorrarTabla()
+        {
+            dataContext.DeleteAllClienteRegistro();
+
+            LoadClientFronLocal();
         }
         #endregion
     }

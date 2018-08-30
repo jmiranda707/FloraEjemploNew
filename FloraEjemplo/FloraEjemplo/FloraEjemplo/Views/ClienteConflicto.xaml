@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FloraEjemplo.ViewModels"
+             Title="Cliente Conflicto"
+             x:Class="FloraEjemplo.Views.ClienteConflicto">
+    <ContentPage.BindingContext>
+        <viewModels:ClienteConflictoViewModel/>
+    </ContentPage.BindingContext>
+    <StackLayout>
+        <StackLayout
+            BackgroundColor="#901D3E"
+            Padding="0,5"
+            VerticalOptions="Center"
+            x:Name="barraNavegacion">
+            <Grid
+                x:Name="grilla">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.2*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackLayout
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        VerticalOptions="Center">
+                    <Image 
+                        HorizontalOptions="Center"
+                        Margin="5,0"
+                        Source="hamb"
+                        VerticalOptions="Center"
+                        x:Name="Hamb">
+                        <Image.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Tapped="TapGestureRecognizer_Tapped"/>
+                        </Image.GestureRecognizers>
+                    </Image>
+                    <StackLayout
+                            HorizontalOptions="Start"
+                            Margin="5,0"
+                            VerticalOptions="Center">
+                        <Label
+                            HorizontalOptions="Start"
+                            Margin="0,-2,0,0"
+                            LineBreakMode="TailTruncation"
+                            Text="Cliente conflicto"
+                            TextColor="White"
+                            VerticalOptions="Start">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="20"/>
+                            </Label.FontSize>
+                        </Label>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout
+                        Grid.Column="2"
+                        VerticalOptions="Center">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image 
+                            Grid.Column="1"
+                            HorizontalOptions="End"
+                            Margin="5,0"
+                            Source="ic_close_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding BackToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+                </StackLayout>
+            </Grid>
+        </StackLayout>
+        <StackLayout
+            Margin="10"
+            Orientation="Horizontal">
+            <Label
+                FontAttributes="Bold"
+                HorizontalOptions="Start"
+                Text="{Binding SourceClientes, StringFormat='Lista cargada de: {0}'}" 
+                VerticalOptions="Center">
+                <Label.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Label.FontSize>
+            </Label>
+            <Button
+                BackgroundColor="#901D3E"
+                BorderRadius="8"
+                Command="{Binding PinchaCommand}"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Pincha"
+                TextColor="White"
+                VerticalOptions="CenterAndExpand">
+                <Button.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Button.FontSize>
+            </Button>
+            <Button
+                BackgroundColor="#901D3E"
+                BorderRadius="8"
+                Command="{Binding BorrarTablaCommand}"
+                FontAttributes="Bold"
+                HorizontalOptions="Center"
+                Text="Borrar tabla"
+                TextColor="White"
+                VerticalOptions="CenterAndExpand">
+                <Button.FontSize>
+                    <OnIdiom 
+                        x:TypeArguments="x:Double"
+                        Phone="12"
+                        Tablet="16"/>
+                </Button.FontSize>
+            </Button>
+        </StackLayout>
+        <StackLayout
+            Margin="5">
+            <ListView 
+                    HasUnevenRows="True"
+                    HeightRequest="1000"
+                    IsPullToRefreshEnabled="True"
+                    ItemsSource="{Binding Clientes}"
+                    Margin="6,5,6,5"
+                    SeparatorColor="#910b20"
+                    SeparatorVisibility="Default"
+                    x:Name="ListClientes">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <Frame
+                                BackgroundColor="Gray"
+                                CornerRadius="15"
+                                HasShadow="True"
+                                Margin="4,7,3,7">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                        <ColumnDefinition Width="1.5*"></ColumnDefinition>
+                                        <ColumnDefinition Width="*"></ColumnDefinition>
+                                    </Grid.ColumnDefinitions>
+                                    <StackLayout 
+                                        Grid.Column="0"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label 
+                                            FontAttributes="Bold"
+                                            FontSize="Small" 
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Nombre}" 
+                                            TextColor="White">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Edad}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
+                                    </StackLayout>
+                                    <StackLayout 
+                                        Grid.Column="1"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label 
+                                            FontAttributes="Bold"
+                                            FontSize="Small" 
+                                            HorizontalOptions="Center"
+                                            LineBreakMode="TailTruncation"
+                                            Text="{Binding Mail}" 
+                                            TextColor="White">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Usuario}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
+                                    </StackLayout>
+                                    <StackLayout 
+                                        Grid.Column="3"
+                                        HorizontalOptions="Center"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Telefono}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="Small"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding Numero}" 
+                                            TextColor="White"
+                                            VerticalOptions="Center">
+                                            <Label.FontSize>
+                                                <OnIdiom 
+                                                    x:TypeArguments="x:Double"
+                                                    Phone="12"
+                                                    Tablet="16"/>
+                                            </Label.FontSize>
+                                        </Label>
+                                    </StackLayout>
+                                </Grid>
+                            </Frame>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </StackLayout>
+
+</ContentPage>

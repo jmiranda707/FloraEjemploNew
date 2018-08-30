@@ -62,21 +62,23 @@ namespace FloraEjemplo.Services
             {
                 using (var contexto = new DataContext())
                 {
+                    var estadoActivo = "ACTIVO";
+                    var estadoEliminado = "ELIMINADO";
+                    var transaccionInsertar = "INSERTAR";
+                    var transaccionActualizar = "ACTUALIZAR";
+                    var transaccionEliminar = "ACTUALIZAR_ESTADO";
+                    var version = Application.Current.Properties["VersionNew"] as string;
+                    var dispositivo = Application.Current.Properties["device"] as string;
                     List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
                     if (clienteTrackingModel.Count != 0)
                     {
+                        var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
+                        var versionNew = Application.Current.Properties["VersionNew"] as string;
                         List<ClienteTrackingModel> modeloRegistro = new List<ClienteTrackingModel>(contexto.ConsultarCambios());
                         var json = JsonConvert.SerializeObject(modeloRegistro);
                         HttpClient client = new HttpClient();
                         client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                         HttpResponseMessage response = await client.PostAsync("http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/", new StringContent(json, Encoding.UTF8, "application/json"));
-                        var respuesta = response.Headers.Location.ToString();
-                        var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/SyncRegistro/-109";
-                        string jsonValidacion = response.Content.ReadAsStringAsync().Result;
-                        //var jsonRecibe = JsonConvert.DeserializeObject<List<ResponseChanges>>(jsonValidacion);
-                        var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
-                        Application.Current.Properties["Version"] = syncIn[0].Version.ToString();
-                        await Application.Current.SavePropertiesAsync();
                         if (!response.IsSuccessStatusCode)
                         {
                             return new Response
@@ -86,21 +88,116 @@ namespace FloraEjemplo.Services
                                 Codigo = 500
                             };
                         }
-                        else
+
+                        var respuesta = response.Headers.Location.ToString();
+                        string jsonValidacion = response.Content.ReadAsStringAsync().Result;
+                        if (respuesta == respuestaOcupado)
                         {
-                            if (respuesta == respuestaOcupado)
+                            var sync = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
+                            return new Response
                             {
-                                return new Response
+                                IsSuccess = false,
+                                Message = "Servidor ocupado, intente de nuevo",
+                                Result = jsonValidacion,
+                                Codigo = 109
+                            };
+                        }
+                        
+                        var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
+
+                        //Recorremos el SyncIn
+                        foreach (var item in syncIn)
+                        {
+                            var resultado = item.Resultado;
+                            if (resultado == false)
+                            {
+                                var id = item.Id.ToString();//obtiene Id
+                                var correo = item.Email.ToString();//Obtiene correo
+                                var consulta = dataContext.ConsultarCorreoTracking(correo);//consulta el usuario por el correo
+                                //var transa = consulta.Estado.ToString();
+
+                                if (string.IsNullOrEmpty(consulta.Id.ToString()) && correo == consulta.Mail.ToString())
                                 {
-                                    IsSuccess = false,
-                                    Message = "Servidor ocupado, intente de nuevo",
-                                    Result = jsonValidacion,
-                                    Codigo = 109
-                                };
+                                    ClientsConflicts modeloClientsConflicts = new ClientsConflicts
+                                    {
+                                        Numero = Convert.ToInt32(consulta.Numero),
+                                        Nombre = consulta.Nombre.ToString(),
+                                        Edad = consulta.Edad,
+                                        Telefono = consulta.Telefono.ToString(),
+                                        Mail = consulta.Mail.ToString(),
+                                        Saldo = consulta.Saldo,
+                                        Proceso = 1,
+                                        Usuario = consulta.Usuario,
+                                        FechaCreacion = DateTime.Now,
+                                        FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        FechaModificacion = DateTime.Now,
+                                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        Id = "",
+                                        Estado = estadoActivo,
+                                        Transaccion = transaccionInsertar,
+                                        Version = version,
+                                        Dispositivo = dispositivo
+                                    };
+                                    contexto.InsertarClienteConflicto(modeloClientsConflicts);
+                                }
+                                else if (consulta.Transaccion == transaccionInsertar)
+                                {
+                                    ClientsConflicts modeloClientsConflicts = new ClientsConflicts
+                                    {
+                                        Numero = Convert.ToInt32(consulta.Numero),
+                                        Nombre = consulta.Nombre.ToString(),
+                                        Edad = consulta.Edad,
+                                        Telefono = consulta.Telefono.ToString(),
+                                        Mail = consulta.Mail.ToString(),
+                                        Saldo = consulta.Saldo,
+                                        Proceso = 1,
+                                        Usuario = consulta.Usuario,
+                                        FechaCreacion = consulta.FechaCreacion,
+                                        FechaCreacionUtc = consulta.FechaCreacionUtc.ToString(),
+                                        FechaModificacion = DateTime.Now,
+                                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        Id = consulta.Id,
+                                        Estado = estadoActivo,
+                                        Transaccion = transaccionActualizar,
+                                        Version = version,
+                                        Dispositivo = dispositivo
+                                    };
+                                    contexto.InsertarClienteConflicto(modeloClientsConflicts);
+                                }
+                                else if (consulta.Estado == estadoEliminado)
+                                {
+                                    //Agregamso el cliente borrado en ClienteTrackingModel
+                                    ClientsConflicts modeloClientsConflicts = new ClientsConflicts
+                                    {
+                                        Numero = Convert.ToInt32(consulta.Numero),
+                                        Nombre = consulta.Nombre.ToString(),
+                                        Edad = consulta.Edad,
+                                        Telefono = consulta.Telefono.ToString(),
+                                        Mail = consulta.Mail.ToString(),
+                                        Saldo = consulta.Saldo,
+                                        Proceso = 1,
+                                        Usuario = consulta.Usuario,
+                                        FechaCreacion = consulta.FechaCreacion,
+                                        FechaCreacionUtc = consulta.FechaCreacionUtc.ToString(),
+                                        FechaModificacion = DateTime.Now,
+                                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        Id = consulta.Id,
+                                        Estado = estadoEliminado,
+                                        Transaccion = transaccionEliminar,
+                                        Dispositivo = dispositivo,
+                                        Version = version
+                                    };
+                                    contexto.InsertarClienteConflicto(modeloClientsConflicts);
+                                }
                             }
                         }
 
-                        dataContext.DeleteAllClienteRegistro();
+                        //La versionNew anterior para a ser la VersionOld
+                        Application.Current.Properties["VersionOld"] = versionNew;
+                        //la version que acaba de llegar es la version nueva
+                        Application.Current.Properties["VersionNew"] = syncIn[0].Version.ToString();
+                        await Application.Current.SavePropertiesAsync();
+                        //dataContext.DeleteAllClienteRegistro();
                         return new Response
                         {
                             IsSuccess = true,
@@ -129,6 +226,7 @@ namespace FloraEjemplo.Services
                     Codigo = 500
                 };
             }
+
         }
 
         //Obtiene lista de clientes
@@ -158,8 +256,8 @@ namespace FloraEjemplo.Services
                 resultado = resultado.Replace("\"[", "[");
                 resultado = resultado.Replace("]\"", "]");
 
-                Application.Current.Properties["LastUpdated"] = DateTime.Now;
-                await Application.Current.SavePropertiesAsync();
+                //Application.Current.Properties["LastUpdated"] = DateTime.Now;
+                //await Application.Current.SavePropertiesAsync();
                 return new Response
                 {
                     IsSuccess = true,
@@ -182,7 +280,8 @@ namespace FloraEjemplo.Services
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
             var Tu_NombreUsuario = Application.Current.Properties["Usuario"] as string;
-            var version = Application.Current.Properties["Version"] as string;
+            var versionOld = Application.Current.Properties["VersionOld"] as string;
+            var versionNew = Application.Current.Properties["VersionNew"] as string;
             var Tu_Identificador = deviceIdentifier;
             try
             {
@@ -191,7 +290,7 @@ namespace FloraEjemplo.Services
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                 HttpResponseMessage response = await httpClient.GetAsync(
-                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Version=" + version);
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncSeleccion?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&VersionOld=" + versionOld + "&VersionNew=" + versionNew);
                 if (!response.IsSuccessStatusCode)
                 {
                     return new Response
@@ -255,7 +354,7 @@ namespace FloraEjemplo.Services
                 httpClient.DefaultRequestHeaders.Accept.Clear();
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("Application/json"));
                 HttpResponseMessage response = await httpClient.GetAsync(
-                    "http://efrain1234-001-site1.ftempurl.com/api/SyncObtener?Usuario="+Tu_NombreUsuario+"&Dispositivo="+Tu_Identificador+"&Version="+version);
+                    "http://efrain1234-001-site1.ftempurl.com/api/SyncObtener?Usuario=" + Tu_NombreUsuario + "&Dispositivo=" + Tu_Identificador + "&Version=" + version);
                 if (!response.IsSuccessStatusCode)
                 {
                     return new Response

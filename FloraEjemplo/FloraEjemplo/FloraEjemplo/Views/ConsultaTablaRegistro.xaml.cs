@@ -1,43 +1,64 @@
 ﻿using FloraEjemplo.Data;
 using FloraEjemplo.Models;
+using FloraEjemplo.Services;
 using System.Collections.Generic;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace FloraEjemplo.Views
 {
-	[XamlCompilation(XamlCompilationOptions.Compile)]
-	public partial class ConsultaTablaRegistro : ContentPage
-	{
+    [XamlCompilation(XamlCompilationOptions.Compile)]
+    public partial class ConsultaTablaRegistro : ContentPage
+    {
         private double width = 0;
         private double height = 0;
+        ApiServices apiServices;
 
-        public ConsultaTablaRegistro ()
-		{
-			InitializeComponent ();
+        public ConsultaTablaRegistro()
+        {
+            InitializeComponent();
             NavigationPage.SetHasNavigationBar(this, false);
+            apiServices = new ApiServices();
             ListClientes.ItemSelected += ListClientes_ItemSelected;
-		}
+        }
 
         async void ListClientes_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var item = e.SelectedItem as ClienteTrackingModel;
-
-            using (var contexto = new DataContext()) //para obtener todos mis Clientes desde Local
+            Application.Current.Properties["Id"] = item.Id.ToString();
+            Application.Current.Properties["Correo"] = item.Mail.ToString();
+            Application.Current.Properties["Numero"] = item.Numero.ToString();
+            await Application.Current.SavePropertiesAsync();
+            var numero = item.Numero.ToString();
+            var version = Application.Current.Properties["VersionNew"] as string;
+            string action = await DisplayActionSheet("Opciones", "Cancelar", null, null, "Eliminar", null);
+            if (action == "Eliminar")
             {
-                List<ClienteModel> modelo = new List<ClienteModel>(contexto.Consultar());
-                var TablaClientes = modelo;
-                List<ClienteTrackingModel> modelo2 = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
-                var TablaClientesRegistro = modelo2;
-
-                if (modelo.Count != modelo2.Count)
+                Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
                 {
-                    await Application.Current.MainPage.DisplayAlert("Transaccion", "No hay cambios en la tabla", "Ok");
-                }
+                    var result = await Application.Current.MainPage.DisplayAlert(
+                        "Alerta!",
+                        "Desea eliminar el cliente seleccionado?",
+                        "Si", "No");
 
-                var transaccion = item.Edad.ToString();
-                await Application.Current.MainPage.DisplayAlert("Transaccion", transaccion, "Ok");
+                    if (result)
+                    {
+                        //Eliminamos en local ClienteModel
+                            using (var contexto = new DataContext())
+                        {
+                            ClienteTrackingModel modelo = (ClienteTrackingModel)e.SelectedItem;
+                            contexto.EliminarClienteTracking(modelo);
+                        }
+                        var connection = await apiServices.CheckConnection();
+                    }
+                });
 
+                await Application.Current.MainPage.DisplayAlert(
+                                   "Hecho",
+                                   "Cliente eliminado",
+                                   "Aceptar");
+
+                MessagingCenter.Send<ConsultaTablaRegistro>(this, "ListaTrack");
             }
         }
         private void TapGestureRecognizer_Tapped(object sender, System.EventArgs e)

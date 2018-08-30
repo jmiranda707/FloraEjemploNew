@@ -21,6 +21,7 @@ namespace FloraEjemplo.Data
             cnn.CreateTable<ClienteModel>();
             cnn.CreateTable<ClienteTrackingModel>();
             cnn.CreateTable<SyncIn>();
+            cnn.CreateTable<ClientsConflicts>();
         }
 
         #region ClienteModel
@@ -70,6 +71,11 @@ namespace FloraEjemplo.Data
         {
             cnn.Update(modelo);
         }
+        public void EliminarClienteTracking(ClienteTrackingModel modelo)
+        {
+            cnn.Delete(modelo);
+            Consultar();
+        }
         public void DeleteAllClienteRegistro()
         {
             cnn.DeleteAll<ClienteTrackingModel>();
@@ -82,6 +88,49 @@ namespace FloraEjemplo.Data
         {
             //cnn.Table<Cliente>().Where(p => p.Mail == X);
             return cnn.Table<ClienteTrackingModel>().ToList().FindAll(p => p.Proceso != 0);
+        }
+        public ClienteTrackingModel ConsultarUsuarioTracking(string id) //consultas segun el id
+        {
+            var Id = id;
+
+            return cnn.Table<ClienteTrackingModel>().FirstOrDefault(p => p.Id == Id);
+        }
+        public ClienteTrackingModel ConsultarCorreoTracking(string correo) //consultas segun el correo
+        {
+            var mail = correo;
+
+            return cnn.Table<ClienteTrackingModel>().FirstOrDefault(p => p.Mail == mail);
+        }
+        #endregion
+
+        #region Cliente Conflicto
+        public void InsertarClienteConflicto(ClientsConflicts modelo)
+        {
+            cnn.Insert(modelo);
+            ConsultarClienteConflicto();
+        }
+        public void ActualizarClienteConflicto(ClientsConflicts modelo)
+        {
+            cnn.Update(modelo);
+        }
+        public void EliminarClienteConflicto(ClientsConflicts modelo)
+        {
+            cnn.Delete(modelo);
+            Consultar();
+        }
+        public void DeleteAllClienteConflicto()
+        {
+            cnn.DeleteAll<ClientsConflicts>();
+        }
+        public List<ClientsConflicts> ConsultarClienteConflicto()
+        {
+            return cnn.Table<ClientsConflicts>().ToList();
+        }
+        public ClientsConflicts ConsultarCorreoClienteConflicto(string correo) //consultas segun el correo
+        {
+            var mail = correo;
+
+            return cnn.Table<ClientsConflicts>().FirstOrDefault(p => p.Mail == mail);
         }
         #endregion
 
