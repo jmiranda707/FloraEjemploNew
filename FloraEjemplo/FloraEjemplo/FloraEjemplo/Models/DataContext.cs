@@ -38,6 +38,13 @@ namespace FloraEjemplo.Data
         {
             cnn.Delete(modelo);
             Consultar();
+            
+        }
+        public void EliminarNoNulos(ClienteModel modelo)
+        {
+            cnn.Table<ClienteModel>().Delete(p => p.Id != "");
+            Consultar();
+
         }
         public ClienteModel Consultar(string correo) //consultas segun el id
         {

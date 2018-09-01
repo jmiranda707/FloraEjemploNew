@@ -108,17 +108,17 @@ namespace FloraEjemplo.ViewModels
             });
             MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
             {
-                LoadData();
+                LoadData2();
             });
-            //Device.StartTimer(TimeSpan.FromSeconds(60), () =>
-            //{
-            //    Task.Run(() =>
-            //    {
-            //        LoadData();
-            //    });
-            //    return true;
-            //});
-            //Device.StartTimer(TimeSpan.FromSeconds(120), () =>
+            Device.StartTimer(TimeSpan.FromSeconds(60), () =>
+            {
+                Task.Run(() =>
+                {
+                    LoadData2();
+                });
+                return true;
+            });
+            //Device.StartTimer(TimeSpan.FromSeconds(210), () =>
             //{
             //    Task.Run(() =>
             //    {
@@ -219,7 +219,8 @@ namespace FloraEjemplo.ViewModels
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
             var Tu_NombreUsuario = "Eleazar Saavedra";
-            //var Tu_NombreUsuario = "Jose Saavedra";
+            Application.Current.Properties["device"] = deviceIdentifier;
+            await Application.Current.SavePropertiesAsync();
             var Tu_Identificador = deviceIdentifier;
             var cambiosPendientes = await apiServices.CheckChanges();
             if (cambiosPendientes.IsSuccess)
@@ -308,7 +309,6 @@ namespace FloraEjemplo.ViewModels
             try
             {
                 var estadoActivo = "ACTIVO";
-                var estadoInsertar = "INSERTAR";
                 var estadoEliminado = "ELIMINADO";
                 this.Conn = "online";
                 this.IsVisible = true;
@@ -317,7 +317,6 @@ namespace FloraEjemplo.ViewModels
                 if (get.IsSuccess)
                 {
                     var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
-                    var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
 
                     if (json != null)
                     {
@@ -355,7 +354,7 @@ namespace FloraEjemplo.ViewModels
                                         contexto.Insertar(modelo);
 
                                     }
-
+                                    //Si esta actualizamos
                                     if (consulta != null)
                                     {
                                         ClienteModel modelo = new ClienteModel
@@ -381,31 +380,22 @@ namespace FloraEjemplo.ViewModels
                                     }
                                 }
                             }
-
-                            if (item.Estado == estadoEliminado)
+                            //Si no existe en DB local, no hace nada
+                            if (item.Estado == estadoEliminado && consulta == null)
+                            {
+                                
+                            }
+                            //Si existe, lo busca y elimina de la DB local
+                            if (item.Estado == estadoEliminado && consulta != null)
                             {
                                 dataContext.Eliminar(consulta);
                             }
 
                         }
-                        //LoadClientFronApi();
-                        //this.IsVisible = true;
-                        //this.Clientes = new List<ClienteModel>(json);
-                        //this.SourceClientes = "API";
-                        ////Si la respuesta es correcta
-                        //var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
-                        //var listaClientes = this.Clientes;
-                        ////almacenando en DB Borra y despues guarda
-                        //dataContext.DeleteAll();
-                        //dataContext.DeleteAllClienteRegistro();
-                        //SaveCliente(listaClientes);
+                        LoadClientFronApi();
                     }
                     else
                     {
-                        //this.IsVisible = false;
-                        //this.SourceClientes = "No hay usuarios registrados";
-                        dataContext.DeleteAll();
-                        dataContext.DeleteAllClienteRegistro();
                         LoadClientFronApi();
                     }
                 }
@@ -444,14 +434,13 @@ namespace FloraEjemplo.ViewModels
                 {
                     var resulta = get.Result.ToString();
                     var json = JsonConvert.DeserializeObject<List<ClienteModel>>(resulta);
-                    var json2 = JsonConvert.DeserializeObject<List<ClienteTrackingModel>>(resulta);
+
                     if (json != null)
                     {
                         this.IsVisible = true;
                         this.Clientes = new List<ClienteModel>(json);
                         this.SourceClientes = "API";
                         //Si la respuesta es correcta
-                        var listaClientesRegistro = new List<ClienteTrackingModel>(json2);
                         var listaClientes = this.Clientes;
                         //almacenando en DB Borra y despues guarda
                         dataContext.DeleteAll();
@@ -569,6 +558,8 @@ namespace FloraEjemplo.ViewModels
         }
         async void SincronizacionVoid()
         {
+            var estadoActivo = "ACTIVO";
+            var estadoEliminado = "ELIMINADO";
             this.Conn = "online";
             IDevice device = DependencyService.Get<IDevice>();
             string deviceIdentifier = device.GetIdentifier();
@@ -603,6 +594,82 @@ namespace FloraEjemplo.ViewModels
                     {
                         Application.Current.Properties["VersionNew"] = json[0].Version.ToString();
                         await Application.Current.SavePropertiesAsync();
+                    }
+                    if (json != null)
+                    {
+                        foreach (var item in json)
+                        {
+                            var correo = item.Mail.ToString();
+
+                            var consulta = dataContext.Consultar(correo);
+
+                            using (var contexto = new DataContext())
+                            {
+                                if (item.Estado == estadoActivo)
+                                {
+                                    if (consulta == null)
+                                    {
+                                        //Almacenamos en Tabla ClienteModel
+                                        ClienteModel modelo = new ClienteModel
+                                        {
+                                            Nombre = item.Nombre.ToString(),
+                                            Edad = item.Edad,
+                                            Telefono = item.Telefono.ToString(),
+                                            Mail = item.Mail.ToString(),
+                                            Saldo = item.Saldo,
+                                            FechaCreacion = item.FechaCreacion,
+                                            FechaCreacionUtc = item.FechaCreacionUtc,
+                                            FechaModificacion = item.FechaModificacion,
+                                            FechaModificacionUtc = item.FechaModificacionUtc,
+                                            Proceso = item.Proceso,
+                                            Usuario = item.Usuario.ToString(),
+                                            Estado = item.Estado.ToString(),
+                                            Id = item.Id.ToString(),
+                                            Transaccion = item.Transaccion
+                                        };
+                                        //aqui inserto en mi bdLocal
+                                        contexto.Insertar(modelo);
+
+                                    }
+                                    //Si esta actualizamos
+                                    if (consulta != null)
+                                    {
+                                        ClienteModel modelo = new ClienteModel
+                                        {
+                                            Nombre = item.Nombre.ToString(),
+                                            Edad = item.Edad,
+                                            Telefono = item.Telefono.ToString(),
+                                            Mail = item.Mail.ToString(),
+                                            Saldo = item.Saldo,
+                                            Proceso = item.Proceso,
+                                            Usuario = item.Usuario.ToString(),
+                                            FechaCreacion = item.FechaCreacion,
+                                            FechaCreacionUtc = item.FechaCreacionUtc,
+                                            FechaModificacion = item.FechaModificacion,
+                                            FechaModificacionUtc = item.FechaModificacionUtc,
+                                            Id = item.Id.ToString(),
+                                            Estado = item.Estado.ToString(),
+                                            Transaccion = item.Transaccion,
+                                            Numero = consulta.Numero
+                                        };
+
+                                        contexto.Actualizar(modelo);
+                                    }
+                                }
+                            }
+                            //Si no existe en DB local, no hace nada
+                            if (item.Estado == estadoEliminado && consulta == null)
+                            {
+
+                            }
+                            //Si existe, lo busca y elimina de la DB local
+                            if (item.Estado == estadoEliminado && consulta != null)
+                            {
+                                dataContext.Eliminar(consulta);
+                            }
+
+                        }
+                        LoadClientFronApi();
                     }
                 }
 

@@ -498,6 +498,24 @@ namespace FloraEjemplo.ViewModels
                 using (var contexto = new DataContext())
                 {
                     var cliente = contexto.Consultar(correo);
+
+                    if (cliente == null)
+                    {
+                        await Application.Current.MainPage.DisplayAlert(
+                           "Hola",
+                           "Este cliente ha sido eliminado",
+                           "Aceptar");
+
+                        this.Nombre = string.Empty;
+                        this.Edad = 0;
+                        this.Telefono = string.Empty;
+                        this.Mail = string.Empty;
+                        this.Saldo = 0;
+                        this.Usuario = string.Empty;
+                        this.Estado = string.Empty;
+
+                        return;
+                    }
                     //Actualizamos en Cliente
                     ClienteModel modelo = new ClienteModel
                     {

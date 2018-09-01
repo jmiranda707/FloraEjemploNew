@@ -67,7 +67,7 @@ namespace FloraEjemplo.Services
                     var transaccionInsertar = "INSERTAR";
                     var transaccionActualizar = "ACTUALIZAR";
                     var transaccionEliminar = "ACTUALIZAR_ESTADO";
-                    var version = Application.Current.Properties["VersionNew"] as string;
+                    
                     var dispositivo = Application.Current.Properties["device"] as string;
                     List<ClienteTrackingModel> clienteTrackingModel = new List<ClienteTrackingModel>(contexto.ConsultarClienteRegistro());
                     if (clienteTrackingModel.Count != 0)
@@ -102,7 +102,7 @@ namespace FloraEjemplo.Services
                                 Codigo = 109
                             };
                         }
-                        
+                        var version = Application.Current.Properties["VersionNew"] as string;
                         var syncIn = JsonConvert.DeserializeObject<List<SyncIn>>(jsonValidacion);
 
                         //Recorremos el SyncIn
@@ -114,7 +114,6 @@ namespace FloraEjemplo.Services
                                 var id = item.Id.ToString();//obtiene Id
                                 var correo = item.Email.ToString();//Obtiene correo
                                 var consulta = dataContext.ConsultarCorreoTracking(correo);//consulta el usuario por el correo
-                                //var transa = consulta.Estado.ToString();
 
                                 if (string.IsNullOrEmpty(consulta.Id.ToString()) && correo == consulta.Mail.ToString())
                                 {
@@ -139,8 +138,30 @@ namespace FloraEjemplo.Services
                                         Dispositivo = dispositivo
                                     };
                                     contexto.InsertarClienteConflicto(modeloClientsConflicts);
+
+                                    ClienteModel modeloClients = new ClienteModel
+                                    {
+                                        Numero = Convert.ToInt32(consulta.Numero),
+                                        Nombre = consulta.Nombre.ToString(),
+                                        Edad = consulta.Edad,
+                                        Telefono = consulta.Telefono.ToString(),
+                                        Mail = consulta.Mail.ToString(),
+                                        Saldo = consulta.Saldo,
+                                        Proceso = 1,
+                                        Usuario = consulta.Usuario,
+                                        FechaCreacion = DateTime.Now,
+                                        FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        FechaModificacion = DateTime.Now,
+                                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                                        Id = "",
+                                        Estado = estadoActivo,
+                                        Transaccion = transaccionInsertar,
+                                        Version = version,
+                                        Dispositivo = dispositivo
+                                    };
+                                    contexto.Insertar(modeloClients);
                                 }
-                                else if (consulta.Transaccion == transaccionInsertar)
+                                else if (consulta.Transaccion == transaccionActualizar)
                                 {
                                     ClientsConflicts modeloClientsConflicts = new ClientsConflicts
                                     {
