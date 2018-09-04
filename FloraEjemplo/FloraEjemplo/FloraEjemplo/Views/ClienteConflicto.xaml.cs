@@ -29,7 +29,7 @@ namespace FloraEjemplo.Views
             await Application.Current.SavePropertiesAsync();
             var numero = item.Numero.ToString();
             var version = Application.Current.Properties["VersionNew"] as string;
-            string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Eliminar");
+            string action = await DisplayActionSheet("Opciones", "Cancelar", null, "Editar", "Eliminar");
             if (action == "Eliminar")
             {
                 Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>
@@ -57,6 +57,10 @@ namespace FloraEjemplo.Views
                                    "Aceptar");
 
                 MessagingCenter.Send<ClienteConflicto>(this, "ListaConflicto");
+            }
+            else if (action == "Editar")
+            {
+                await Navigation.PushAsync(new EditarConflicto());
             }
         }
         private void TapGestureRecognizer_Tapped(object sender, System.EventArgs e)

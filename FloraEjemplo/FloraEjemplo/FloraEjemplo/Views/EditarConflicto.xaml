@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:FloraEjemplo.ViewModels"
+             xmlns:customs="clr-namespace:FloraEjemplo.Customs"
+             x:Class="FloraEjemplo.Views.EditarConflicto">
+    <ContentPage.BindingContext>
+        <viewModels:EditarConflictoViewModel/>
+    </ContentPage.BindingContext>
+    <StackLayout>
+        <StackLayout
+            BackgroundColor="#901D3E"
+            HeightRequest="70"
+            Padding="0,5"
+            VerticalOptions="Center">
+            <Grid
+                HeightRequest="70">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.1*"/>
+                    <ColumnDefinition Width="0.8*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackLayout
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Orientation="Horizontal"
+                        VerticalOptions="Center">
+                    <StackLayout
+                            HorizontalOptions="Start"
+                            Margin="5,0"
+                            VerticalOptions="Center">
+                        <Label
+                            FontSize="18"
+                            HorizontalOptions="Start"
+                            Margin="0,-2,0,0"
+                            LineBreakMode="TailTruncation"
+                            Text="Editar cliente"
+                            TextColor="White"
+                            VerticalOptions="Start">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="16"
+                                    Tablet="20"/>
+                            </Label.FontSize>
+                        </Label>
+                    </StackLayout>
+                </StackLayout>
+                <StackLayout
+                        Grid.Column="2"
+                        VerticalOptions="Center">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Image 
+                            Grid.Column="0"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_chevron_left_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding BackToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image 
+                            Grid.Column="1"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_edit_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding EditToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image 
+                            Grid.Column="2"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_save_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding PostCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                        <Image 
+                            Grid.Column="3"
+                            HorizontalOptions="Center"
+                            Margin="5,0"
+                            Source="ic_close_white"
+                            VerticalOptions="Center">
+                            <Image.GestureRecognizers>
+                                <TapGestureRecognizer
+                                        Command="{Binding BackToolCommand, Mode=TwoWay}"/>
+                            </Image.GestureRecognizers>
+                        </Image>
+                    </Grid>
+                </StackLayout>
+            </Grid>
+        </StackLayout>
+        <ScrollView>
+            <StackLayout>
+                <StackLayout
+                Margin="5,15,25,5">
+                    <Grid
+                    Margin="0,0,0,0">
+                        <Grid.RowDefinitions>
+                            <!--Row #0-->
+                            <RowDefinition Height="0.8*"/>
+                            <!--Row #1-->
+                            <RowDefinition Height="0.8*"/>
+                            <!--Row #2-->
+                            <RowDefinition Height="0.8*"/>
+                            <!--Row #3-->
+                            <RowDefinition Height="0.8*"/>
+                            <!--Row #4-->
+                            <RowDefinition Height="0.8*"/>
+                            <!--Row #5-->
+                            <RowDefinition Height="0.8*"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="0.1*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="0.3*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <!--Row #0-->
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="0"
+                        Grid.Row="0"
+                        HorizontalTextAlignment="End"
+                        Text="*"
+                        TextColor="Red"
+                        VerticalOptions="Center"/>
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="0"
+                        Text="Su Nombre"
+                        TextColor="Black"
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
+                        <customs:CustomEntry
+                        Grid.Column="3"
+                        Grid.Row="0"
+                        Keyboard="Text"
+                        Text="{Binding Nombre}"
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
+                        <!--Row #1-->
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="0"
+                        Grid.Row="1"
+                        HorizontalTextAlignment="End"
+                        Text="*"
+                        TextColor="Red"
+                        VerticalOptions="Center"/>
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="1"
+                        Text="Su Edad"
+                        TextColor="Black"
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
+                        <customs:CustomEntry
+                        Grid.Column="3"
+                        Grid.Row="1"
+                        Keyboard="Numeric"
+                        Text="{Binding Edad}"
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
+                        <!--Row #2-->
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="0"
+                        Grid.Row="2"
+                        HorizontalTextAlignment="End"
+                        Text="*"
+                        TextColor="Red"
+                        VerticalOptions="Center"/>
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="2"
+                        Text="Su Telefono"
+                        TextColor="Black"
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
+                        <customs:CustomEntry
+                        Grid.Column="3"
+                        Grid.Row="2"
+                        Keyboard="Telephone"
+                        Text="{Binding Telefono}"
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
+                        <!--Row #3-->
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="0"
+                        Grid.Row="3"
+                        HorizontalTextAlignment="End"
+                        Text="*"
+                        TextColor="Red"
+                        VerticalOptions="Center"/>
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="3"
+                        Text="Su Mail"
+                        TextColor="Black"
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
+                        <customs:CustomEntry
+                        Grid.Column="3"
+                        Grid.Row="3"
+                        Keyboard="Email"
+                        Text="{Binding Mail}"
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
+                        <!--Row #4-->
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="0"
+                        Grid.Row="4"
+                        HorizontalTextAlignment="End"
+                        Text="*"
+                        TextColor="Red"
+                        VerticalOptions="Center"/>
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="4"
+                        Text="Su Saldo"
+                        TextColor="Black"
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
+                        <customs:CustomEntry
+                        Grid.Column="3"
+                        Grid.Row="4"
+                        Keyboard="Numeric"
+                        Text="{Binding Saldo}"
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
+                        <!--Row #5-->
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="0"
+                        Grid.Row="5"
+                        HorizontalTextAlignment="End"
+                        Text="*"
+                        TextColor="Red"
+                        VerticalOptions="Center"/>
+                        <Label
+                        FontSize="Medium"
+                        Grid.Column="1"
+                        Grid.ColumnSpan="2"
+                        Grid.Row="5"
+                        Text="Su Usuario"
+                        TextColor="Black"
+                        VerticalOptions="Center">
+                            <Label.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </Label.FontSize>
+                        </Label>
+                        <customs:CustomEntry
+                        Grid.Column="3"
+                        Grid.Row="5"
+                        Keyboard="Text"
+                        Text="{Binding Usuario}"
+                        VerticalOptions="Center">
+                            <customs:CustomEntry.FontSize>
+                                <OnIdiom 
+                                    x:TypeArguments="x:Double"
+                                    Phone="14"
+                                    Tablet="16"/>
+                            </customs:CustomEntry.FontSize>
+                        </customs:CustomEntry>
+                    </Grid>
+                    <Label/>
+                    <Button 
+                        BackgroundColor="#901D3E"
+                        BorderRadius="8"
+                        Command="{Binding PutCommand}"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        HeightRequest="50"
+                        HorizontalOptions="FillAndExpand"
+                        IsEnabled="{Binding IsEnabled}"
+                        Margin="20,0,0,0"
+                        Text="Editar"
+                        TextColor="White"
+                        VerticalOptions="CenterAndExpand">
+                        <Button.FontSize>
+                            <OnIdiom 
+                                x:TypeArguments="x:Double"
+                                Phone="14"
+                                Tablet="16"/>
+                        </Button.FontSize>
+                    </Button>
+                    <Button 
+                        BackgroundColor="#901D3E"
+                        BorderRadius="8"
+                        Command="{Binding VolverCommand}"
+                        FontAttributes="Bold"
+                        FontSize="Medium"
+                        HeightRequest="50"
+                        HorizontalOptions="FillAndExpand"
+                        IsEnabled="{Binding IsEnabled}"
+                        Margin="20,0,0,0"
+                        Text="Volver"
+                        TextColor="White"
+                        VerticalOptions="CenterAndExpand">
+                        <Button.FontSize>
+                            <OnIdiom 
+                                x:TypeArguments="x:Double"
+                                Phone="14"
+                                Tablet="16"/>
+                        </Button.FontSize>
+                    </Button>
+                    <Label/>
+                </StackLayout>
+            </StackLayout>
+        </ScrollView>
+    </StackLayout>
+</ContentPage>
