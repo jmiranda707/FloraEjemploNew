@@ -225,7 +225,7 @@
                                             FontAttributes="Bold"
                                             FontSize="Small"
                                             HorizontalOptions="Center"
-                                            Text="{Binding Telefono}" 
+                                            Text="{Binding Estado}" 
                                             TextColor="White"
                                             VerticalOptions="Center">
                                             <Label.FontSize>
@@ -239,7 +239,7 @@
                                             FontAttributes="Bold"
                                             FontSize="Small"
                                             HorizontalOptions="Center"
-                                            Text="{Binding Numero}" 
+                                            Text="{Binding Transaccion}" 
                                             TextColor="White"
                                             VerticalOptions="Center">
                                             <Label.FontSize>

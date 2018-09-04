@@ -110,14 +110,14 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData2();
             });
-            Device.StartTimer(TimeSpan.FromSeconds(60), () =>
-            {
-                Task.Run(() =>
-                {
-                    LoadData2();
-                });
-                return true;
-            });
+            //Device.StartTimer(TimeSpan.FromSeconds(60), () =>
+            //{
+            //    Task.Run(() =>
+            //    {
+            //        LoadData2();
+            //    });
+            //    return true;
+            //});
             //Device.StartTimer(TimeSpan.FromSeconds(210), () =>
             //{
             //    Task.Run(() =>

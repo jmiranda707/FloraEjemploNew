@@ -175,37 +175,6 @@ namespace FloraEjemplo.Data
             cnn.Dispose();
         }
 
-        #region NoSeUsa
-        /// <summary>
-        /// /mi tabla anteriorrr
-        /// </summary>
-        /// <param name="modelo"></param>
-        public void Insertara(Cliente modelo)
-        {
-            cnn.Insert(modelo);
-        }
-
-        public void Actualizara(Cliente modelo)
-        {
-            cnn.Update(modelo);
-        }
-
-        public void Eliminara(Cliente modelo)
-        {
-            cnn.Delete(modelo);
-        }
-
-        public Cliente Consultara(int id) //consultas segun el id
-        {
-            return cnn.Table<Cliente>().FirstOrDefault(p => p.IdLocal == id);
-        }
-
-        public List<Cliente> Consultara()
-        {
-            return cnn.Table<Cliente>().ToList();
-        } 
-        #endregion
-
 
     }
 }
