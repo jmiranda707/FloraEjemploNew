@@ -5,12 +5,10 @@ using FloraEjemplo.Services;
 using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -106,10 +104,15 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData();
             });
+            MessagingCenter.Subscribe<EditarConflictoViewModel>(this, "EjecutaLista", (sender) =>
+            {
+                LoadData2();
+            });
             MessagingCenter.Subscribe<App>(this, "EjecutaLista", (sender) =>
             {
                 LoadData2();
             });
+            
             //Device.StartTimer(TimeSpan.FromSeconds(60), () =>
             //{
             //    Task.Run(() =>
@@ -182,7 +185,6 @@ namespace FloraEjemplo.ViewModels
         #endregion
 
         #region Methods
-
         public async void LoadData()//Elegimos que metodo ejecutamos
         {
             var connection = await apiServices.CheckConnection();
@@ -750,7 +752,6 @@ namespace FloraEjemplo.ViewModels
                 da.Insertar(record);
             }
         }
-
         #endregion
     }
 }

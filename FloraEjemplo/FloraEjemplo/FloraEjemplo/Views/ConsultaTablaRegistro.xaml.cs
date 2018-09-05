@@ -25,13 +25,13 @@ namespace FloraEjemplo.Views
         async void ListClientes_ItemSelected(object sender, SelectedItemChangedEventArgs e)
         {
             var item = e.SelectedItem as ClienteTrackingModel;
-            Application.Current.Properties["Id"] = item.Id.ToString();
+            //Application.Current.Properties["Id"] = item.Id.ToString();
             Application.Current.Properties["Correo"] = item.Mail.ToString();
             Application.Current.Properties["Numero"] = item.Numero.ToString();
             await Application.Current.SavePropertiesAsync();
             var numero = item.Numero.ToString();
             var version = Application.Current.Properties["VersionNew"] as string;
-            string action = await DisplayActionSheet("Opciones", "Cancelar", null, null, "Eliminar", null);
+            string action = await DisplayActionSheet("Opciones", "Cancelar", "Eliminar");
             if (action == "Eliminar")
             {
                 Xamarin.Forms.Device.BeginInvokeOnMainThread(async () =>

@@ -269,7 +269,7 @@ namespace FloraEjemplo.ViewModels
                 MessagingCenter.Send<EditarConflictoViewModel>(this, "EjecutaLista");
             }
         }
-        void PutWithoutConn()//Put sin conexion
+        async void PutWithoutConn()//Put sin conexion
         {
             this.IsEnabled = false;
             var correo = (Application.Current.Properties["Correo"] as string);
@@ -279,62 +279,24 @@ namespace FloraEjemplo.ViewModels
             using (var contexto = new DataContext())
             {
                 var aCTIVO = "ACTIVO";
-                var aCTUALIZAR = "ACTUALIZAR";
                 var insertar = "INSERTAR";
-                var cliente = contexto.Consultar(correo);
-                //Creamos el modelo y actualizamos en el local
-                ClienteModel modelo = new ClienteModel
+                var consulta = contexto.Consultar(this.Mail);
+                var cliente = contexto.ConsultarCorreoClienteConflicto(correo);
+
+                if (consulta != null)
                 {
-                    Nombre = Nombre,
-                    Edad = Edad,
-                    Telefono = Telefono,
-                    Mail = Mail,
-                    Saldo = Saldo,
-                    Proceso = 0,
-                    Usuario = Usuario,
-                    FechaCreacion = cliente.FechaCreacion,
-                    FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                    FechaModificacion = DateTime.Now,
-                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                    Id = cliente.Id,
-                    Estado = aCTIVO,
-                    Transaccion = aCTUALIZAR,
-                    Numero = Convert.ToInt32(numero)
-                };
-                contexto.Actualizar(modelo);
+                    await Application.Current.MainPage.DisplayAlert(
+                        "Error",
+                        "Usuario ya existe",
+                        "Acceptar");
 
-                var cliente2 = contexto.ConsultarCorreoTracking(correo);
-                if (string.IsNullOrEmpty(cliente.Id.ToString()) && !string.IsNullOrEmpty(cliente.Mail.ToString()))
-                {
-                    //Actualizamos en tabla registro
-                    ClienteTrackingModel modeloClienteRegistro2 = new ClienteTrackingModel
-                    {
-                        Numero = Convert.ToInt32(cliente2.Numero),
-                        Nombre = Nombre,
-                        Edad = Edad,
-                        Telefono = Telefono,
-                        Mail = Mail,
-                        Saldo = Saldo,
-                        Proceso = 1,
-                        Usuario = Usuario,
-                        FechaCreacion = cliente.FechaCreacion,
-                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Id = cliente.Id,
-                        Estado = aCTIVO,
-                        Transaccion = insertar,
-                        Version = version,
-                        Dispositivo = dispositivo
-                    };
-
-                    contexto.ActualizarClienteRegistro(modeloClienteRegistro2);
-
+                    return;
                 }
+
+                var cliente2 = contexto.ConsultarCorreoTracking(this.Mail);
 
                 if (cliente2 == null)
                 {
-
                     //Insertamos en tabla registro
                     ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                     {
@@ -346,13 +308,12 @@ namespace FloraEjemplo.ViewModels
                         Saldo = Saldo,
                         Proceso = 1,
                         Usuario = Usuario,
-                        FechaCreacion = cliente.FechaCreacion,
-                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
+                        FechaCreacion = DateTime.Now,
+                        FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                         FechaModificacion = DateTime.Now,
                         FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Id = cliente.Id,
                         Estado = aCTIVO,
-                        Transaccion = aCTUALIZAR,
+                        Transaccion = insertar,
                         Version = version,
                         Dispositivo = dispositivo
                     };
@@ -364,33 +325,78 @@ namespace FloraEjemplo.ViewModels
                 {
                     if (!string.IsNullOrEmpty(cliente2.Id.ToString()) && !string.IsNullOrEmpty(cliente2.Mail.ToString()))
                     {
-                        //Actualizamos en tabla registro
-                        ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
-                        {
-                            Numero = Convert.ToInt32(cliente2.Numero),
-                            Nombre = Nombre,
-                            Edad = Edad,
-                            Telefono = Telefono,
-                            Mail = Mail,
-                            Saldo = Saldo,
-                            Proceso = 1,
-                            Usuario = Usuario,
-                            FechaCreacion = cliente.FechaCreacion,
-                            FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                            FechaModificacion = DateTime.Now,
-                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                            Id = cliente.Id,
-                            Estado = aCTIVO,
-                            Transaccion = aCTUALIZAR,
-                            Version = version,
-                            Dispositivo = dispositivo
-                        };
+                        await Application.Current.MainPage.DisplayAlert(
+                           "Error",
+                           "Usuario ya existe",
+                           "Acceptar");
 
-                        contexto.ActualizarClienteRegistro(modeloClienteRegistro);
-
+                        return;
                     }
                 }
+                //Creamos el modelo y actualizamos en el local
+                ClienteModel modelo = new ClienteModel
+                {
+                    Nombre = Nombre,
+                    Edad = Edad,
+                    Telefono = Telefono,
+                    Mail = Mail,
+                    Saldo = Saldo,
+                    Proceso = 0,
+                    Usuario = Usuario,
+                    FechaCreacion = DateTime.Now,
+                    FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                    FechaModificacion = DateTime.Now,
+                    FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                    Estado = aCTIVO,
+                    Transaccion = insertar,
+                };
+
+                contexto.Insertar(modelo);
+
+                ClientsConflicts modelo2 = new ClientsConflicts
+                {
+                    Numero = cliente.Numero,
+                    Nombre = cliente.Nombre,
+                    Edad = cliente.Edad,
+                    Telefono = cliente.Telefono,
+                    Mail = cliente.Mail,
+                    Saldo = cliente.Saldo,
+                    FechaCreacion = cliente.FechaCreacion,
+                    FechaCreacionUtc = cliente.FechaCreacionUtc,
+                    FechaModificacion = cliente.FechaModificacion,
+                    FechaModificacionUtc = cliente.FechaModificacionUtc,
+                    Proceso = cliente.Proceso,
+                    Usuario = cliente.Usuario,
+                    Estado = cliente.Estado,
+                    Version = cliente.Version,
+                    Dispositivo = cliente.Dispositivo,
+                    Transaccion = cliente.Transaccion
+                };
+
+                contexto.EliminarClienteConflicto(modelo2);
             }
+
+            await Application.Current.MainPage.DisplayAlert(
+                       "Exito",
+                       "Hecho",
+                       "Aceptar");
+
+            this.Nombre = string.Empty;
+            this.Edad = 0;
+            this.Telefono = string.Empty;
+            this.Mail = string.Empty;
+            this.Saldo = 0;
+            this.Usuario = string.Empty;
+            this.Estado = string.Empty;
+
+            //Ejecuamos Metodo para refrescar listview de Listas principales
+            MessagingCenter.Send<EditarConflictoViewModel>(this, "ListaConflicto");
+
+            MessagingCenter.Send<EditarConflictoViewModel>(this, "EjecutaLista");
+
+            await Application.Current.MainPage.Navigation.PopAsync();
+
+            this.IsEnabled = true;
         }
         async void PutWithConn()//Put con conexión
         {
@@ -405,13 +411,13 @@ namespace FloraEjemplo.ViewModels
             {
                 using (var contexto = new DataContext())
                 {
-                    var cliente = contexto.Consultar(correo);
+                    var cliente = contexto.ConsultarCorreoClienteConflicto(correo);
 
                     if (cliente == null)
                     {
                         await Application.Current.MainPage.DisplayAlert(
                            "Hola",
-                           "Este cliente ha sido eliminado",
+                           "Este cliente no existe!",
                            "Aceptar");
 
                         this.Nombre = string.Empty;
@@ -422,10 +428,13 @@ namespace FloraEjemplo.ViewModels
                         this.Usuario = string.Empty;
                         this.Estado = string.Empty;
 
+                        await Application.Current.MainPage.Navigation.PopAsync();
+
                         return;
                     }
                   }
-                var id = Application.Current.Properties["Id"] as string;
+
+                //var id = Application.Current.Properties["Id"] as string;
                 //Preparamos modelo
                 ClienteModel Customer = new ClienteModel
                 {
@@ -460,11 +469,12 @@ namespace FloraEjemplo.ViewModels
             {
                 this.IsEnabled = false;
                 var aCTIVO = "ACTIVO";
-                var aCTUALIZAR = "ACTUALIZAR";
+                var insertar = "INSERTAR";
                 var version = Application.Current.Properties["VersionNew"] as string;
                 var dispositivo = Application.Current.Properties["device"] as string;
                 var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
                 var noExisteId = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-103";
+                var yaRegistrado = "http://efrain1234-001-site1.ftempurl.com/api/Cliente/-107";
                 HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -484,6 +494,7 @@ namespace FloraEjemplo.ViewModels
                     return;
                 }
                 var header = response.Headers.Location.ToString();
+
                 if (respuestaOcupado == header)//Si el servidor esta ocupado
                 {
                     var correo = (Application.Current.Properties["Correo"] as string);
@@ -491,7 +502,32 @@ namespace FloraEjemplo.ViewModels
                     using (var contexto = new DataContext())
                     {
                         //Actualizamos en tabla registro para enviar luego
-                        var cliente = contexto.Consultar(correo);
+                        var Consulta = contexto.Consultar(correo);
+                        var cliente = contexto.ConsultarCorreoClienteConflicto(correo);
+
+                        //Insertamos en Cliente
+                        ClienteModel modelo = new ClienteModel
+                        {
+                            Nombre = Nombre,
+                            Edad = Edad,
+                            Telefono = Telefono,
+                            Mail = Mail,
+                            Saldo = Saldo,
+                            Proceso = 0,
+                            Usuario = Usuario,
+                            FechaCreacion = DateTime.Now,
+                            FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                            FechaModificacion = DateTime.Now,
+                            FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                            Id = "",
+                            Estado = aCTIVO,
+                            Transaccion = insertar,
+                            Version = version,
+                            Dispositivo = dispositivo
+                        };
+
+                        contexto.Insertar(modelo);
+
                         ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                         {
                             Numero = Convert.ToInt32(numero),
@@ -506,9 +542,9 @@ namespace FloraEjemplo.ViewModels
                             FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
                             FechaModificacion = DateTime.Now,
                             FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                            Id = cliente.Id,
+                            Id = "",
                             Estado = aCTIVO,
-                            Transaccion = aCTUALIZAR,
+                            Transaccion = insertar,
                             Version = version,
                             Dispositivo = dispositivo
                         };
@@ -526,12 +562,14 @@ namespace FloraEjemplo.ViewModels
                     }
                 }
 
-                if (header == noExisteId)//No existe Id del cliente
+                if (header == yaRegistrado)//Id ya registrado
                 {
                     await Application.Current.MainPage.DisplayAlert(
-                            "Hola",
-                            "No existe el cliente seleccionado" + header,
-                            "Aceptar");
+                         "Hola",
+                         "Correo electrónico en existencia, por favor utilice otra cuenta de correo",
+                         "Aceptar");
+
+                    this.IsEnabled = true;
 
                     return;
                 }
@@ -539,9 +577,10 @@ namespace FloraEjemplo.ViewModels
                 var correo2 = (Application.Current.Properties["Correo"] as string);
                 using (var contexto = new DataContext())
                 {
-                    var cliente = contexto.Consultar(correo2);
+                    //var cliente = contexto.Consultar(correo2);
+                    var cliente = contexto.ConsultarCorreoClienteConflicto(correo2);
 
-                    //Actualizamos en Cliente
+                    //Insertamos en Cliente
                     ClienteModel modelo = new ClienteModel
                     {
                         Nombre = Nombre,
@@ -551,48 +590,71 @@ namespace FloraEjemplo.ViewModels
                         Saldo = Saldo,
                         Proceso = 0,
                         Usuario = Usuario,
-                        FechaCreacion = cliente.FechaCreacion,
-                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Id = cliente.Id,
-                        Estado = aCTIVO,
-                        Transaccion = aCTUALIZAR
-                    };
-                    contexto.Actualizar(modelo);
-
-                    var numero = (Application.Current.Properties["Numero"]);
-                    ClientsConflicts modelo2 = new ClientsConflicts
-                    {
-                        Numero = Convert.ToInt32(numero),
-                        Nombre = this.Nombre,
-                        Edad = this.Edad,
-                        Telefono = this.Telefono,
-                        Mail = this.Mail,
-                        Saldo = this.Saldo,
                         FechaCreacion = DateTime.Now,
                         FechaCreacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
                         FechaModificacion = DateTime.Now,
                         FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Proceso = 0,
-                        Usuario = this.Usuario,
+                        Id = "",
                         Estado = aCTIVO,
+                        Transaccion = insertar,
+                        Version = version,
+                        Dispositivo = dispositivo
                     };
+
+                    contexto.Insertar(modelo);
+
+                    var numero = (Application.Current.Properties["Numero"]);
+
+                    ClientsConflicts modelo2 = new ClientsConflicts
+                    {
+                        Numero = cliente.Numero,
+                        Nombre = cliente.Nombre,
+                        Edad = cliente.Edad,
+                        Telefono = cliente.Telefono,
+                        Mail = cliente.Mail,
+                        Saldo = cliente.Saldo,
+                        FechaCreacion = cliente.FechaCreacion,
+                        FechaCreacionUtc = cliente.FechaCreacionUtc,
+                        FechaModificacion = cliente.FechaModificacion,
+                        FechaModificacionUtc = cliente.FechaModificacionUtc,
+                        Proceso = cliente.Proceso,
+                        Usuario = cliente.Usuario,
+                        Estado = cliente.Estado,
+                        Version = cliente.Version,
+                        Dispositivo = cliente.Dispositivo,
+                        Id = cliente.Id,
+                        Transaccion = cliente.Transaccion
+                    };
+
                     contexto.EliminarClienteConflicto(modelo2);
                 }
 
-                var connection = await apiServices.CheckConnection();
+                //var connection = await apiServices.CheckConnection();
 
                 await Application.Current.MainPage.DisplayAlert(
                         response.IsSuccessStatusCode.ToString(),
                         "Actualizado" + header,
                         "Aceptar");
 
-                //Ejecuamos Metodo para refrescar listview de Lista principal
+                this.Nombre = string.Empty;
+                this.Edad = 0;
+                this.Telefono = string.Empty;
+                this.Mail = string.Empty;
+                this.Saldo = 0;
+                this.Usuario = string.Empty;
+                this.Estado = string.Empty;
+
+                //Ejecuamos Metodo para refrescar listview de Listas principales
+                MessagingCenter.Send<EditarConflictoViewModel>(this, "ListaConflicto");
+
                 MessagingCenter.Send<EditarConflictoViewModel>(this, "EjecutaLista");
 
+                await Application.Current.MainPage.Navigation.PopAsync();
+
                 this.IsEnabled = true;
+
             }
+
             catch (Exception error)
             {
                 await Application.Current.MainPage.DisplayAlert(

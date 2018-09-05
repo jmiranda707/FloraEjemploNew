@@ -46,6 +46,14 @@ namespace FloraEjemplo.Data
             Consultar();
 
         }
+        //***********************************Prueba*************************************
+        public void EliminarSeleccion()
+        {
+            cnn.Table<ClienteModel>().Delete(p => p.Edad > 50);
+            Consultar();
+
+        }
+        //***********************************Prueba*************************************
         public ClienteModel Consultar(string correo) //consultas segun el id
         {
             var corr = correo;

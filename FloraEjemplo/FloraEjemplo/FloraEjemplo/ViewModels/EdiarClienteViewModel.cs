@@ -361,7 +361,7 @@ namespace FloraEjemplo.ViewModels
                 MessagingCenter.Send<EdiarClienteViewModel>(this, "EjecutaLista");
             }
         }
-        async void PutWithoutConn()//Put sin conexion
+        void PutWithoutConn()//Put sin conexion
         {
             this.IsEnabled = false;
             var correo = (Application.Current.Properties["Correo"] as string);
@@ -422,7 +422,6 @@ namespace FloraEjemplo.ViewModels
                     contexto.ActualizarClienteRegistro(modeloClienteRegistro2);
 
                 }
-
                 
                 if (cliente2 == null)
                 {
@@ -516,25 +515,7 @@ namespace FloraEjemplo.ViewModels
 
                         return;
                     }
-                    //Actualizamos en Cliente
-                    ClienteModel modelo = new ClienteModel
-                    {
-                        Nombre = Nombre,
-                        Edad = Edad,
-                        Telefono = Telefono,
-                        Mail = Mail,
-                        Saldo = Saldo,
-                        Proceso = 0,
-                        Usuario = Usuario,
-                        FechaCreacion = cliente.FechaCreacion,
-                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
-                        FechaModificacion = DateTime.Now,
-                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
-                        Id = cliente.Id,
-                        Estado = aCTIVO,
-                        Transaccion = aCTUALIZAR
-                    };
-                    contexto.Actualizar(modelo);
+                   
                 }
                 var id = Application.Current.Properties["Id"] as string;
                 //Preparamos modelo
@@ -580,7 +561,7 @@ namespace FloraEjemplo.ViewModels
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 HttpResponseMessage response = await client.PutAsync("http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/", new StringContent(json, Encoding.UTF8, "application/json"));
                 if (!response.IsSuccessStatusCode)//Si no fue exitoso, cargamos en tabla registro
-                {
+                {//De existir un error en la respuesta del servidor se ejecuta el metodo PutWithoutConn() para que almacene en local
                     await Application.Current.MainPage.DisplayAlert(
                         response.IsSuccessStatusCode.ToString(),
                         response.RequestMessage.ToString(),
@@ -592,7 +573,19 @@ namespace FloraEjemplo.ViewModels
 
                     return;
                 }
+                
                 var header = response.Headers.Location.ToString();
+
+                if (header == noExisteId)//No existe Id del cliente
+                {
+                    await Application.Current.MainPage.DisplayAlert(
+                            "Hola",
+                            "No existe el cliente seleccionado" + header,
+                            "Aceptar");
+
+                    return;
+                }
+                
                 if (respuestaOcupado == header)//Si el servidor esta ocupado
                 {
                     var correo = (Application.Current.Properties["Correo"] as string);
@@ -635,14 +628,31 @@ namespace FloraEjemplo.ViewModels
                     }
                 }
 
-                if (header == noExisteId)//No existe Id del cliente
+                using (var contexto = new DataContext())
                 {
-                    await Application.Current.MainPage.DisplayAlert(
-                            "Hola",
-                            "No existe el cliente seleccionado" + header,
-                            "Aceptar");
+                    var correo = (Application.Current.Properties["Correo"] as string);
+                    var cliente = contexto.Consultar(correo);
 
-                    return;
+                    //Actualizamos en Cliente
+                    ClienteModel modelo = new ClienteModel
+                    {
+                        Nombre = Nombre,
+                        Edad = Edad,
+                        Telefono = Telefono,
+                        Mail = Mail,
+                        Saldo = Saldo,
+                        Proceso = 0,
+                        Usuario = Usuario,
+                        FechaCreacion = cliente.FechaCreacion,
+                        FechaCreacionUtc = cliente.FechaCreacionUtc.ToString(),
+                        FechaModificacion = DateTime.Now,
+                        FechaModificacionUtc = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss+hh:mm"),
+                        Id = cliente.Id,
+                        Estado = aCTIVO,
+                        Transaccion = aCTUALIZAR
+                    };
+
+                    contexto.Actualizar(modelo);
                 }
 
                 await Application.Current.MainPage.DisplayAlert(
@@ -663,7 +673,7 @@ namespace FloraEjemplo.ViewModels
                     "Aceptar");
 
                 this.IsEnabled = true;
-
+                //Ejecutamos PutWithoutConn() para que almacene en local
                 PutWithoutConn();
             }
         }
