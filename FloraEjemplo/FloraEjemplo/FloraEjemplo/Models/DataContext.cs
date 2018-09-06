@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Xamarin.Forms;
 
 namespace FloraEjemplo.Data
@@ -178,11 +177,11 @@ namespace FloraEjemplo.Data
         }
         #endregion
 
+        //Cerramos conexion
         public void Dispose()
         {
             cnn.Dispose();
         }
-
 
     }
 }

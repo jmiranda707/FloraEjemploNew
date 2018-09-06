@@ -5,10 +5,12 @@ using FloraEjemplo.Services;
 using FloraEjemplo.Views;
 using GalaSoft.MvvmLight.Command;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
 
@@ -112,15 +114,15 @@ namespace FloraEjemplo.ViewModels
             {
                 LoadData2();
             });
-            
-            //Device.StartTimer(TimeSpan.FromSeconds(60), () =>
-            //{
-            //    Task.Run(() =>
-            //    {
-            //        LoadData2();
-            //    });
-            //    return true;
-            //});
+
+            Device.StartTimer(TimeSpan.FromSeconds(60), () =>
+            {
+                Task.Run(() =>
+                {
+                    LoadData2();
+                });
+                return true;
+            });
             //Device.StartTimer(TimeSpan.FromSeconds(210), () =>
             //{
             //    Task.Run(() =>
@@ -188,6 +190,7 @@ namespace FloraEjemplo.ViewModels
         public async void LoadData()//Elegimos que metodo ejecutamos
         {
             var connection = await apiServices.CheckConnection();
+
             if (!connection.IsSuccess)
             {
                 LoadClientFronLocal(); //From Local
@@ -356,7 +359,7 @@ namespace FloraEjemplo.ViewModels
                                         contexto.Insertar(modelo);
 
                                     }
-                                    //Si esta actualizamos
+                                    //Si esta, actualizamos
                                     if (consulta != null)
                                     {
                                         ClienteModel modelo = new ClienteModel

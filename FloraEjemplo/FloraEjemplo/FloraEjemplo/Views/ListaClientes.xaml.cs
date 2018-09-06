@@ -50,12 +50,7 @@ namespace FloraEjemplo.Views
                         //Si hay conexion
                         if (connection.IsSuccess)
                         {
-                            //Eliminamos en local ClienteModel
-                            using (var contexto = new DataContext())
-                            {
-                                ClienteModel modelo = (ClienteModel)e.SelectedItem;
-                                contexto.Eliminar(modelo);
-                            }
+                            
                             var respuestaOcupado = "http://efrain1234-001-site1.ftempurl.com/api/ActualizarCliente/-109";
                             var aCTIVO = "ELIMINADO";
                             var aCTUALIZAR = "ACTUALIZAR_ESTADO";
@@ -86,6 +81,7 @@ namespace FloraEjemplo.Views
                             if (response.IsSuccessStatusCode)//IsSuccessStatusCode
                             {
                                 var header = response.Headers.Location.ToString();
+
                                 if (header == respuestaOcupado)
                                 {
                                     using (var contexto = new DataContext())
@@ -115,6 +111,7 @@ namespace FloraEjemplo.Views
                                             Dispositivo = dispositivo,
                                             Version = version
                                         };
+
                                         contexto.InsertarClienteRegistro(modeloClienteRegistro);
 
                                         await Application.Current.MainPage.DisplayAlert(
@@ -126,6 +123,13 @@ namespace FloraEjemplo.Views
 
                                         return;
                                     }
+                                }
+
+                                //Eliminamos en local ClienteModel
+                                using (var contexto = new DataContext())
+                                {
+                                    ClienteModel modelo = (ClienteModel)e.SelectedItem;
+                                    contexto.Eliminar(modelo);
                                 }
                             }
                             else
@@ -185,8 +189,8 @@ namespace FloraEjemplo.Views
                             MessagingCenter.Send<ListaClientes>(this, "EjecutaLista");
                         }
                         else
-                        {
-                            //Si no hay conexion
+                        {//Si no hay conexion
+
                             using (var contexto = new DataContext())
                             {
                                 

@@ -374,8 +374,8 @@ namespace FloraEjemplo.ViewModels
                 var aCTUALIZAR = "ACTUALIZAR";
                 var insertar = "INSERTAR";
                 var cliente = contexto.Consultar(correo);
-                //Creamos el modelo y actualizamos en el local
-                ClienteModel modelo = new ClienteModel
+                
+                ClienteModel modelo = new ClienteModel//Creamos el modelo y actualizamos en el local
                 {
                     Nombre = Nombre,
                     Edad = Edad,
@@ -393,9 +393,11 @@ namespace FloraEjemplo.ViewModels
                     Transaccion = aCTUALIZAR,
                     Numero = Convert.ToInt32(numero)
                 };
+
                 contexto.Actualizar(modelo);
 
-                var cliente2 = contexto.ConsultarCorreoTracking(correo);
+                var cliente2 = contexto.ConsultarCorreoTracking(correo);//Consulta en tabla registro
+
                 if (string.IsNullOrEmpty(cliente.Id.ToString()) && !string.IsNullOrEmpty(cliente.Mail.ToString()))
                 {
                     //Actualizamos en tabla registro
@@ -419,17 +421,16 @@ namespace FloraEjemplo.ViewModels
                         Version = version,
                         Dispositivo = dispositivo
                     };
+
                     contexto.ActualizarClienteRegistro(modeloClienteRegistro2);
 
                 }
                 
                 if (cliente2 == null)
                 {
-
                     //Insertamos en tabla registro
                     ClienteTrackingModel modeloClienteRegistro = new ClienteTrackingModel
                     {
-                        //Numero = Convert.ToInt32(cliente2.Numero),
                         Nombre = Nombre,
                         Edad = Edad,
                         Telefono = Telefono,
